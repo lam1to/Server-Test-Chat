@@ -79,11 +79,13 @@ let ChatService = exports.ChatService = class ChatService {
         });
         return chats;
     }
-    findOne(id) {
-        return `This action returns a #${id} chat`;
-    }
-    remove(id) {
-        return `This action removes a #${id} chat`;
+    async remove(id) {
+        const deleteChat = await this.prisma.chat.delete({
+            where: {
+                id: id,
+            },
+        });
+        return deleteChat;
     }
 };
 exports.ChatService = ChatService = __decorate([

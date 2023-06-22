@@ -27,9 +27,6 @@ let ChatController = exports.ChatController = class ChatController {
     findAll(findChatDto) {
         return this.chatService.findAll(findChatDto);
     }
-    findOne(id) {
-        return this.chatService.findOne(+id);
-    }
     remove(id) {
         return this.chatService.remove(+id);
     }
@@ -48,13 +45,6 @@ __decorate([
     __metadata("design:paramtypes", [findDto_dto_1.FindChatDto]),
     __metadata("design:returntype", void 0)
 ], ChatController.prototype, "findAll", null);
-__decorate([
-    (0, common_1.Get)(':id'),
-    __param(0, (0, common_1.Param)('id')),
-    __metadata("design:type", Function),
-    __metadata("design:paramtypes", [String]),
-    __metadata("design:returntype", void 0)
-], ChatController.prototype, "findOne", null);
 __decorate([
     (0, common_1.Delete)(':id'),
     __param(0, (0, common_1.Param)('id')),

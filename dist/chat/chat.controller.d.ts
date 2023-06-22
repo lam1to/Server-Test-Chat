@@ -6,14 +6,17 @@ export declare class ChatController {
     constructor(chatService: ChatService);
     create(createChatDto: CreateChatDto): Promise<{
         id: number;
-        type: string;
         createdAt: Date;
+        type: string;
     } & {}>;
     findAll(findChatDto: FindChatDto): Promise<({
         id: number;
-        type: string;
         createdAt: Date;
+        type: string;
     } & {})[]>;
-    findOne(id: string): string;
-    remove(id: string): string;
+    remove(id: string): Promise<{
+        id: number;
+        createdAt: Date;
+        type: string;
+    } & {}>;
 }

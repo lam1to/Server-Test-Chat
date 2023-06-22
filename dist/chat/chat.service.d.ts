@@ -6,14 +6,17 @@ export declare class ChatService {
     constructor(prisma: PrismaService);
     create(createChatDto: CreateChatDto): Promise<{
         id: number;
-        type: string;
         createdAt: Date;
+        type: string;
     } & {}>;
     findAll(dto: FindChatDto): Promise<({
         id: number;
-        type: string;
         createdAt: Date;
+        type: string;
     } & {})[]>;
-    findOne(id: number): string;
-    remove(id: number): string;
+    remove(id: number): Promise<{
+        id: number;
+        createdAt: Date;
+        type: string;
+    } & {}>;
 }
