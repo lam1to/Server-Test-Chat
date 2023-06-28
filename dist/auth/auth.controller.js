@@ -17,7 +17,7 @@ const common_1 = require("@nestjs/common");
 const auth_service_1 = require("./auth.service");
 const auth_dto_1 = require("./dto/auth.dto");
 const reg_dto_1 = require("./dto/reg.dto");
-const refresh_dto_1 = require("./dto/refresh.dto");
+const auth_guard_1 = require("./auth.guard");
 let AuthController = exports.AuthController = class AuthController {
     constructor(authService) {
         this.authService = authService;
@@ -28,8 +28,15 @@ let AuthController = exports.AuthController = class AuthController {
     async login(dto) {
         return this.authService.login(dto);
     }
-    async getNewTokens(dto) {
-        return this.authService.getNewTokens(dto.refreshToken);
+    async getNewTokens(req) {
+        const [type, token] = req.headers['authorization'].split(' ') ?? [];
+        const refreshT = type === 'Bearer' ? token : undefined;
+        return this.authService.getNewTokens(refreshT);
+    }
+    async check(req) {
+        const [type, token] = req.headers['authorization'].split(' ') ?? [];
+        const refreshT = type === 'Bearer' ? token : undefined;
+        return 'xui';
     }
 };
 __decorate([
@@ -54,11 +61,21 @@ __decorate([
     (0, common_1.UsePipes)(new common_1.ValidationPipe()),
     (0, common_1.HttpCode)(200),
     (0, common_1.Post)('login/token'),
-    __param(0, (0, common_1.Body)()),
+    (0, common_1.UseGuards)(auth_guard_1.AuthGuard),
+    __param(0, (0, common_1.Req)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [refresh_dto_1.RefreshDto]),
+    __metadata("design:paramtypes", [Request]),
     __metadata("design:returntype", Promise)
 ], AuthController.prototype, "getNewTokens", null);
+__decorate([
+    (0, common_1.HttpCode)(200),
+    (0, common_1.Post)('login/check'),
+    (0, common_1.UseGuards)(auth_guard_1.AuthGuard),
+    __param(0, (0, common_1.Req)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Request]),
+    __metadata("design:returntype", Promise)
+], AuthController.prototype, "check", null);
 exports.AuthController = AuthController = __decorate([
     (0, common_1.Controller)('auth'),
     __metadata("design:paramtypes", [auth_service_1.AuthService])

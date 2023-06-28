@@ -21,9 +21,7 @@ let GatewayService = exports.GatewayService = class GatewayService {
     async create(createGatewayDto, server) {
         const message = await this.messageS.createMessage(createGatewayDto);
         this.joinRoom({ chatId: createGatewayDto.chatId }, server);
-        await server
-            .to(createGatewayDto.chatId)
-            .emit('message', createGatewayDto.content);
+        await server.emit(`message${createGatewayDto.chatId}`, createGatewayDto.content);
         return createGatewayDto.content;
     }
     findAll() {

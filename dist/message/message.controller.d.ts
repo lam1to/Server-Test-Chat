@@ -6,16 +6,16 @@ export declare class MessageController {
     constructor(messageService: MessageService);
     createMessage(dto: MessageCreateDto): Promise<{
         id: number;
-        content: string;
         createdAt: Date;
         chatId: number;
         userId: number;
+        content: string;
     } & {}>;
     updateMessage(dto: MessageUpdateDto): Promise<{
         id: number;
-        content: string;
         createdAt: Date;
         chatId: number;
         userId: number;
+        content: string;
     } & {}>;
 }

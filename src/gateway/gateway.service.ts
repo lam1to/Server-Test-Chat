@@ -17,9 +17,11 @@ export class GatewayService {
     const message = await this.messageS.createMessage(createGatewayDto);
     //если не join внутри create, То сообщения не отправляются в комнату, мб на client будет по другому
     this.joinRoom({ chatId: createGatewayDto.chatId }, server);
-    await server
-      .to(createGatewayDto.chatId)
-      .emit('message', createGatewayDto.content);
+    //.in(createGatewayDto.chatId)
+    await server.emit(
+      `message${createGatewayDto.chatId}`,
+      createGatewayDto.content,
+    );
     return createGatewayDto.content;
   }
 

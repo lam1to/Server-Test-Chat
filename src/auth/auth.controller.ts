@@ -1,8 +1,11 @@
 import {
   Body,
   Controller,
+  Get,
   HttpCode,
   Post,
+  Req,
+  UseGuards,
   UsePipes,
   ValidationPipe,
 } from '@nestjs/common';
@@ -10,6 +13,7 @@ import { AuthService } from './auth.service';
 import { AuthDto } from './dto/auth.dto';
 import { RegDto } from './dto/reg.dto';
 import { RefreshDto } from './dto/refresh.dto';
+import { AuthGuard } from './auth.guard';
 
 @Controller('auth')
 export class AuthController {
@@ -32,7 +36,19 @@ export class AuthController {
   @UsePipes(new ValidationPipe())
   @HttpCode(200)
   @Post('login/token')
-  async getNewTokens(@Body() dto: RefreshDto) {
-    return this.authService.getNewTokens(dto.refreshToken);
+  @UseGuards(AuthGuard)
+  async getNewTokens(@Req() req: Request) {
+    const [type, token] = req.headers['authorization'].split(' ') ?? [];
+    const refreshT = type === 'Bearer' ? token : undefined;
+    return this.authService.getNewTokens(refreshT);
+  }
+
+  @HttpCode(200)
+  @Post('login/check')
+  @UseGuards(AuthGuard)
+  async check(@Req() req: Request) {
+    const [type, token] = req.headers['authorization'].split(' ') ?? [];
+    const refreshT = type === 'Bearer' ? token : undefined;
+    return 'xui';
   }
 }
