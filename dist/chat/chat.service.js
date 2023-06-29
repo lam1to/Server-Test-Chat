@@ -83,7 +83,27 @@ let ChatService = exports.ChatService = class ChatService {
                 userId: { not: +idUsers },
             },
         });
-        return { chats: chats, userChat: userChat };
+        const users = await this.prisma.user.findMany({
+            where: {
+                id: { in: userChat.map((one) => +one.userId) },
+            },
+        });
+        const allChat = chats.map((oneChat) => ({
+            ...oneChat,
+            users: userChat
+                .map((oneUserChat) => ({
+                ...oneUserChat,
+                users: users.filter((oneUser) => {
+                    if (oneUser.id === oneUserChat.userId)
+                        return oneUser;
+                }),
+            }))
+                ?.filter((oneUserChat) => {
+                return oneChat.id === oneUserChat.chatId;
+            })
+                .map((one) => one.users[0]),
+        }));
+        return allChat;
     }
     async remove(id) {
         const deleteChat = await this.prisma.chat.delete({

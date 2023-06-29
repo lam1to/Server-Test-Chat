@@ -1,28 +1,24 @@
 import { CreateChatDto } from './dto/createChat.dto';
 import { PrismaService } from 'src/prisma.service';
+import { User } from '@prisma/client';
+export interface IForAllChat {
+    id: number;
+    type: string;
+    createdAt: Date;
+    users: User[] | undefined;
+}
 export declare class ChatService {
     private prisma;
     constructor(prisma: PrismaService);
     create(createChatDto: CreateChatDto): Promise<{
         id: number;
-        type: string;
         createdAt: Date;
+        type: string;
     } & {}>;
-    findAll(idUsers: string): Promise<{
-        chats: ({
-            id: number;
-            type: string;
-            createdAt: Date;
-        } & {})[];
-        userChat: ({
-            id: number;
-            chatId: number;
-            userId: number;
-        } & {})[];
-    }>;
+    findAll(idUsers: string): Promise<IForAllChat[]>;
     remove(id: number): Promise<{
         id: number;
-        type: string;
         createdAt: Date;
+        type: string;
     } & {}>;
 }
