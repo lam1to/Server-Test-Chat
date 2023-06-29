@@ -21,14 +21,13 @@ let AuthGuard = exports.AuthGuard = class AuthGuard {
     async canActivate(context) {
         const request = context.switchToHttp().getRequest();
         const token = this.extractTokenFromHeader(request);
-        if (!token) {
+        if (!token || token === 'null') {
             throw new common_1.UnauthorizedException();
         }
         try {
             const payload = await this.jwtService.verifyAsync(token, {
                 secret: this.configService.get('JWT_SECRET'),
             });
-            console.log('in guard', payload);
             request['user'] = payload;
         }
         catch {

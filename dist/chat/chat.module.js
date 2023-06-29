@@ -11,12 +11,24 @@ const common_1 = require("@nestjs/common");
 const chat_service_1 = require("./chat.service");
 const chat_controller_1 = require("./chat.controller");
 const prisma_service_1 = require("../prisma.service");
+const jwt_strategy_1 = require("../auth/jwt.strategy");
+const config_1 = require("@nestjs/config");
+const jwt_1 = require("@nestjs/jwt");
+const jwt_config_1 = require("../config/jwt.config");
 let ChatModule = exports.ChatModule = class ChatModule {
 };
 exports.ChatModule = ChatModule = __decorate([
     (0, common_1.Module)({
         controllers: [chat_controller_1.ChatController],
-        providers: [chat_service_1.ChatService, prisma_service_1.PrismaService],
+        providers: [chat_service_1.ChatService, jwt_strategy_1.JwtStrategy, prisma_service_1.PrismaService],
+        imports: [
+            config_1.ConfigModule.forRoot(),
+            jwt_1.JwtModule.registerAsync({
+                imports: [config_1.ConfigModule],
+                inject: [config_1.ConfigService],
+                useFactory: jwt_config_1.getJwtConfig,
+            }),
+        ],
     })
 ], ChatModule);
 //# sourceMappingURL=chat.module.js.map

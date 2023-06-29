@@ -16,7 +16,7 @@ exports.ChatController = void 0;
 const common_1 = require("@nestjs/common");
 const chat_service_1 = require("./chat.service");
 const createChat_dto_1 = require("./dto/createChat.dto");
-const findDto_dto_1 = require("./dto/findDto.dto");
+const auth_guard_1 = require("../auth/auth.guard");
 let ChatController = exports.ChatController = class ChatController {
     constructor(chatService) {
         this.chatService = chatService;
@@ -24,8 +24,8 @@ let ChatController = exports.ChatController = class ChatController {
     create(createChatDto) {
         return this.chatService.create(createChatDto);
     }
-    findAll(findChatDto) {
-        return this.chatService.findAll(findChatDto);
+    findAll(req) {
+        return this.chatService.findAll(req['user'].id);
     }
     remove(id) {
         return this.chatService.remove(+id);
@@ -33,6 +33,7 @@ let ChatController = exports.ChatController = class ChatController {
 };
 __decorate([
     (0, common_1.Post)('createChat'),
+    (0, common_1.UseGuards)(auth_guard_1.AuthGuard),
     __param(0, (0, common_1.Body)()),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [createChat_dto_1.CreateChatDto]),
@@ -40,13 +41,15 @@ __decorate([
 ], ChatController.prototype, "create", null);
 __decorate([
     (0, common_1.Get)('allChat'),
-    __param(0, (0, common_1.Body)()),
+    (0, common_1.UseGuards)(auth_guard_1.AuthGuard),
+    __param(0, (0, common_1.Req)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [findDto_dto_1.FindChatDto]),
+    __metadata("design:paramtypes", [Request]),
     __metadata("design:returntype", void 0)
 ], ChatController.prototype, "findAll", null);
 __decorate([
     (0, common_1.Delete)(':id'),
+    (0, common_1.UseGuards)(auth_guard_1.AuthGuard),
     __param(0, (0, common_1.Param)('id')),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [String]),

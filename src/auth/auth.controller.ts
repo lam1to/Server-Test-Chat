@@ -42,13 +42,4 @@ export class AuthController {
     const refreshT = type === 'Bearer' ? token : undefined;
     return this.authService.getNewTokens(refreshT);
   }
-
-  @HttpCode(200)
-  @Post('login/check')
-  @UseGuards(AuthGuard)
-  async check(@Req() req: Request) {
-    const [type, token] = req.headers['authorization'].split(' ') ?? [];
-    const refreshT = type === 'Bearer' ? token : undefined;
-    return 'xui';
-  }
 }

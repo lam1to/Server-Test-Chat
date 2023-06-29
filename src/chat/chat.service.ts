@@ -60,14 +60,14 @@ export class ChatService {
     return chat;
   }
 
-  async findAll(dto: FindChatDto) {
+  async findAll(idUsers: string) {
     const chats: Chat[] = await this.prisma.chat.findMany({
       where: {
         id: {
           in: (
             await this.prisma.userChat.findMany({
               where: {
-                userId: +dto.idUser,
+                userId: +idUsers,
               },
             })
           ).map((item) => {
@@ -76,8 +76,15 @@ export class ChatService {
         },
       },
     });
-    return chats;
+    const userChat: UserChat[] = await this.prisma.userChat.findMany({
+      where: {
+        chatId: { in: chats.map((one) => +one.id) },
+        userId: { not: +idUsers },
+      },
+    });
+    return { chats: chats, userChat: userChat };
   }
+
   async remove(id: number) {
     const deleteChat = await this.prisma.chat.delete({
       where: {

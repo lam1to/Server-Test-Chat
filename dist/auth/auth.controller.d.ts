@@ -34,5 +34,4 @@ export declare class AuthController {
             lastname: string;
         };
     }>;
-    check(req: Request): Promise<string>;
 }

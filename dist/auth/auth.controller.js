@@ -33,11 +33,6 @@ let AuthController = exports.AuthController = class AuthController {
         const refreshT = type === 'Bearer' ? token : undefined;
         return this.authService.getNewTokens(refreshT);
     }
-    async check(req) {
-        const [type, token] = req.headers['authorization'].split(' ') ?? [];
-        const refreshT = type === 'Bearer' ? token : undefined;
-        return 'xui';
-    }
 };
 __decorate([
     (0, common_1.UsePipes)(new common_1.ValidationPipe()),
@@ -67,15 +62,6 @@ __decorate([
     __metadata("design:paramtypes", [Request]),
     __metadata("design:returntype", Promise)
 ], AuthController.prototype, "getNewTokens", null);
-__decorate([
-    (0, common_1.HttpCode)(200),
-    (0, common_1.Post)('login/check'),
-    (0, common_1.UseGuards)(auth_guard_1.AuthGuard),
-    __param(0, (0, common_1.Req)()),
-    __metadata("design:type", Function),
-    __metadata("design:paramtypes", [Request]),
-    __metadata("design:returntype", Promise)
-], AuthController.prototype, "check", null);
 exports.AuthController = AuthController = __decorate([
     (0, common_1.Controller)('auth'),
     __metadata("design:paramtypes", [auth_service_1.AuthService])

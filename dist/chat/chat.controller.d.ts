@@ -1,22 +1,28 @@
 import { ChatService } from './chat.service';
 import { CreateChatDto } from './dto/createChat.dto';
-import { FindChatDto } from './dto/findDto.dto';
 export declare class ChatController {
     private readonly chatService;
     constructor(chatService: ChatService);
     create(createChatDto: CreateChatDto): Promise<{
         id: number;
-        createdAt: Date;
         type: string;
+        createdAt: Date;
     } & {}>;
-    findAll(findChatDto: FindChatDto): Promise<({
-        id: number;
-        createdAt: Date;
-        type: string;
-    } & {})[]>;
+    findAll(req: Request): Promise<{
+        chats: ({
+            id: number;
+            type: string;
+            createdAt: Date;
+        } & {})[];
+        userChat: ({
+            id: number;
+            chatId: number;
+            userId: number;
+        } & {})[];
+    }>;
     remove(id: string): Promise<{
         id: number;
-        createdAt: Date;
         type: string;
+        createdAt: Date;
     } & {}>;
 }
