@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from 'src/prisma.service';
 import { ParamDto } from './param.dto';
+import { use } from 'passport';
 
 @Injectable()
 export class UserService {
@@ -17,5 +18,13 @@ export class UserService {
       lastName: user.lastName,
       avatarPath: user.avatarPath,
     };
+  }
+  async getAllUsers(id: string) {
+    const users = await this.prisma.user.findMany({
+      where: {
+        id: { not: +id },
+      },
+    });
+    return { users: users };
   }
 }

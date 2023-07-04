@@ -1,11 +1,17 @@
 import { UserService } from './user.service';
-import { ParamDto } from './param.dto';
 export declare class UserController {
     private readonly userService;
     constructor(userService: UserService);
-    getUserId(id: ParamDto): Promise<{
-        name: string;
-        lastName: string;
-        avatarPath: string;
+    getUsers(req: Request): Promise<{
+        users: ({
+            email: string;
+            password: string;
+            id: number;
+            createdAt: Date;
+            updatedAt: Date;
+            name: string;
+            lastName: string;
+            avatarPath: string;
+        } & {})[];
     }>;
 }

@@ -12,11 +12,18 @@ const gateway_service_1 = require("./gateway.service");
 const gateway_gateway_1 = require("./gateway.gateway");
 const prisma_service_1 = require("../prisma.service");
 const message_service_1 = require("../message/message.service");
+const chat_service_1 = require("../chat/chat.service");
 let GatewayModule = exports.GatewayModule = class GatewayModule {
 };
 exports.GatewayModule = GatewayModule = __decorate([
     (0, common_1.Module)({
-        providers: [gateway_gateway_1.GatewayGateway, gateway_service_1.GatewayService, prisma_service_1.PrismaService, message_service_1.MessageService],
+        providers: [
+            gateway_gateway_1.GatewayGateway,
+            gateway_service_1.GatewayService,
+            prisma_service_1.PrismaService,
+            message_service_1.MessageService,
+            chat_service_1.ChatService,
+        ],
     })
 ], GatewayModule);
 //# sourceMappingURL=gateway.module.js.map

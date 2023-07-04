@@ -24,6 +24,9 @@ let MessageController = exports.MessageController = class MessageController {
     async createMessage(dto) {
         return this.messageService.createMessage(dto);
     }
+    async getAllForChat(id) {
+        return this.messageService.getAllForChat(id);
+    }
     async updateMessage(dto) {
         return this.messageService.updateMessage(dto);
     }
@@ -35,6 +38,13 @@ __decorate([
     __metadata("design:paramtypes", [messageCreateDto_dto_1.MessageCreateDto]),
     __metadata("design:returntype", Promise)
 ], MessageController.prototype, "createMessage", null);
+__decorate([
+    (0, common_1.Get)('getAllForChat/:id'),
+    __param(0, (0, common_1.Param)('id')),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String]),
+    __metadata("design:returntype", Promise)
+], MessageController.prototype, "getAllForChat", null);
 __decorate([
     (0, common_1.Patch)('update'),
     __param(0, (0, common_1.Body)()),

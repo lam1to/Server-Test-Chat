@@ -6,23 +6,31 @@ import { JoinDto } from './dto/join.dto';
 import { WebSocketServer } from '@nestjs/websockets';
 import { PrismaService } from 'src/prisma.service';
 import { MessageService } from 'src/message/message.service';
+import { CreateChatDto } from 'src/chat/dto/createChat.dto';
+import { ChatService } from 'src/chat/chat.service';
 
 @Injectable()
 export class GatewayService {
   constructor(
     private prisma: PrismaService,
     private messageS: MessageService,
+    private chat: ChatService,
   ) {}
   async create(createGatewayDto: CreateGatewayDto, server: Server) {
     const message = await this.messageS.createMessage(createGatewayDto);
     //если не join внутри create, То сообщения не отправляются в комнату, мб на client будет по другому
     this.joinRoom({ chatId: createGatewayDto.chatId }, server);
     //.in(createGatewayDto.chatId)
-    await server.emit(
-      `message${createGatewayDto.chatId}`,
-      createGatewayDto.content,
-    );
+    server.emit(`message${createGatewayDto.chatId}`, message);
     return createGatewayDto.content;
+  }
+
+  async createChat(dto: CreateChatDto, server: Server) {
+    const chat = await this.chat.create(dto);
+    console.log('в сокете чат создался такой = ', chat);
+    dto.idUsers.map((oneUser) => {
+      server.emit(`chatCreate${oneUser}`, chat);
+    });
   }
 
   findAll() {

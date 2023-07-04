@@ -37,6 +37,14 @@ let MessageService = exports.MessageService = class MessageService {
         });
         return upMessage;
     }
+    async getAllForChat(id) {
+        const messages = await this.prisma.message.findMany({
+            where: {
+                chatId: +id,
+            },
+        });
+        return messages;
+    }
 };
 exports.MessageService = MessageService = __decorate([
     (0, common_1.Injectable)(),

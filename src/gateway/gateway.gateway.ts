@@ -9,15 +9,23 @@ import { CreateGatewayDto } from './dto/create-gateway.dto';
 import { UpdateGatewayDto } from './dto/update-gateway.dto';
 import { Server, Socket } from 'socket.io';
 import { JoinDto } from './dto/join.dto';
+import { CreateChatDto } from 'src/chat/dto/createChat.dto';
 
-@WebSocketGateway({ namespace: 'chat', cors: { origin: '*' } })
+@WebSocketGateway({ namespace: 'chatSocket', cors: { origin: '*' } })
 export class GatewayGateway {
   @WebSocketServer() server: Server;
   constructor(private readonly gatewayService: GatewayService) {}
 
   @SubscribeMessage('createGateway')
   async create(@MessageBody() createGatewayDto: CreateGatewayDto) {
+    console.log('poluchino = ', createGatewayDto);
     return await this.gatewayService.create(createGatewayDto, this.server);
+  }
+
+  @SubscribeMessage('createChat')
+  createChat(@MessageBody() dto: CreateChatDto) {
+    console.log('на создание чата в сокете пришло = ', dto);
+    return this.gatewayService.createChat(dto, this.server);
   }
 
   @SubscribeMessage('findAllGateway')

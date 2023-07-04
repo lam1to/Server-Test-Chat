@@ -28,6 +28,14 @@ let UserService = exports.UserService = class UserService {
             avatarPath: user.avatarPath,
         };
     }
+    async getAllUsers(id) {
+        const users = await this.prisma.user.findMany({
+            where: {
+                id: { not: +id },
+            },
+        });
+        return { users: users };
+    }
 };
 exports.UserService = UserService = __decorate([
     (0, common_1.Injectable)(),

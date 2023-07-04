@@ -18,4 +18,11 @@ export declare class MessageService {
         userId: number;
         content: string;
     } & {}>;
+    getAllForChat(id: string): Promise<({
+        id: number;
+        createdAt: Date;
+        chatId: number;
+        userId: number;
+        content: string;
+    } & {})[]>;
 }

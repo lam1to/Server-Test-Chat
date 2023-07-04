@@ -17,6 +17,7 @@ let ChatService = exports.ChatService = class ChatService {
         this.prisma = prisma;
     }
     async create(createChatDto) {
+        console.log('crea dto in server', createChatDto.idUsers);
         firstif: if (createChatDto.idUsers.length == 2) {
             const chatUsers = await this.prisma.userChat.findMany({
                 where: {
@@ -106,6 +107,36 @@ let ChatService = exports.ChatService = class ChatService {
         return allChat;
     }
     async remove(id) {
+        const find = await this.prisma.userChat
+            .findMany({
+            select: {
+                id: true,
+            },
+            where: {
+                chatId: id,
+            },
+        })
+            .then((data) => data.map((one) => {
+            return one.id;
+        }));
+        const deleteUserChat = await this.prisma.userChat.deleteMany({
+            where: {
+                id: {
+                    in: await this.prisma.userChat
+                        .findMany({
+                        select: {
+                            id: true,
+                        },
+                        where: {
+                            chatId: id,
+                        },
+                    })
+                        .then((data) => data.map((one) => {
+                        return one.id;
+                    })),
+                },
+            },
+        });
         const deleteChat = await this.prisma.chat.delete({
             where: {
                 id: id,

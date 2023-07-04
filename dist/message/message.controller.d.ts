@@ -11,6 +11,13 @@ export declare class MessageController {
         userId: number;
         content: string;
     } & {}>;
+    getAllForChat(id: string): Promise<({
+        id: number;
+        createdAt: Date;
+        chatId: number;
+        userId: number;
+        content: string;
+    } & {})[]>;
     updateMessage(dto: MessageUpdateDto): Promise<{
         id: number;
         createdAt: Date;

@@ -19,12 +19,18 @@ const create_gateway_dto_1 = require("./dto/create-gateway.dto");
 const update_gateway_dto_1 = require("./dto/update-gateway.dto");
 const socket_io_1 = require("socket.io");
 const join_dto_1 = require("./dto/join.dto");
+const createChat_dto_1 = require("../chat/dto/createChat.dto");
 let GatewayGateway = exports.GatewayGateway = class GatewayGateway {
     constructor(gatewayService) {
         this.gatewayService = gatewayService;
     }
     async create(createGatewayDto) {
+        console.log('poluchino = ', createGatewayDto);
         return await this.gatewayService.create(createGatewayDto, this.server);
+    }
+    createChat(dto) {
+        console.log('на создание чата в сокете пришло = ', dto);
+        return this.gatewayService.createChat(dto, this.server);
     }
     findAll() {
         return this.gatewayService.findAll();
@@ -53,6 +59,13 @@ __decorate([
     __metadata("design:paramtypes", [create_gateway_dto_1.CreateGatewayDto]),
     __metadata("design:returntype", Promise)
 ], GatewayGateway.prototype, "create", null);
+__decorate([
+    (0, websockets_1.SubscribeMessage)('createChat'),
+    __param(0, (0, websockets_1.MessageBody)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [createChat_dto_1.CreateChatDto]),
+    __metadata("design:returntype", void 0)
+], GatewayGateway.prototype, "createChat", null);
 __decorate([
     (0, websockets_1.SubscribeMessage)('findAllGateway'),
     __metadata("design:type", Function),
@@ -88,7 +101,7 @@ __decorate([
     __metadata("design:returntype", void 0)
 ], GatewayGateway.prototype, "remove", null);
 exports.GatewayGateway = GatewayGateway = __decorate([
-    (0, websockets_1.WebSocketGateway)({ namespace: 'chat', cors: { origin: '*' } }),
+    (0, websockets_1.WebSocketGateway)({ namespace: 'chatSocket', cors: { origin: '*' } }),
     __metadata("design:paramtypes", [gateway_service_1.GatewayService])
 ], GatewayGateway);
 //# sourceMappingURL=gateway.gateway.js.map

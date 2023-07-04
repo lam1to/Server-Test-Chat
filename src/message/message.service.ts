@@ -34,4 +34,13 @@ export class MessageService {
     });
     return upMessage;
   }
+
+  async getAllForChat(id: string) {
+    const messages: Message[] = await this.prisma.message.findMany({
+      where: {
+        chatId: +id,
+      },
+    });
+    return messages;
+  }
 }
