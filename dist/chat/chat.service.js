@@ -16,8 +16,38 @@ let ChatService = exports.ChatService = class ChatService {
     constructor(prisma) {
         this.prisma = prisma;
     }
+    async createChatWithUser(chat, idUser) {
+        const userChat = await this.prisma.userChat.findMany({
+            where: {
+                chatId: chat.id,
+                userId: {
+                    not: +idUser,
+                },
+            },
+        });
+        const users = await this.prisma.user.findMany({
+            where: {
+                id: { in: userChat.map((one) => +one.userId) },
+            },
+        });
+        const chatWithUser = {
+            ...chat,
+            users: userChat
+                .map((oneUserChat) => ({
+                ...oneUserChat,
+                users: users.filter((oneUser) => {
+                    if (oneUser.id === oneUserChat.userId)
+                        return oneUser;
+                }),
+            }))
+                ?.filter((oneUserChat) => {
+                return chat.id === oneUserChat.chatId;
+            })
+                .map((one) => one.users[0]),
+        };
+        return chatWithUser;
+    }
     async create(createChatDto) {
-        console.log('crea dto in server', createChatDto.idUsers);
         firstif: if (createChatDto.idUsers.length == 2) {
             const chatUsers = await this.prisma.userChat.findMany({
                 where: {
@@ -37,7 +67,7 @@ let ChatService = exports.ChatService = class ChatService {
                 return chatUsers.find((x, ind) => x.chatId === nnn.chatId && index !== ind);
             });
             if (chatId !== undefined) {
-                const chat = this.prisma.chat.findUnique({
+                const chat = await this.prisma.chat.findUnique({
                     where: {
                         id: chatId.chatId,
                     },
@@ -54,13 +84,12 @@ let ChatService = exports.ChatService = class ChatService {
                 type: isDbGroup,
             },
         });
-        const mas = createChatDto.idUsers.map(async (id, i) => {
-            await this.prisma.userChat.create({
-                data: {
-                    userId: +id,
-                    chatId: chat.id,
-                },
-            });
+        const createUserChat = await this.prisma.userChat.createMany({
+            data: [
+                ...createChatDto.idUsers.map((oneUserId) => {
+                    return { userId: +oneUserId, chatId: chat.id };
+                }),
+            ],
         });
         return chat;
     }
@@ -107,33 +136,23 @@ let ChatService = exports.ChatService = class ChatService {
         return allChat;
     }
     async remove(id) {
-        const find = await this.prisma.userChat
-            .findMany({
-            select: {
-                id: true,
-            },
+        console.log('prislo');
+        const usersWhoInChat = await this.prisma.userChat.findMany({
             where: {
                 chatId: id,
             },
-        })
-            .then((data) => data.map((one) => {
-            return one.id;
-        }));
+        });
+        const deleteMessage = await this.prisma.message.deleteMany({
+            where: {
+                chatId: id,
+            },
+        });
         const deleteUserChat = await this.prisma.userChat.deleteMany({
             where: {
                 id: {
-                    in: await this.prisma.userChat
-                        .findMany({
-                        select: {
-                            id: true,
-                        },
-                        where: {
-                            chatId: id,
-                        },
-                    })
-                        .then((data) => data.map((one) => {
+                    in: usersWhoInChat.map((one) => {
                         return one.id;
-                    })),
+                    }),
                 },
             },
         });
@@ -142,7 +161,12 @@ let ChatService = exports.ChatService = class ChatService {
                 id: id,
             },
         });
-        return deleteChat;
+        return {
+            deleteChat: deleteChat,
+            userInChat: usersWhoInChat.map((oneUserChat) => {
+                return oneUserChat.userId;
+            }),
+        };
     }
 };
 exports.ChatService = ChatService = __decorate([

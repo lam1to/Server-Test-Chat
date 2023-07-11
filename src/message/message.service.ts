@@ -41,6 +41,15 @@ export class MessageService {
         chatId: +id,
       },
     });
+    messages.sort((one, two) => one.id - two.id);
     return messages;
+  }
+  async remove(id: string) {
+    const message: Message = await this.prisma.message.delete({
+      where: {
+        id: +id,
+      },
+    });
+    return message;
   }
 }

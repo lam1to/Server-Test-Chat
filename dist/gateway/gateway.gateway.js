@@ -20,6 +20,8 @@ const update_gateway_dto_1 = require("./dto/update-gateway.dto");
 const socket_io_1 = require("socket.io");
 const join_dto_1 = require("./dto/join.dto");
 const createChat_dto_1 = require("../chat/dto/createChat.dto");
+const messageUpdateDto_dto_1 = require("../message/dto/messageUpdateDto.dto");
+const messageDelete_dto_1 = require("../message/dto/messageDelete.dto");
 let GatewayGateway = exports.GatewayGateway = class GatewayGateway {
     constructor(gatewayService) {
         this.gatewayService = gatewayService;
@@ -31,6 +33,16 @@ let GatewayGateway = exports.GatewayGateway = class GatewayGateway {
     createChat(dto) {
         console.log('на создание чата в сокете пришло = ', dto);
         return this.gatewayService.createChat(dto, this.server);
+    }
+    deleteChat(id) {
+        return this.gatewayService.deleteChat(id, this.server);
+    }
+    deleteMessage(dto) {
+        console.log('на сервер получили dto = ', dto);
+        return this.gatewayService.deleteMessage(dto, this.server);
+    }
+    updateMessage(dto) {
+        return this.gatewayService.updateMessage(dto, this.server);
     }
     findAll() {
         return this.gatewayService.findAll();
@@ -66,6 +78,27 @@ __decorate([
     __metadata("design:paramtypes", [createChat_dto_1.CreateChatDto]),
     __metadata("design:returntype", void 0)
 ], GatewayGateway.prototype, "createChat", null);
+__decorate([
+    (0, websockets_1.SubscribeMessage)('deleteChat'),
+    __param(0, (0, websockets_1.MessageBody)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String]),
+    __metadata("design:returntype", void 0)
+], GatewayGateway.prototype, "deleteChat", null);
+__decorate([
+    (0, websockets_1.SubscribeMessage)('deleteMessage'),
+    __param(0, (0, websockets_1.MessageBody)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [messageDelete_dto_1.MessageDeleteDto]),
+    __metadata("design:returntype", void 0)
+], GatewayGateway.prototype, "deleteMessage", null);
+__decorate([
+    (0, websockets_1.SubscribeMessage)('updateMessage'),
+    __param(0, (0, websockets_1.MessageBody)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [messageUpdateDto_dto_1.MessageUpdateDto]),
+    __metadata("design:returntype", void 0)
+], GatewayGateway.prototype, "updateMessage", null);
 __decorate([
     (0, websockets_1.SubscribeMessage)('findAllGateway'),
     __metadata("design:type", Function),

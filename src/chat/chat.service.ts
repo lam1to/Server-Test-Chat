@@ -2,22 +2,48 @@ import { Injectable } from '@nestjs/common';
 import { CreateChatDto } from './dto/createChat.dto';
 import { PrismaService } from 'src/prisma.service';
 import { Chat, UserChat, User } from '@prisma/client';
-import { async } from 'rxjs';
-import { FindChatDto } from './dto/findDto.dto';
-
 export interface IForAllChat {
   id: number;
   type: string;
   createdAt: Date;
   users: User[] | undefined;
 }
-
 @Injectable()
 export class ChatService {
   constructor(private prisma: PrismaService) {}
 
+  async createChatWithUser(chat: Chat, idUser: string) {
+    const userChat: UserChat[] = await this.prisma.userChat.findMany({
+      where: {
+        chatId: chat.id,
+        userId: {
+          not: +idUser,
+        },
+      },
+    });
+    const users: User[] = await this.prisma.user.findMany({
+      where: {
+        id: { in: userChat.map((one) => +one.userId) },
+      },
+    });
+    const chatWithUser: IForAllChat = {
+      ...chat,
+      users: userChat
+        .map((oneUserChat) => ({
+          ...oneUserChat,
+          users: users.filter((oneUser) => {
+            if (oneUser.id === oneUserChat.userId) return oneUser;
+          }),
+        }))
+        ?.filter((oneUserChat) => {
+          return chat.id === oneUserChat.chatId;
+        })
+        .map((one) => one.users[0]),
+    };
+    return chatWithUser;
+  }
+
   async create(createChatDto: CreateChatDto) {
-    console.log('crea dto in server', createChatDto.idUsers);
     firstif: if (createChatDto.idUsers.length == 2) {
       const chatUsers: UserChat[] = await this.prisma.userChat.findMany({
         where: {
@@ -41,7 +67,7 @@ export class ChatService {
         );
       });
       if (chatId !== undefined) {
-        const chat = this.prisma.chat.findUnique({
+        const chat: Chat = await this.prisma.chat.findUnique({
           where: {
             id: chatId.chatId,
           },
@@ -58,13 +84,12 @@ export class ChatService {
         type: isDbGroup,
       },
     });
-    const mas = createChatDto.idUsers.map(async (id, i) => {
-      await this.prisma.userChat.create({
-        data: {
-          userId: +id,
-          chatId: chat.id,
-        },
-      });
+    const createUserChat = await this.prisma.userChat.createMany({
+      data: [
+        ...createChatDto.idUsers.map((oneUserId) => {
+          return { userId: +oneUserId, chatId: chat.id };
+        }),
+      ],
     });
     return chat;
   }
@@ -116,37 +141,23 @@ export class ChatService {
   }
 
   async remove(id: number) {
-    const find: number[] = await this.prisma.userChat
-      .findMany({
-        select: {
-          id: true,
-        },
-        where: {
-          chatId: id,
-        },
-      })
-      .then((data) =>
-        data.map((one) => {
-          return one.id;
-        }),
-      );
+    console.log('prislo');
+    const usersWhoInChat: UserChat[] = await this.prisma.userChat.findMany({
+      where: {
+        chatId: id,
+      },
+    });
+    const deleteMessage = await this.prisma.message.deleteMany({
+      where: {
+        chatId: id,
+      },
+    });
     const deleteUserChat = await this.prisma.userChat.deleteMany({
       where: {
         id: {
-          in: await this.prisma.userChat
-            .findMany({
-              select: {
-                id: true,
-              },
-              where: {
-                chatId: id,
-              },
-            })
-            .then((data) =>
-              data.map((one) => {
-                return one.id;
-              }),
-            ),
+          in: usersWhoInChat.map((one) => {
+            return one.id;
+          }),
         },
       },
     });
@@ -155,6 +166,11 @@ export class ChatService {
         id: id,
       },
     });
-    return deleteChat;
+    return {
+      deleteChat: deleteChat,
+      userInChat: usersWhoInChat.map((oneUserChat) => {
+        return oneUserChat.userId;
+      }),
+    };
   }
 }

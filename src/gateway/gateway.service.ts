@@ -7,7 +7,10 @@ import { WebSocketServer } from '@nestjs/websockets';
 import { PrismaService } from 'src/prisma.service';
 import { MessageService } from 'src/message/message.service';
 import { CreateChatDto } from 'src/chat/dto/createChat.dto';
-import { ChatService } from 'src/chat/chat.service';
+import { ChatService, IForAllChat } from 'src/chat/chat.service';
+import { MessageUpdateDto } from 'src/message/dto/messageUpdateDto.dto';
+import { MessageDeleteDto } from 'src/message/dto/messageDelete.dto';
+import { async } from 'rxjs';
 
 @Injectable()
 export class GatewayService {
@@ -18,19 +21,38 @@ export class GatewayService {
   ) {}
   async create(createGatewayDto: CreateGatewayDto, server: Server) {
     const message = await this.messageS.createMessage(createGatewayDto);
-    //если не join внутри create, То сообщения не отправляются в комнату, мб на client будет по другому
-    this.joinRoom({ chatId: createGatewayDto.chatId }, server);
-    //.in(createGatewayDto.chatId)
     server.emit(`message${createGatewayDto.chatId}`, message);
-    return createGatewayDto.content;
+    console.log('отдали = ', message);
+    // return createGatewayDto.content;
   }
 
   async createChat(dto: CreateChatDto, server: Server) {
     const chat = await this.chat.create(dto);
-    console.log('в сокете чат создался такой = ', chat);
-    dto.idUsers.map((oneUser) => {
-      server.emit(`chatCreate${oneUser}`, chat);
+
+    dto.idUsers.map(async (oneUser) => {
+      const chatWithUser: IForAllChat = await this.chat.createChatWithUser(
+        chat,
+        oneUser,
+      );
+      server.emit(`chatCreate${oneUser}`, chatWithUser);
     });
+  }
+
+  async deleteChat(id: string, server: Server) {
+    const deleteChat = await this.chat.remove(+id);
+    deleteChat.userInChat.map((oneUser) => {
+      server.emit(`chatDelete${oneUser}`, deleteChat.deleteChat);
+    });
+  }
+  async deleteMessage(dto: MessageDeleteDto, server: Server) {
+    const deleteMessage = await this.messageS.remove(dto.messageId);
+    server.emit(`messageDelete${dto.chatId}`, deleteMessage);
+  }
+  async updateMessage(dto: MessageUpdateDto, server: Server) {
+    console.log('dto in service = ', dto);
+    const updateMessage = await this.messageS.updateMessage(dto);
+    console.log('updateMessage = ', updateMessage);
+    server.emit(`messageUpdate${dto.chatId}`, updateMessage);
   }
 
   findAll() {

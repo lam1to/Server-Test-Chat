@@ -10,8 +10,11 @@ export declare class ChatController {
     } & {}>;
     findAll(req: Request): Promise<import("./chat.service").IForAllChat[]>;
     remove(id: string): Promise<{
-        id: number;
-        createdAt: Date;
-        type: string;
-    } & {}>;
+        deleteChat: {
+            id: number;
+            createdAt: Date;
+            type: string;
+        } & {};
+        userInChat: number[];
+    }>;
 }

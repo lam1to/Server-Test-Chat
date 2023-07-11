@@ -1,6 +1,6 @@
 import { CreateChatDto } from './dto/createChat.dto';
 import { PrismaService } from 'src/prisma.service';
-import { User } from '@prisma/client';
+import { Chat, User } from '@prisma/client';
 export interface IForAllChat {
     id: number;
     type: string;
@@ -10,6 +10,7 @@ export interface IForAllChat {
 export declare class ChatService {
     private prisma;
     constructor(prisma: PrismaService);
+    createChatWithUser(chat: Chat, idUser: string): Promise<IForAllChat>;
     create(createChatDto: CreateChatDto): Promise<{
         id: number;
         createdAt: Date;
@@ -17,8 +18,11 @@ export declare class ChatService {
     } & {}>;
     findAll(idUsers: string): Promise<IForAllChat[]>;
     remove(id: number): Promise<{
-        id: number;
-        createdAt: Date;
-        type: string;
-    } & {}>;
+        deleteChat: {
+            id: number;
+            createdAt: Date;
+            type: string;
+        } & {};
+        userInChat: number[];
+    }>;
 }

@@ -5,24 +5,31 @@ export declare class MessageService {
     private prisma;
     constructor(prisma: PrismaService);
     createMessage(dto: MessageCreateDto): Promise<{
+        userId: number;
+        chatId: number;
+        content: string;
         id: number;
         createdAt: Date;
-        chatId: number;
-        userId: number;
-        content: string;
     } & {}>;
     updateMessage(dto: MessageUpdateDto): Promise<{
+        userId: number;
+        chatId: number;
+        content: string;
         id: number;
         createdAt: Date;
-        chatId: number;
-        userId: number;
-        content: string;
     } & {}>;
     getAllForChat(id: string): Promise<({
+        userId: number;
+        chatId: number;
+        content: string;
         id: number;
         createdAt: Date;
-        chatId: number;
-        userId: number;
-        content: string;
     } & {})[]>;
+    remove(id: string): Promise<{
+        userId: number;
+        chatId: number;
+        content: string;
+        id: number;
+        createdAt: Date;
+    } & {}>;
 }

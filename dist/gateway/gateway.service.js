@@ -22,16 +22,31 @@ let GatewayService = exports.GatewayService = class GatewayService {
     }
     async create(createGatewayDto, server) {
         const message = await this.messageS.createMessage(createGatewayDto);
-        this.joinRoom({ chatId: createGatewayDto.chatId }, server);
         server.emit(`message${createGatewayDto.chatId}`, message);
-        return createGatewayDto.content;
+        console.log('отдали = ', message);
     }
     async createChat(dto, server) {
         const chat = await this.chat.create(dto);
-        console.log('в сокете чат создался такой = ', chat);
-        dto.idUsers.map((oneUser) => {
-            server.emit(`chatCreate${oneUser}`, chat);
+        dto.idUsers.map(async (oneUser) => {
+            const chatWithUser = await this.chat.createChatWithUser(chat, oneUser);
+            server.emit(`chatCreate${oneUser}`, chatWithUser);
         });
+    }
+    async deleteChat(id, server) {
+        const deleteChat = await this.chat.remove(+id);
+        deleteChat.userInChat.map((oneUser) => {
+            server.emit(`chatDelete${oneUser}`, deleteChat.deleteChat);
+        });
+    }
+    async deleteMessage(dto, server) {
+        const deleteMessage = await this.messageS.remove(dto.messageId);
+        server.emit(`messageDelete${dto.chatId}`, deleteMessage);
+    }
+    async updateMessage(dto, server) {
+        console.log('dto in service = ', dto);
+        const updateMessage = await this.messageS.updateMessage(dto);
+        console.log('updateMessage = ', updateMessage);
+        server.emit(`messageUpdate${dto.chatId}`, updateMessage);
     }
     findAll() {
         return `This action returns all gateway`;

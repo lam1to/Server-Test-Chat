@@ -10,6 +10,8 @@ import { UpdateGatewayDto } from './dto/update-gateway.dto';
 import { Server, Socket } from 'socket.io';
 import { JoinDto } from './dto/join.dto';
 import { CreateChatDto } from 'src/chat/dto/createChat.dto';
+import { MessageUpdateDto } from 'src/message/dto/messageUpdateDto.dto';
+import { MessageDeleteDto } from 'src/message/dto/messageDelete.dto';
 
 @WebSocketGateway({ namespace: 'chatSocket', cors: { origin: '*' } })
 export class GatewayGateway {
@@ -26,6 +28,21 @@ export class GatewayGateway {
   createChat(@MessageBody() dto: CreateChatDto) {
     console.log('на создание чата в сокете пришло = ', dto);
     return this.gatewayService.createChat(dto, this.server);
+  }
+
+  @SubscribeMessage('deleteChat')
+  deleteChat(@MessageBody() id: string) {
+    return this.gatewayService.deleteChat(id, this.server);
+  }
+
+  @SubscribeMessage('deleteMessage')
+  deleteMessage(@MessageBody() dto: MessageDeleteDto) {
+    console.log('на сервер получили dto = ', dto);
+    return this.gatewayService.deleteMessage(dto, this.server);
+  }
+  @SubscribeMessage('updateMessage')
+  updateMessage(@MessageBody() dto: MessageUpdateDto) {
+    return this.gatewayService.updateMessage(dto, this.server);
   }
 
   @SubscribeMessage('findAllGateway')

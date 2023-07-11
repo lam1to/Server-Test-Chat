@@ -43,7 +43,16 @@ let MessageService = exports.MessageService = class MessageService {
                 chatId: +id,
             },
         });
+        messages.sort((one, two) => one.id - two.id);
         return messages;
+    }
+    async remove(id) {
+        const message = await this.prisma.message.delete({
+            where: {
+                id: +id,
+            },
+        });
+        return message;
     }
 };
 exports.MessageService = MessageService = __decorate([
