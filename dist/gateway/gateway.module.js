@@ -13,6 +13,7 @@ const gateway_gateway_1 = require("./gateway.gateway");
 const prisma_service_1 = require("../prisma.service");
 const message_service_1 = require("../message/message.service");
 const chat_service_1 = require("../chat/chat.service");
+const block_user_service_1 = require("../block-user/block-user.service");
 let GatewayModule = exports.GatewayModule = class GatewayModule {
 };
 exports.GatewayModule = GatewayModule = __decorate([
@@ -23,6 +24,7 @@ exports.GatewayModule = GatewayModule = __decorate([
             prisma_service_1.PrismaService,
             message_service_1.MessageService,
             chat_service_1.ChatService,
+            block_user_service_1.BlockUserService,
         ],
     })
 ], GatewayModule);

@@ -14,11 +14,13 @@ const common_1 = require("@nestjs/common");
 const prisma_service_1 = require("../prisma.service");
 const message_service_1 = require("../message/message.service");
 const chat_service_1 = require("../chat/chat.service");
+const block_user_service_1 = require("../block-user/block-user.service");
 let GatewayService = exports.GatewayService = class GatewayService {
-    constructor(prisma, messageS, chat) {
+    constructor(prisma, messageS, chat, blockUser) {
         this.prisma = prisma;
         this.messageS = messageS;
         this.chat = chat;
+        this.blockUser = blockUser;
     }
     async create(createGatewayDto, server) {
         const message = await this.messageS.createMessage(createGatewayDto);
@@ -48,6 +50,20 @@ let GatewayService = exports.GatewayService = class GatewayService {
         console.log('updateMessage = ', updateMessage);
         server.emit(`messageUpdate${dto.chatId}`, updateMessage);
     }
+    async createBlockUser(dto, server) {
+        const blockUser = await this.blockUser.create(dto);
+        console.log('socket create blockUser = ', blockUser);
+        server.emit(`newBlockedUser${blockUser.user_Who_BlocketId}`, blockUser.user_Who_Was_BlocketId);
+        server.emit(`newBlocker${blockUser.user_Who_Was_BlocketId}`, blockUser.user_Who_BlocketId);
+    }
+    async removeBlockUser(dto, server) {
+        const blockUser = await this.blockUser.remove(+dto.idUserWhoBlocked, +dto.idUserWhoWasBlocked);
+        if (blockUser) {
+            console.log('socket delete blockUser = ', blockUser);
+            server.emit(`deleteBlockedUser${blockUser.user_Who_BlocketId}`, blockUser.user_Who_Was_BlocketId);
+            server.emit(`deleteBlocker${blockUser.user_Who_Was_BlocketId}`, blockUser.user_Who_BlocketId);
+        }
+    }
     findAll() {
         return `This action returns all gateway`;
     }
@@ -68,6 +84,7 @@ exports.GatewayService = GatewayService = __decorate([
     (0, common_1.Injectable)(),
     __metadata("design:paramtypes", [prisma_service_1.PrismaService,
         message_service_1.MessageService,
-        chat_service_1.ChatService])
+        chat_service_1.ChatService,
+        block_user_service_1.BlockUserService])
 ], GatewayService);
 //# sourceMappingURL=gateway.service.js.map

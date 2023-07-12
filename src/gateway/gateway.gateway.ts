@@ -12,6 +12,7 @@ import { JoinDto } from './dto/join.dto';
 import { CreateChatDto } from 'src/chat/dto/createChat.dto';
 import { MessageUpdateDto } from 'src/message/dto/messageUpdateDto.dto';
 import { MessageDeleteDto } from 'src/message/dto/messageDelete.dto';
+import { CreateBlockUserDto } from 'src/block-user/dto/create-block-user.dto';
 
 @WebSocketGateway({ namespace: 'chatSocket', cors: { origin: '*' } })
 export class GatewayGateway {
@@ -48,6 +49,16 @@ export class GatewayGateway {
   @SubscribeMessage('findAllGateway')
   findAll() {
     return this.gatewayService.findAll();
+  }
+
+  @SubscribeMessage('createBlockUser')
+  createBlockUser(@MessageBody() dto: CreateBlockUserDto) {
+    return this.gatewayService.createBlockUser(dto, this.server);
+  }
+
+  @SubscribeMessage('removeBlockUser')
+  removeBlockUser(@MessageBody() dto: CreateBlockUserDto) {
+    return this.gatewayService.removeBlockUser(dto, this.server);
   }
 
   @SubscribeMessage('join')

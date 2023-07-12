@@ -8,6 +8,7 @@ import { UserModule } from './user/user.module';
 import { ChatModule } from './chat/chat.module';
 import { MessageModule } from './message/message.module';
 import { GatewayModule } from './gateway/gateway.module';
+import { BlockUserModule } from './block-user/block-user.module';
 
 @Module({
   imports: [
@@ -17,6 +18,7 @@ import { GatewayModule } from './gateway/gateway.module';
     ChatModule,
     MessageModule,
     GatewayModule,
+    BlockUserModule,
   ],
   controllers: [AppController],
   providers: [AppService, PrismaService],

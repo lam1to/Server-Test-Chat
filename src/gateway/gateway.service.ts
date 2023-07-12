@@ -11,6 +11,9 @@ import { ChatService, IForAllChat } from 'src/chat/chat.service';
 import { MessageUpdateDto } from 'src/message/dto/messageUpdateDto.dto';
 import { MessageDeleteDto } from 'src/message/dto/messageDelete.dto';
 import { async } from 'rxjs';
+import { CreateBlockUserDto } from 'src/block-user/dto/create-block-user.dto';
+import { BlockUser } from '@prisma/client';
+import { BlockUserService } from 'src/block-user/block-user.service';
 
 @Injectable()
 export class GatewayService {
@@ -18,6 +21,7 @@ export class GatewayService {
     private prisma: PrismaService,
     private messageS: MessageService,
     private chat: ChatService,
+    private blockUser: BlockUserService,
   ) {}
   async create(createGatewayDto: CreateGatewayDto, server: Server) {
     const message = await this.messageS.createMessage(createGatewayDto);
@@ -53,6 +57,37 @@ export class GatewayService {
     const updateMessage = await this.messageS.updateMessage(dto);
     console.log('updateMessage = ', updateMessage);
     server.emit(`messageUpdate${dto.chatId}`, updateMessage);
+  }
+
+  async createBlockUser(dto: CreateBlockUserDto, server: Server) {
+    const blockUser: BlockUser = await this.blockUser.create(dto);
+    console.log('socket create blockUser = ', blockUser);
+    server.emit(
+      `newBlockedUser${blockUser.user_Who_BlocketId}`,
+      blockUser.user_Who_Was_BlocketId,
+    );
+    server.emit(
+      `newBlocker${blockUser.user_Who_Was_BlocketId}`,
+      blockUser.user_Who_BlocketId,
+    );
+  }
+
+  async removeBlockUser(dto: CreateBlockUserDto, server: Server) {
+    const blockUser: BlockUser = await this.blockUser.remove(
+      +dto.idUserWhoBlocked,
+      +dto.idUserWhoWasBlocked,
+    );
+    if (blockUser) {
+      console.log('socket delete blockUser = ', blockUser);
+      server.emit(
+        `deleteBlockedUser${blockUser.user_Who_BlocketId}`,
+        blockUser.user_Who_Was_BlocketId,
+      );
+      server.emit(
+        `deleteBlocker${blockUser.user_Who_Was_BlocketId}`,
+        blockUser.user_Who_BlocketId,
+      );
+    }
   }
 
   findAll() {

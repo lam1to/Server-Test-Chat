@@ -22,6 +22,7 @@ const join_dto_1 = require("./dto/join.dto");
 const createChat_dto_1 = require("../chat/dto/createChat.dto");
 const messageUpdateDto_dto_1 = require("../message/dto/messageUpdateDto.dto");
 const messageDelete_dto_1 = require("../message/dto/messageDelete.dto");
+const create_block_user_dto_1 = require("../block-user/dto/create-block-user.dto");
 let GatewayGateway = exports.GatewayGateway = class GatewayGateway {
     constructor(gatewayService) {
         this.gatewayService = gatewayService;
@@ -46,6 +47,12 @@ let GatewayGateway = exports.GatewayGateway = class GatewayGateway {
     }
     findAll() {
         return this.gatewayService.findAll();
+    }
+    createBlockUser(dto) {
+        return this.gatewayService.createBlockUser(dto, this.server);
+    }
+    removeBlockUser(dto) {
+        return this.gatewayService.removeBlockUser(dto, this.server);
     }
     joinRoom(room) {
         return this.gatewayService.joinRoom(room, this.server);
@@ -105,6 +112,20 @@ __decorate([
     __metadata("design:paramtypes", []),
     __metadata("design:returntype", void 0)
 ], GatewayGateway.prototype, "findAll", null);
+__decorate([
+    (0, websockets_1.SubscribeMessage)('createBlockUser'),
+    __param(0, (0, websockets_1.MessageBody)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [create_block_user_dto_1.CreateBlockUserDto]),
+    __metadata("design:returntype", void 0)
+], GatewayGateway.prototype, "createBlockUser", null);
+__decorate([
+    (0, websockets_1.SubscribeMessage)('removeBlockUser'),
+    __param(0, (0, websockets_1.MessageBody)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [create_block_user_dto_1.CreateBlockUserDto]),
+    __metadata("design:returntype", void 0)
+], GatewayGateway.prototype, "removeBlockUser", null);
 __decorate([
     (0, websockets_1.SubscribeMessage)('join'),
     __param(0, (0, websockets_1.MessageBody)()),

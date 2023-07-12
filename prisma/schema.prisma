@@ -1,5 +1,6 @@
 generator client {
-  provider = "prisma-client-js"
+  provider        = "prisma-client-js"
+  previewFeatures = ["views"]
 }
 
 datasource db {
@@ -8,16 +9,18 @@ datasource db {
 }
 
 model User {
-  id         Int        @id @default(autoincrement())
-  createdAt  DateTime   @default(now()) @map("created_at")
-  updatedAt  DateTime   @updatedAt @map("updated_at")
-  email      String     @unique
+  id         Int         @id @default(autoincrement())
+  createdAt  DateTime    @default(now()) @map("created_at")
+  updatedAt  DateTime    @updatedAt @map("updated_at")
+  email      String      @unique
   password   String
   name       String
   lastName   String
-  avatarPath String     @default("C:/Users/Lam1to/Pictures/testChatDefaultAvatar.jpg") @map("avatar_path")
+  avatarPath String      @default("C:/Users/Lam1to/Pictures/testChatDefaultAvatar.jpg") @map("avatar_path")
   userChats  UserChat[]
   messages   Message[]
+  blockUser1 BlockUser[] @relation("User1")
+  blockUser2 BlockUser[] @relation("User2")
 }
 
 model Chat {
@@ -46,4 +49,12 @@ model Message {
   chatId Int?
   User   User? @relation(fields: [userId], references: [id])
   userId Int?
+}
+
+model BlockUser {
+  id                     Int   @id @default(autoincrement())
+  User1                  User? @relation("User1", fields: [user_Who_BlocketId], references: [id])
+  user_Who_BlocketId     Int?
+  User2                  User? @relation("User2", fields: [user_Who_Was_BlocketId], references: [id])
+  user_Who_Was_BlocketId Int?
 }
