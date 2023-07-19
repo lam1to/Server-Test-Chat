@@ -7,6 +7,7 @@ import { CreateChatDto } from 'src/chat/dto/createChat.dto';
 import { MessageUpdateDto } from 'src/message/dto/messageUpdateDto.dto';
 import { MessageDeleteDto } from 'src/message/dto/messageDelete.dto';
 import { CreateBlockUserDto } from 'src/block-user/dto/create-block-user.dto';
+import { LeftChatDto } from 'src/left-chat/dto/LeftChat.dto';
 export declare class GatewayGateway {
     private readonly gatewayService;
     server: Server;
@@ -19,6 +20,8 @@ export declare class GatewayGateway {
     findAll(): string;
     createBlockUser(dto: CreateBlockUserDto): Promise<void>;
     removeBlockUser(dto: CreateBlockUserDto): Promise<void>;
+    createLeftChat(dto: LeftChatDto): Promise<void>;
+    removeLeftChat(dto: LeftChatDto): Promise<void>;
     joinRoom(room: JoinDto): Promise<void>;
     findOne(id: number): string;
     update(updateGatewayDto: UpdateGatewayDto): string;

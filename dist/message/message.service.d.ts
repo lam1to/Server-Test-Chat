@@ -1,35 +1,64 @@
 import { PrismaService } from 'src/prisma.service';
 import { MessageCreateDto } from './dto/messageCreateDto.dto';
 import { MessageUpdateDto } from './dto/messageUpdateDto.dto';
+import { LeftChatDto } from 'src/left-chat/dto/LeftChat.dto';
 export declare class MessageService {
     private prisma;
     constructor(prisma: PrismaService);
     createMessage(dto: MessageCreateDto): Promise<{
         id: number;
+        content: string;
         createdAt: Date;
         chatId: number;
         userId: number;
-        content: string;
     } & {}>;
     updateMessage(dto: MessageUpdateDto): Promise<{
         id: number;
+        content: string;
         createdAt: Date;
         chatId: number;
         userId: number;
-        content: string;
     } & {}>;
-    getAllForChat(id: string): Promise<({
+    getAllForChat(id: string, idUser: string): Promise<({
         id: number;
+        content: string;
         createdAt: Date;
         chatId: number;
         userId: number;
-        content: string;
     } & {})[]>;
     remove(id: string): Promise<{
         id: number;
+        content: string;
         createdAt: Date;
         chatId: number;
         userId: number;
-        content: string;
     } & {}>;
+    messageLeft(dto: LeftChatDto, flag: boolean): Promise<{
+        message: {
+            id: number;
+            content: string;
+            createdAt: Date;
+            chatId: number;
+            userId: number;
+        } & {};
+        user?: undefined;
+    } | {
+        message: {
+            id: number;
+            content: string;
+            createdAt: Date;
+            chatId: number;
+            userId: number;
+        } & {};
+        user: {
+            id: number;
+            createdAt: Date;
+            updatedAt: Date;
+            email: string;
+            password: string;
+            name: string;
+            lastName: string;
+            avatarPath: string;
+        } & {};
+    }>;
 }

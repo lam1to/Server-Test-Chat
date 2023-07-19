@@ -15,12 +15,14 @@ const prisma_service_1 = require("../prisma.service");
 const message_service_1 = require("../message/message.service");
 const chat_service_1 = require("../chat/chat.service");
 const block_user_service_1 = require("../block-user/block-user.service");
+const left_chat_service_1 = require("../left-chat/left-chat.service");
 let GatewayService = exports.GatewayService = class GatewayService {
-    constructor(prisma, messageS, chat, blockUser) {
+    constructor(prisma, messageS, chat, blockUser, leftChat) {
         this.prisma = prisma;
         this.messageS = messageS;
         this.chat = chat;
         this.blockUser = blockUser;
+        this.leftChat = leftChat;
     }
     async create(createGatewayDto, server) {
         const message = await this.messageS.createMessage(createGatewayDto);
@@ -64,6 +66,41 @@ let GatewayService = exports.GatewayService = class GatewayService {
             server.emit(`deleteBlocker${blockUser.user_Who_Was_BlocketId}`, blockUser.user_Who_BlocketId);
         }
     }
+    async createLeftChat(dto, server) {
+        const leftChat = await this.leftChat.create(dto);
+        const messageUser = await this.messageS.messageLeft(dto, true);
+        server.emit(`message${leftChat.chatId}`, messageUser.message);
+        await this.prisma.userChat.delete({
+            where: {
+                id: (await this.prisma.userChat.findFirst({
+                    where: {
+                        userId: leftChat.userId,
+                        chatId: leftChat.chatId,
+                    },
+                })).id,
+            },
+        });
+        server.emit(`newLeftChat${dto.idUsers}`, leftChat.chatId);
+        server.emit(`newLeftUserInChat${dto.idChat}`, {
+            ...leftChat,
+        });
+    }
+    async removeLeftChat(dto, server) {
+        const leftChat = await this.leftChat.delete(dto);
+        const messageUser = await this.messageS.messageLeft(dto, false);
+        server.emit(`message${leftChat.chatId}`, messageUser.message);
+        await this.prisma.userChat.create({
+            data: {
+                chatId: leftChat.chatId,
+                userId: leftChat.userId,
+            },
+        });
+        server.emit(`deleteLeftChat${dto.idUsers}`, leftChat.chatId);
+        server.emit(`deleteLeftUserInChat${dto.idChat}`, {
+            ...leftChat,
+            user: messageUser.user,
+        });
+    }
     findAll() {
         return `This action returns all gateway`;
     }
@@ -85,6 +122,7 @@ exports.GatewayService = GatewayService = __decorate([
     __metadata("design:paramtypes", [prisma_service_1.PrismaService,
         message_service_1.MessageService,
         chat_service_1.ChatService,
-        block_user_service_1.BlockUserService])
+        block_user_service_1.BlockUserService,
+        left_chat_service_1.LeftChatService])
 ], GatewayService);
 //# sourceMappingURL=gateway.service.js.map

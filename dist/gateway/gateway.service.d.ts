@@ -10,12 +10,15 @@ import { MessageUpdateDto } from 'src/message/dto/messageUpdateDto.dto';
 import { MessageDeleteDto } from 'src/message/dto/messageDelete.dto';
 import { CreateBlockUserDto } from 'src/block-user/dto/create-block-user.dto';
 import { BlockUserService } from 'src/block-user/block-user.service';
+import { LeftChatDto } from 'src/left-chat/dto/LeftChat.dto';
+import { LeftChatService } from 'src/left-chat/left-chat.service';
 export declare class GatewayService {
     private prisma;
     private messageS;
     private chat;
     private blockUser;
-    constructor(prisma: PrismaService, messageS: MessageService, chat: ChatService, blockUser: BlockUserService);
+    private leftChat;
+    constructor(prisma: PrismaService, messageS: MessageService, chat: ChatService, blockUser: BlockUserService, leftChat: LeftChatService);
     create(createGatewayDto: CreateGatewayDto, server: Server): Promise<void>;
     createChat(dto: CreateChatDto, server: Server): Promise<void>;
     deleteChat(id: string, server: Server): Promise<void>;
@@ -23,6 +26,8 @@ export declare class GatewayService {
     updateMessage(dto: MessageUpdateDto, server: Server): Promise<void>;
     createBlockUser(dto: CreateBlockUserDto, server: Server): Promise<void>;
     removeBlockUser(dto: CreateBlockUserDto, server: Server): Promise<void>;
+    createLeftChat(dto: LeftChatDto, server: Server): Promise<void>;
+    removeLeftChat(dto: LeftChatDto, server: Server): Promise<void>;
     findAll(): string;
     findOne(id: number): string;
     joinRoom(room: JoinDto, server: Server): Promise<void>;

@@ -95,16 +95,33 @@ export class ChatService {
   }
 
   async findAll(idUsers: string) {
+    const masTest: UserChat[] = [
+      ...(await this.prisma.userChat.findMany({
+        where: {
+          userId: +idUsers,
+        },
+      })),
+      ...(await this.prisma.leftChat.findMany({
+        where: {
+          userId: +idUsers,
+        },
+      })),
+    ];
     const chats: Chat[] = await this.prisma.chat.findMany({
       where: {
         id: {
-          in: (
-            await this.prisma.userChat.findMany({
+          in: [
+            ...(await this.prisma.userChat.findMany({
               where: {
                 userId: +idUsers,
               },
-            })
-          ).map((item) => {
+            })),
+            ...(await this.prisma.leftChat.findMany({
+              where: {
+                userId: +idUsers,
+              },
+            })),
+          ].map((item) => {
             return +item.chatId;
           }),
         },
@@ -112,8 +129,10 @@ export class ChatService {
     });
     const userChat: UserChat[] = await this.prisma.userChat.findMany({
       where: {
-        chatId: { in: chats.map((one) => +one.id) },
-        userId: { not: +idUsers },
+        OR: {
+          chatId: { in: chats.map((one) => +one.id) },
+          userId: { not: +idUsers },
+        },
       },
     });
     const users: User[] = await this.prisma.user.findMany({

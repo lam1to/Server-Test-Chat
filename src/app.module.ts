@@ -9,6 +9,7 @@ import { ChatModule } from './chat/chat.module';
 import { MessageModule } from './message/message.module';
 import { GatewayModule } from './gateway/gateway.module';
 import { BlockUserModule } from './block-user/block-user.module';
+import { LeftChatModule } from './left-chat/left-chat.module';
 
 @Module({
   imports: [
@@ -19,6 +20,7 @@ import { BlockUserModule } from './block-user/block-user.module';
     MessageModule,
     GatewayModule,
     BlockUserModule,
+    LeftChatModule,
   ],
   controllers: [AppController],
   providers: [AppService, PrismaService],

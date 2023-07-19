@@ -37,12 +37,27 @@ let MessageService = exports.MessageService = class MessageService {
         });
         return upMessage;
     }
-    async getAllForChat(id) {
+    async getAllForChat(id, idUser) {
+        console.log('userId = ', idUser);
+        const leftChat = await this.prisma.leftChat.findFirst({
+            where: {
+                chatId: +id,
+                userId: +idUser,
+            },
+        });
+        console.log('leftChat который нашел = ', leftChat);
         const messages = await this.prisma.message.findMany({
             where: {
                 chatId: +id,
             },
         });
+        if (leftChat) {
+            const filterMessages = messages.filter((one) => {
+                return one.createdAt.getTime() <= leftChat.createdAt.getTime() + 60000;
+            });
+            filterMessages.sort((one, two) => one.id - two.id);
+            return filterMessages;
+        }
         messages.sort((one, two) => one.id - two.id);
         return messages;
     }
@@ -53,6 +68,26 @@ let MessageService = exports.MessageService = class MessageService {
             },
         });
         return message;
+    }
+    async messageLeft(dto, flag) {
+        const user = await this.prisma.user.findFirst({
+            where: {
+                id: +dto.idUsers,
+            },
+        });
+        const message = await this.prisma.message.create({
+            data: {
+                userId: +dto.idUsers,
+                chatId: +dto.idChat,
+                content: flag
+                    ? `admin:${user.name} вышел из чата`
+                    : `admin:${user.name} вступил(а) в чат`,
+            },
+        });
+        if (flag) {
+            return { message: message };
+        }
+        return { message: message, user: user };
     }
 };
 exports.MessageService = MessageService = __decorate([

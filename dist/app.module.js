@@ -18,6 +18,7 @@ const chat_module_1 = require("./chat/chat.module");
 const message_module_1 = require("./message/message.module");
 const gateway_module_1 = require("./gateway/gateway.module");
 const block_user_module_1 = require("./block-user/block-user.module");
+const left_chat_module_1 = require("./left-chat/left-chat.module");
 let AppModule = exports.AppModule = class AppModule {
 };
 exports.AppModule = AppModule = __decorate([
@@ -30,6 +31,7 @@ exports.AppModule = AppModule = __decorate([
             message_module_1.MessageModule,
             gateway_module_1.GatewayModule,
             block_user_module_1.BlockUserModule,
+            left_chat_module_1.LeftChatModule,
         ],
         controllers: [app_controller_1.AppController],
         providers: [app_service_1.AppService, prisma_service_1.PrismaService],

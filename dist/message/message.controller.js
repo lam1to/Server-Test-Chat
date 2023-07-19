@@ -17,6 +17,7 @@ const common_1 = require("@nestjs/common");
 const message_service_1 = require("./message.service");
 const messageCreateDto_dto_1 = require("./dto/messageCreateDto.dto");
 const messageUpdateDto_dto_1 = require("./dto/messageUpdateDto.dto");
+const auth_guard_1 = require("../auth/auth.guard");
 let MessageController = exports.MessageController = class MessageController {
     constructor(messageService) {
         this.messageService = messageService;
@@ -24,8 +25,9 @@ let MessageController = exports.MessageController = class MessageController {
     async createMessage(dto) {
         return this.messageService.createMessage(dto);
     }
-    async getAllForChat(id) {
-        return this.messageService.getAllForChat(id);
+    async getAllForChat(id, req) {
+        const idUser = req['user'].id;
+        return this.messageService.getAllForChat(id, idUser);
     }
     async updateMessage(dto) {
         return this.messageService.updateMessage(dto);
@@ -40,9 +42,11 @@ __decorate([
 ], MessageController.prototype, "createMessage", null);
 __decorate([
     (0, common_1.Get)('getAllForChat/:id'),
+    (0, common_1.UseGuards)(auth_guard_1.AuthGuard),
     __param(0, (0, common_1.Param)('id')),
+    __param(1, (0, common_1.Req)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [String]),
+    __metadata("design:paramtypes", [String, Request]),
     __metadata("design:returntype", Promise)
 ], MessageController.prototype, "getAllForChat", null);
 __decorate([

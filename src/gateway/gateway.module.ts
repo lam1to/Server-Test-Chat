@@ -5,6 +5,7 @@ import { PrismaService } from 'src/prisma.service';
 import { MessageService } from 'src/message/message.service';
 import { ChatService } from 'src/chat/chat.service';
 import { BlockUserService } from 'src/block-user/block-user.service';
+import { LeftChatService } from 'src/left-chat/left-chat.service';
 
 @Module({
   providers: [
@@ -14,6 +15,7 @@ import { BlockUserService } from 'src/block-user/block-user.service';
     MessageService,
     ChatService,
     BlockUserService,
+    LeftChatService,
   ],
 })
 export class GatewayModule {}

@@ -12,8 +12,15 @@ import { MessageUpdateDto } from 'src/message/dto/messageUpdateDto.dto';
 import { MessageDeleteDto } from 'src/message/dto/messageDelete.dto';
 import { async } from 'rxjs';
 import { CreateBlockUserDto } from 'src/block-user/dto/create-block-user.dto';
-import { BlockUser } from '@prisma/client';
+import { BlockUser, LeftChat, Message, User } from '@prisma/client';
 import { BlockUserService } from 'src/block-user/block-user.service';
+import { LeftChatDto } from 'src/left-chat/dto/LeftChat.dto';
+import { LeftChatService } from 'src/left-chat/left-chat.service';
+
+interface PropsLeftChat {
+  message: Message;
+  user?: User;
+}
 
 @Injectable()
 export class GatewayService {
@@ -22,6 +29,7 @@ export class GatewayService {
     private messageS: MessageService,
     private chat: ChatService,
     private blockUser: BlockUserService,
+    private leftChat: LeftChatService,
   ) {}
   async create(createGatewayDto: CreateGatewayDto, server: Server) {
     const message = await this.messageS.createMessage(createGatewayDto);
@@ -88,6 +96,50 @@ export class GatewayService {
         blockUser.user_Who_BlocketId,
       );
     }
+  }
+
+  async createLeftChat(dto: LeftChatDto, server: Server) {
+    const leftChat: LeftChat = await this.leftChat.create(dto);
+    const messageUser: PropsLeftChat = await this.messageS.messageLeft(
+      dto,
+      true,
+    );
+    server.emit(`message${leftChat.chatId}`, messageUser.message);
+    await this.prisma.userChat.delete({
+      where: {
+        id: (
+          await this.prisma.userChat.findFirst({
+            where: {
+              userId: leftChat.userId,
+              chatId: leftChat.chatId,
+            },
+          })
+        ).id,
+      },
+    });
+    server.emit(`newLeftChat${dto.idUsers}`, leftChat.chatId);
+    server.emit(`newLeftUserInChat${dto.idChat}`, {
+      ...leftChat,
+    });
+  }
+  async removeLeftChat(dto: LeftChatDto, server: Server) {
+    const leftChat: LeftChat = await this.leftChat.delete(dto);
+    const messageUser: PropsLeftChat = await this.messageS.messageLeft(
+      dto,
+      false,
+    );
+    server.emit(`message${leftChat.chatId}`, messageUser.message);
+    await this.prisma.userChat.create({
+      data: {
+        chatId: leftChat.chatId,
+        userId: leftChat.userId,
+      },
+    });
+    server.emit(`deleteLeftChat${dto.idUsers}`, leftChat.chatId);
+    server.emit(`deleteLeftUserInChat${dto.idChat}`, {
+      ...leftChat,
+      user: messageUser.user,
+    });
   }
 
   findAll() {

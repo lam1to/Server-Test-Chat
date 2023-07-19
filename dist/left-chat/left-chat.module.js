@@ -6,21 +6,21 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
     return c > 3 && r && Object.defineProperty(target, key, r), r;
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.MessageModule = void 0;
+exports.LeftChatModule = void 0;
 const common_1 = require("@nestjs/common");
-const message_service_1 = require("./message.service");
-const message_controller_1 = require("./message.controller");
+const left_chat_service_1 = require("./left-chat.service");
+const left_chat_controller_1 = require("./left-chat.controller");
 const prisma_service_1 = require("../prisma.service");
 const config_1 = require("@nestjs/config");
 const jwt_1 = require("@nestjs/jwt");
 const jwt_config_1 = require("../config/jwt.config");
 const jwt_strategy_1 = require("../auth/jwt.strategy");
-let MessageModule = exports.MessageModule = class MessageModule {
+let LeftChatModule = exports.LeftChatModule = class LeftChatModule {
 };
-exports.MessageModule = MessageModule = __decorate([
+exports.LeftChatModule = LeftChatModule = __decorate([
     (0, common_1.Module)({
-        controllers: [message_controller_1.MessageController],
-        providers: [message_service_1.MessageService, jwt_strategy_1.JwtStrategy, prisma_service_1.PrismaService],
+        controllers: [left_chat_controller_1.LeftChatController],
+        providers: [left_chat_service_1.LeftChatService, jwt_strategy_1.JwtStrategy, prisma_service_1.PrismaService],
         imports: [
             config_1.ConfigModule.forRoot(),
             jwt_1.JwtModule.registerAsync({
@@ -30,5 +30,5 @@ exports.MessageModule = MessageModule = __decorate([
             }),
         ],
     })
-], MessageModule);
-//# sourceMappingURL=message.module.js.map
+], LeftChatModule);
+//# sourceMappingURL=left-chat.module.js.map
