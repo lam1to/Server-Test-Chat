@@ -6,11 +6,28 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { JwtModule } from '@nestjs/jwt';
 import { getJwtConfig } from 'src/config/jwt.config';
 import { JwtStrategy } from 'src/auth/jwt.strategy';
+import { StorageService } from 'src/storage/storage.service';
+import { ContentImgService } from 'src/content-img/content-img.service';
+import { GatewayService } from 'src/gateway/gateway.service';
+import { GatewayGateway } from 'src/gateway/gateway.gateway';
+import { GatewayModule } from 'src/gateway/gateway.module';
+import { ChatService } from 'src/chat/chat.service';
+import { BlockUserService } from 'src/block-user/block-user.service';
+import { LeftChatService } from 'src/left-chat/left-chat.service';
+import { StorageModule } from 'src/storage/storage.module';
 
 @Module({
   controllers: [MessageController],
-  providers: [MessageService, JwtStrategy, PrismaService],
+  providers: [
+    MessageService,
+    JwtStrategy,
+    PrismaService,
+    ContentImgService,
+    StorageService,
+  ],
   imports: [
+    GatewayModule,
+    StorageModule,
     ConfigModule.forRoot(),
     JwtModule.registerAsync({
       imports: [ConfigModule],

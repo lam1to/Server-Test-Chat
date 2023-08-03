@@ -22,12 +22,13 @@ exports.GatewayModule = GatewayModule = __decorate([
         providers: [
             gateway_gateway_1.GatewayGateway,
             gateway_service_1.GatewayService,
-            prisma_service_1.PrismaService,
             message_service_1.MessageService,
             chat_service_1.ChatService,
+            prisma_service_1.PrismaService,
             block_user_service_1.BlockUserService,
             left_chat_service_1.LeftChatService,
         ],
+        exports: [gateway_gateway_1.GatewayGateway],
     })
 ], GatewayModule);
 //# sourceMappingURL=gateway.module.js.map

@@ -48,7 +48,8 @@ let ChatService = exports.ChatService = class ChatService {
         return chatWithUser;
     }
     async create(createChatDto) {
-        firstif: if (createChatDto.idUsers.length == 2) {
+        firstif: if (createChatDto.userWhoCreateId &&
+            createChatDto.idUsers.length + 1 == 2) {
             const chatUsers = await this.prisma.userChat.findMany({
                 where: {
                     userId: { in: createChatDto.idUsers.map(Number) },
@@ -78,10 +79,21 @@ let ChatService = exports.ChatService = class ChatService {
                 break firstif;
             }
         }
-        const isDbGroup = createChatDto.idUsers.length == 2 ? 'DM' : 'GroupM';
+        const isDbGroup = createChatDto.userWhoCreateId && createChatDto.idUsers.length + 1 == 2
+            ? 'DM'
+            : 'GroupM';
+        const nameChat = isDbGroup === 'DM'
+            ? (await this.prisma.user.findUnique({
+                where: {
+                    id: +createChatDto.idUsers[0],
+                },
+            })).name
+            : createChatDto.name;
         const chat = await this.prisma.chat.create({
             data: {
                 type: isDbGroup,
+                userWhoCreateId: +createChatDto.userWhoCreateId,
+                name: nameChat,
             },
         });
         const createUserChat = await this.prisma.userChat.createMany({
@@ -89,6 +101,7 @@ let ChatService = exports.ChatService = class ChatService {
                 ...createChatDto.idUsers.map((oneUserId) => {
                     return { userId: +oneUserId, chatId: chat.id };
                 }),
+                { userId: +createChatDto.userWhoCreateId, chatId: chat.id },
             ],
         });
         return chat;

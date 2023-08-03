@@ -12,10 +12,12 @@ import { MessageUpdateDto } from 'src/message/dto/messageUpdateDto.dto';
 import { MessageDeleteDto } from 'src/message/dto/messageDelete.dto';
 import { async } from 'rxjs';
 import { CreateBlockUserDto } from 'src/block-user/dto/create-block-user.dto';
-import { BlockUser, LeftChat, Message, User } from '@prisma/client';
+import { BlockUser, ContentImg, LeftChat, Message, User } from '@prisma/client';
 import { BlockUserService } from 'src/block-user/block-user.service';
 import { LeftChatDto } from 'src/left-chat/dto/LeftChat.dto';
 import { LeftChatService } from 'src/left-chat/left-chat.service';
+import { MessageCreateDto } from 'src/message/dto/messageCreateDto.dto';
+import { MessageWithImgDto } from 'src/message/dto/messageWithImg.dto';
 
 interface PropsLeftChat {
   message: Message;
@@ -25,17 +27,26 @@ interface PropsLeftChat {
 @Injectable()
 export class GatewayService {
   constructor(
-    private prisma: PrismaService,
-    private messageS: MessageService,
     private chat: ChatService,
     private blockUser: BlockUserService,
     private leftChat: LeftChatService,
+    private prisma: PrismaService,
+    private messageS: MessageService,
   ) {}
-  async create(createGatewayDto: CreateGatewayDto, server: Server) {
-    const message = await this.messageS.createMessage(createGatewayDto);
-    server.emit(`message${createGatewayDto.chatId}`, message);
-    console.log('отдали = ', message);
-    // return createGatewayDto.content;
+
+  async create(messageCreateDto: MessageCreateDto, server: Server) {
+    const message: MessageWithImgDto = await this.messageS.createMessage(
+      messageCreateDto,
+    );
+    server.emit(`message${messageCreateDto.chatId}`, message);
+    return messageCreateDto.content;
+  }
+  createWithImg(message: Message, contentImg: ContentImg[], server: Server) {
+    const messageWithImg: MessageWithImgDto = {
+      ...message,
+      contentImg: contentImg,
+    };
+    server.emit(`message${message.chatId}`, messageWithImg);
   }
 
   async createChat(dto: CreateChatDto, server: Server) {
@@ -48,6 +59,10 @@ export class GatewayService {
       );
       server.emit(`chatCreate${oneUser}`, chatWithUser);
     });
+    server.emit(
+      `chatCreate${dto.userWhoCreateId}`,
+      await this.chat.createChatWithUser(chat, dto.userWhoCreateId),
+    );
   }
 
   async deleteChat(id: string, server: Server) {

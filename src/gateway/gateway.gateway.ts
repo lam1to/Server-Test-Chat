@@ -14,6 +14,17 @@ import { MessageUpdateDto } from 'src/message/dto/messageUpdateDto.dto';
 import { MessageDeleteDto } from 'src/message/dto/messageDelete.dto';
 import { CreateBlockUserDto } from 'src/block-user/dto/create-block-user.dto';
 import { LeftChatDto } from 'src/left-chat/dto/LeftChat.dto';
+import { MessageCreateDto } from 'src/message/dto/messageCreateDto.dto';
+import { FileInterceptor, FilesInterceptor } from '@nestjs/platform-express';
+import {
+  BadRequestException,
+  Body,
+  UploadedFile,
+  UploadedFiles,
+  UseInterceptors,
+} from '@nestjs/common';
+import { memoryStorage } from 'multer';
+import { ContentImg, Message } from '@prisma/client';
 
 @WebSocketGateway({ namespace: 'chatSocket', cors: { origin: '*' } })
 export class GatewayGateway {
@@ -21,9 +32,13 @@ export class GatewayGateway {
   constructor(private readonly gatewayService: GatewayService) {}
 
   @SubscribeMessage('createGateway')
-  async create(@MessageBody() createGatewayDto: CreateGatewayDto) {
-    console.log('poluchino = ', createGatewayDto);
-    return await this.gatewayService.create(createGatewayDto, this.server);
+  async create(@Body() messageCreateDto: MessageCreateDto) {
+    return await this.gatewayService.create(messageCreateDto, this.server);
+  }
+
+  async createWithImg(message: Message, contentImg: ContentImg[]) {
+    console.log('зашло в gateWay');
+    await this.gatewayService.createWithImg(message, contentImg, this.server);
   }
 
   @SubscribeMessage('createChat')

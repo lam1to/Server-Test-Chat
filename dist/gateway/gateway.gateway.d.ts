@@ -1,5 +1,4 @@
 import { GatewayService } from './gateway.service';
-import { CreateGatewayDto } from './dto/create-gateway.dto';
 import { UpdateGatewayDto } from './dto/update-gateway.dto';
 import { Server } from 'socket.io';
 import { JoinDto } from './dto/join.dto';
@@ -8,11 +7,14 @@ import { MessageUpdateDto } from 'src/message/dto/messageUpdateDto.dto';
 import { MessageDeleteDto } from 'src/message/dto/messageDelete.dto';
 import { CreateBlockUserDto } from 'src/block-user/dto/create-block-user.dto';
 import { LeftChatDto } from 'src/left-chat/dto/LeftChat.dto';
+import { MessageCreateDto } from 'src/message/dto/messageCreateDto.dto';
+import { ContentImg, Message } from '@prisma/client';
 export declare class GatewayGateway {
     private readonly gatewayService;
     server: Server;
     constructor(gatewayService: GatewayService);
-    create(createGatewayDto: CreateGatewayDto): Promise<void>;
+    create(messageCreateDto: MessageCreateDto): Promise<string>;
+    createWithImg(message: Message, contentImg: ContentImg[]): Promise<void>;
     createChat(dto: CreateChatDto): Promise<void>;
     deleteChat(id: string): Promise<void>;
     deleteMessage(dto: MessageDeleteDto): Promise<void>;

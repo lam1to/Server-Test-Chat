@@ -22,15 +22,20 @@ model User {
   blockUser1 BlockUser[] @relation("User1")
   blockUser2 BlockUser[] @relation("User2")
   leftChat   LeftChat[]
+  chat       Chat[]
 }
 
 model Chat {
-  id        Int        @id @default(autoincrement())
-  type      String     @default("DM")
-  createdAt DateTime   @default(now()) @map("created_at")
-  userChats UserChat[]
-  messages  Message[]
-  leftChat  LeftChat[]
+  id   Int    @id @default(autoincrement())
+  type String @default("DM")
+  name String @default("EmptyName")
+
+  createdAt       DateTime   @default(now()) @map("created_at")
+  userChats       UserChat[]
+  messages        Message[]
+  leftChat        LeftChat[]
+  User            User?      @relation(fields: [userWhoCreateId], references: [id])
+  userWhoCreateId Int?
 }
 
 model UserChat {
@@ -43,14 +48,14 @@ model UserChat {
 }
 
 model Message {
-  id        Int      @id @default(autoincrement())
-  content   String
-  createdAt DateTime @default(now()) @map("created_at")
-
-  Chat   Chat? @relation(fields: [chatId], references: [id])
-  chatId Int?
-  User   User? @relation(fields: [userId], references: [id])
-  userId Int?
+  id         Int          @id @default(autoincrement())
+  content    String
+  createdAt  DateTime     @default(now()) @map("created_at")
+  Chat       Chat?        @relation(fields: [chatId], references: [id])
+  chatId     Int?
+  User       User?        @relation(fields: [userId], references: [id])
+  userId     Int?
+  contentImg ContentImg[]
 }
 
 model BlockUser {
@@ -70,4 +75,11 @@ model LeftChat {
   Chat      Chat?    @relation(fields: [chatId], references: [id])
   chatId    Int?
   createdAt DateTime @default(now()) @map("created_at")
+}
+
+model ContentImg {
+  id        Int      @id @default(autoincrement())
+  Message   Message? @relation(fields: [messageId], references: [id])
+  messageId Int?
+  image_url String   @default("empty")
 }

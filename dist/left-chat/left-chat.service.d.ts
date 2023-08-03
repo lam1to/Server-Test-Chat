@@ -5,15 +5,15 @@ export declare class LeftChatService {
     constructor(prisma: PrismaService);
     create(dto: LeftChatDto): Promise<{
         id: number;
-        userId: number;
-        chatId: number;
         createdAt: Date;
+        chatId: number;
+        userId: number;
     } & {}>;
     delete(dto: LeftChatDto): Promise<{
         id: number;
-        userId: number;
-        chatId: number;
         createdAt: Date;
+        chatId: number;
+        userId: number;
     } & {}>;
     findAll(id: string): Promise<number[]>;
 }

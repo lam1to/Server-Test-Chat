@@ -17,14 +17,31 @@ let MessageService = exports.MessageService = class MessageService {
         this.prisma = prisma;
     }
     async createMessage(dto) {
-        const message = await this.prisma.message.create({
-            data: {
-                chatId: +dto.chatId,
-                userId: +dto.userId,
-                content: dto.content,
-            },
-        });
-        return message;
+        console.log('зашли в обычное создание');
+        try {
+            const message = await this.prisma.message.create({
+                data: {
+                    chatId: +dto.chatId,
+                    userId: +dto.userId,
+                    content: dto.content,
+                },
+            });
+            return message;
+        }
+        catch (error) {
+            throw new common_1.BadRequestException(error.message);
+        }
+    }
+    async createMessageWithImg(dto, files, gateway, storage, contentImg) {
+        console.log('file = ', files);
+        console.log('message = ', dto);
+        const imgUrl = await storage.uploadFile(files);
+        console.log('imgUrl mas = ', imgUrl);
+        const message = await this.createMessage(dto);
+        console.log('message create = ', message);
+        const createContentImg = await contentImg.create(imgUrl, message.id);
+        console.log('contentImg = ', createContentImg);
+        gateway.createWithImg(message, createContentImg);
     }
     async updateMessage(dto) {
         const upMessage = await this.prisma.message.update({

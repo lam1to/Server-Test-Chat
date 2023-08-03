@@ -1,7 +1,11 @@
+/// <reference types="multer" />
 import { PrismaService } from 'src/prisma.service';
 import { MessageCreateDto } from './dto/messageCreateDto.dto';
 import { MessageUpdateDto } from './dto/messageUpdateDto.dto';
 import { LeftChatDto } from 'src/left-chat/dto/LeftChat.dto';
+import { StorageService } from 'src/storage/storage.service';
+import { ContentImgService } from 'src/content-img/content-img.service';
+import { GatewayGateway } from 'src/gateway/gateway.gateway';
 export declare class MessageService {
     private prisma;
     constructor(prisma: PrismaService);
@@ -12,6 +16,7 @@ export declare class MessageService {
         chatId: number;
         userId: number;
     } & {}>;
+    createMessageWithImg(dto: MessageCreateDto, files: Express.Multer.File[], gateway: GatewayGateway, storage: StorageService, contentImg: ContentImgService): Promise<void>;
     updateMessage(dto: MessageUpdateDto): Promise<{
         id: number;
         content: string;

@@ -15,7 +15,6 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.GatewayGateway = void 0;
 const websockets_1 = require("@nestjs/websockets");
 const gateway_service_1 = require("./gateway.service");
-const create_gateway_dto_1 = require("./dto/create-gateway.dto");
 const update_gateway_dto_1 = require("./dto/update-gateway.dto");
 const socket_io_1 = require("socket.io");
 const join_dto_1 = require("./dto/join.dto");
@@ -24,13 +23,18 @@ const messageUpdateDto_dto_1 = require("../message/dto/messageUpdateDto.dto");
 const messageDelete_dto_1 = require("../message/dto/messageDelete.dto");
 const create_block_user_dto_1 = require("../block-user/dto/create-block-user.dto");
 const LeftChat_dto_1 = require("../left-chat/dto/LeftChat.dto");
+const messageCreateDto_dto_1 = require("../message/dto/messageCreateDto.dto");
+const common_1 = require("@nestjs/common");
 let GatewayGateway = exports.GatewayGateway = class GatewayGateway {
     constructor(gatewayService) {
         this.gatewayService = gatewayService;
     }
-    async create(createGatewayDto) {
-        console.log('poluchino = ', createGatewayDto);
-        return await this.gatewayService.create(createGatewayDto, this.server);
+    async create(messageCreateDto) {
+        return await this.gatewayService.create(messageCreateDto, this.server);
+    }
+    async createWithImg(message, contentImg) {
+        console.log('зашло в gateWay');
+        await this.gatewayService.createWithImg(message, contentImg, this.server);
     }
     createChat(dto) {
         console.log('на создание чата в сокете пришло = ', dto);
@@ -80,9 +84,9 @@ __decorate([
 ], GatewayGateway.prototype, "server", void 0);
 __decorate([
     (0, websockets_1.SubscribeMessage)('createGateway'),
-    __param(0, (0, websockets_1.MessageBody)()),
+    __param(0, (0, common_1.Body)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [create_gateway_dto_1.CreateGatewayDto]),
+    __metadata("design:paramtypes", [messageCreateDto_dto_1.MessageCreateDto]),
     __metadata("design:returntype", Promise)
 ], GatewayGateway.prototype, "create", null);
 __decorate([

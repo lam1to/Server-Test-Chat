@@ -17,17 +17,24 @@ const chat_service_1 = require("../chat/chat.service");
 const block_user_service_1 = require("../block-user/block-user.service");
 const left_chat_service_1 = require("../left-chat/left-chat.service");
 let GatewayService = exports.GatewayService = class GatewayService {
-    constructor(prisma, messageS, chat, blockUser, leftChat) {
-        this.prisma = prisma;
-        this.messageS = messageS;
+    constructor(chat, blockUser, leftChat, prisma, messageS) {
         this.chat = chat;
         this.blockUser = blockUser;
         this.leftChat = leftChat;
+        this.prisma = prisma;
+        this.messageS = messageS;
     }
-    async create(createGatewayDto, server) {
-        const message = await this.messageS.createMessage(createGatewayDto);
-        server.emit(`message${createGatewayDto.chatId}`, message);
-        console.log('отдали = ', message);
+    async create(messageCreateDto, server) {
+        const message = await this.messageS.createMessage(messageCreateDto);
+        server.emit(`message${messageCreateDto.chatId}`, message);
+        return messageCreateDto.content;
+    }
+    createWithImg(message, contentImg, server) {
+        const messageWithImg = {
+            ...message,
+            contentImg: contentImg,
+        };
+        server.emit(`message${message.chatId}`, messageWithImg);
     }
     async createChat(dto, server) {
         const chat = await this.chat.create(dto);
@@ -35,6 +42,7 @@ let GatewayService = exports.GatewayService = class GatewayService {
             const chatWithUser = await this.chat.createChatWithUser(chat, oneUser);
             server.emit(`chatCreate${oneUser}`, chatWithUser);
         });
+        server.emit(`chatCreate${dto.userWhoCreateId}`, await this.chat.createChatWithUser(chat, dto.userWhoCreateId));
     }
     async deleteChat(id, server) {
         const deleteChat = await this.chat.remove(+id);
@@ -119,10 +127,10 @@ let GatewayService = exports.GatewayService = class GatewayService {
 };
 exports.GatewayService = GatewayService = __decorate([
     (0, common_1.Injectable)(),
-    __metadata("design:paramtypes", [prisma_service_1.PrismaService,
-        message_service_1.MessageService,
-        chat_service_1.ChatService,
+    __metadata("design:paramtypes", [chat_service_1.ChatService,
         block_user_service_1.BlockUserService,
-        left_chat_service_1.LeftChatService])
+        left_chat_service_1.LeftChatService,
+        prisma_service_1.PrismaService,
+        message_service_1.MessageService])
 ], GatewayService);
 //# sourceMappingURL=gateway.service.js.map

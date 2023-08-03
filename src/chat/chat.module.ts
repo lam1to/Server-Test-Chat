@@ -6,6 +6,7 @@ import { JwtStrategy } from 'src/auth/jwt.strategy';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { JwtModule } from '@nestjs/jwt';
 import { getJwtConfig } from 'src/config/jwt.config';
+import { GatewayService } from 'src/gateway/gateway.service';
 
 @Module({
   controllers: [ChatController],

@@ -14,14 +14,18 @@ export declare class ChatService {
     create(createChatDto: CreateChatDto): Promise<{
         id: number;
         createdAt: Date;
+        name: string;
         type: string;
+        userWhoCreateId: number;
     } & {}>;
     findAll(idUsers: string): Promise<IForAllChat[]>;
     remove(id: number): Promise<{
         deleteChat: {
             id: number;
             createdAt: Date;
+            name: string;
             type: string;
+            userWhoCreateId: number;
         } & {};
         userInChat: number[];
     }>;

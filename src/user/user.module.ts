@@ -11,7 +11,7 @@ import { JwtStrategy } from 'src/auth/jwt.strategy';
   controllers: [UserController],
   providers: [UserService, PrismaService],
   imports: [
-    ConfigModule.forRoot(),
+    ConfigModule.forRoot({ isGlobal: true }),
     JwtModule.registerAsync({
       imports: [ConfigModule],
       inject: [ConfigService],

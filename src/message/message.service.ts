@@ -1,9 +1,14 @@
-import { Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import { PrismaService } from 'src/prisma.service';
 import { MessageCreateDto } from './dto/messageCreateDto.dto';
-import { LeftChat, Message, User } from '@prisma/client';
+import { ContentImg, LeftChat, Message, User } from '@prisma/client';
 import { MessageUpdateDto } from './dto/messageUpdateDto.dto';
 import { LeftChatDto } from 'src/left-chat/dto/LeftChat.dto';
+import { CreateStorageUrlImg } from 'src/storage/dto/createStorageUrlImg.dto';
+import { StorageService } from 'src/storage/storage.service';
+import { ContentImgService } from 'src/content-img/content-img.service';
+import { GatewayGateway } from 'src/gateway/gateway.gateway';
+import { error } from 'console';
 
 interface updateData {
   idMessage: string;
@@ -14,14 +19,40 @@ export class MessageService {
   constructor(private prisma: PrismaService) {}
 
   async createMessage(dto: MessageCreateDto) {
-    const message: Message = await this.prisma.message.create({
-      data: {
-        chatId: +dto.chatId,
-        userId: +dto.userId,
-        content: dto.content,
-      },
-    });
-    return message;
+    console.log('зашли в обычное создание');
+    try {
+      const message: Message = await this.prisma.message.create({
+        data: {
+          chatId: +dto.chatId,
+          userId: +dto.userId,
+          content: dto.content,
+        },
+      });
+      return message;
+    } catch (error) {
+      throw new BadRequestException(error.message);
+    }
+  }
+
+  async createMessageWithImg(
+    dto: MessageCreateDto,
+    files: Express.Multer.File[],
+    gateway: GatewayGateway,
+    storage: StorageService,
+    contentImg: ContentImgService,
+  ) {
+    console.log('file = ', files);
+    console.log('message = ', dto);
+    const imgUrl: CreateStorageUrlImg[] = await storage.uploadFile(files);
+    console.log('imgUrl mas = ', imgUrl);
+    const message: Message = await this.createMessage(dto);
+    console.log('message create = ', message);
+    const createContentImg: ContentImg[] = await contentImg.create(
+      imgUrl,
+      message.id,
+    );
+    console.log('contentImg = ', createContentImg);
+    gateway.createWithImg(message, createContentImg);
   }
 
   async updateMessage(dto: MessageUpdateDto) {

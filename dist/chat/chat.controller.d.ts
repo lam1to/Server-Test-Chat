@@ -6,14 +6,18 @@ export declare class ChatController {
     create(createChatDto: CreateChatDto): Promise<{
         id: number;
         createdAt: Date;
+        name: string;
         type: string;
+        userWhoCreateId: number;
     } & {}>;
     findAll(req: Request): Promise<import("./chat.service").IForAllChat[]>;
     remove(id: string): Promise<{
         deleteChat: {
             id: number;
             createdAt: Date;
+            name: string;
             type: string;
+            userWhoCreateId: number;
         } & {};
         userInChat: number[];
     }>;
