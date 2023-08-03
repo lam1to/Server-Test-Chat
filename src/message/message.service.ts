@@ -9,6 +9,7 @@ import { StorageService } from 'src/storage/storage.service';
 import { ContentImgService } from 'src/content-img/content-img.service';
 import { GatewayGateway } from 'src/gateway/gateway.gateway';
 import { error } from 'console';
+import { MessageWithImgDto } from './dto/messageWithImg.dto';
 
 interface updateData {
   idMessage: string;
@@ -68,14 +69,12 @@ export class MessageService {
   }
 
   async getAllForChat(id: string, idUser: string) {
-    console.log('userId = ', idUser);
     const leftChat: LeftChat = await this.prisma.leftChat.findFirst({
       where: {
         chatId: +id,
         userId: +idUser,
       },
     });
-    console.log('leftChat который нашел = ', leftChat);
     const messages: Message[] = await this.prisma.message.findMany({
       where: {
         chatId: +id,
@@ -89,7 +88,21 @@ export class MessageService {
       return filterMessages;
     }
     messages.sort((one, two) => one.id - two.id);
-    return messages;
+    const contentImg: ContentImg[] = await this.prisma.contentImg.findMany({
+      where: {
+        messageId: { in: messages.map((oneMessage) => oneMessage.id) },
+      },
+    });
+    console.log('contentImg = ', contentImg);
+    const messagesWithImg: MessageWithImgDto[] = messages.map((oneMessage) => {
+      return {
+        ...oneMessage,
+        contentImg: contentImg.filter(
+          (oneContentImg) => oneContentImg.messageId === oneMessage.id,
+        ),
+      };
+    });
+    return messagesWithImg;
   }
   async remove(id: string) {
     const message: Message = await this.prisma.message.delete({

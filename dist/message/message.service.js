@@ -55,14 +55,12 @@ let MessageService = exports.MessageService = class MessageService {
         return upMessage;
     }
     async getAllForChat(id, idUser) {
-        console.log('userId = ', idUser);
         const leftChat = await this.prisma.leftChat.findFirst({
             where: {
                 chatId: +id,
                 userId: +idUser,
             },
         });
-        console.log('leftChat который нашел = ', leftChat);
         const messages = await this.prisma.message.findMany({
             where: {
                 chatId: +id,
@@ -76,7 +74,19 @@ let MessageService = exports.MessageService = class MessageService {
             return filterMessages;
         }
         messages.sort((one, two) => one.id - two.id);
-        return messages;
+        const contentImg = await this.prisma.contentImg.findMany({
+            where: {
+                messageId: { in: messages.map((oneMessage) => oneMessage.id) },
+            },
+        });
+        console.log('contentImg = ', contentImg);
+        const messagesWithImg = messages.map((oneMessage) => {
+            return {
+                ...oneMessage,
+                contentImg: contentImg.filter((oneContentImg) => oneContentImg.messageId === oneMessage.id),
+            };
+        });
+        return messagesWithImg;
     }
     async remove(id) {
         const message = await this.prisma.message.delete({
