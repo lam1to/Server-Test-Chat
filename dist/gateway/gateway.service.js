@@ -16,20 +16,31 @@ const message_service_1 = require("../message/message.service");
 const chat_service_1 = require("../chat/chat.service");
 const block_user_service_1 = require("../block-user/block-user.service");
 const left_chat_service_1 = require("../left-chat/left-chat.service");
+const content_img_service_1 = require("../content-img/content-img.service");
 let GatewayService = exports.GatewayService = class GatewayService {
-    constructor(chat, blockUser, leftChat, prisma, messageS) {
+    constructor(chat, blockUser, leftChat, prisma, messageS, contentImg) {
         this.chat = chat;
         this.blockUser = blockUser;
         this.leftChat = leftChat;
         this.prisma = prisma;
         this.messageS = messageS;
+        this.contentImg = contentImg;
     }
     async create(messageCreateDto, server) {
         const message = await this.messageS.createMessage(messageCreateDto);
         server.emit(`message${messageCreateDto.chatId}`, message);
         return messageCreateDto.content;
     }
-    createWithImg(message, contentImg, server) {
+    async createWithImg(dto, server) {
+        console.log('что прищло на создание = ', dto);
+        console.log('imgUrl mas = ', dto.masUrl);
+        const message = await this.messageS.createMessage({
+            content: dto.content,
+            userId: dto.userId,
+            chatId: dto.chatId,
+        });
+        console.log('message create = ', message);
+        const contentImg = await this.contentImg.createMany(dto.masUrl, message.id);
         const messageWithImg = {
             ...message,
             contentImg: contentImg,
@@ -109,6 +120,7 @@ let GatewayService = exports.GatewayService = class GatewayService {
             user: messageUser.user,
         });
     }
+    async loadingImg(server) { }
     findAll() {
         return `This action returns all gateway`;
     }
@@ -131,6 +143,7 @@ exports.GatewayService = GatewayService = __decorate([
         block_user_service_1.BlockUserService,
         left_chat_service_1.LeftChatService,
         prisma_service_1.PrismaService,
-        message_service_1.MessageService])
+        message_service_1.MessageService,
+        content_img_service_1.ContentImgService])
 ], GatewayService);
 //# sourceMappingURL=gateway.service.js.map

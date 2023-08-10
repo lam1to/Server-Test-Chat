@@ -35,27 +35,6 @@ export class MessageService {
     }
   }
 
-  async createMessageWithImg(
-    dto: MessageCreateDto,
-    files: Express.Multer.File[],
-    gateway: GatewayGateway,
-    storage: StorageService,
-    contentImg: ContentImgService,
-  ) {
-    console.log('file = ', files);
-    console.log('message = ', dto);
-    const imgUrl: CreateStorageUrlImg[] = await storage.uploadFile(files);
-    console.log('imgUrl mas = ', imgUrl);
-    const message: Message = await this.createMessage(dto);
-    console.log('message create = ', message);
-    const createContentImg: ContentImg[] = await contentImg.create(
-      imgUrl,
-      message.id,
-    );
-    console.log('contentImg = ', createContentImg);
-    gateway.createWithImg(message, createContentImg);
-  }
-
   async updateMessage(dto: MessageUpdateDto) {
     const upMessage: Message = await this.prisma.message.update({
       where: {

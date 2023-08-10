@@ -4,5 +4,6 @@ import { CreateStorageUrlImg } from 'src/storage/dto/createStorageUrlImg.dto';
 export declare class ContentImgService {
     private prisma;
     constructor(prisma: PrismaService);
-    create(filesUrl: CreateStorageUrlImg[], messageId: number): Promise<ContentImg[]>;
+    createOne(create: any): Promise<void>;
+    createMany(filesUrl: CreateStorageUrlImg[], messageId: number): Promise<ContentImg[]>;
 }

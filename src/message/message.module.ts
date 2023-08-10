@@ -18,16 +18,8 @@ import { StorageModule } from 'src/storage/storage.module';
 
 @Module({
   controllers: [MessageController],
-  providers: [
-    MessageService,
-    JwtStrategy,
-    PrismaService,
-    ContentImgService,
-    StorageService,
-  ],
+  providers: [MessageService, JwtStrategy, PrismaService, ContentImgService],
   imports: [
-    GatewayModule,
-    StorageModule,
     ConfigModule.forRoot(),
     JwtModule.registerAsync({
       imports: [ConfigModule],

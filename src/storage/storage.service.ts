@@ -28,7 +28,7 @@ export class StorageService {
       .replace(/[\r\n]/g, '_');
   }
 
-  async uploadFile(uploadedFiles: Express.Multer.File[]) {
+  async uploadFiles(uploadedFiles: Express.Multer.File[]) {
     const masFileName: string[] = uploadedFiles.map((oneFile) =>
       this.setFilename(oneFile),
     );
@@ -36,11 +36,11 @@ export class StorageService {
       this.bucket.file(oneFileName),
     );
     try {
-      await masFileBucket.map((oneFileBucket, i) =>
-        oneFileBucket.save(uploadedFiles[i].buffer, {
+      for (let i = 0; i < masFileBucket.length; i++) {
+        await masFileBucket[i].save(uploadedFiles[i].buffer, {
           contentType: uploadedFiles[i].mimetype,
-        }),
-      );
+        });
+      }
     } catch (error) {
       throw new BadRequestException(error?.message);
     }
@@ -64,5 +64,22 @@ export class StorageService {
     } catch (error) {
       throw new BadRequestException(error?.message);
     }
+  }
+
+  async uploadFile(uploadedFile: Express.Multer.File) {
+    const fileName: string = this.setFilename(uploadedFile);
+
+    const fileBucket = this.bucket.file(fileName);
+
+    try {
+      await fileBucket.save(uploadedFile.buffer, {
+        contentType: uploadedFile.mimetype,
+      });
+    } catch (error) {
+      throw new BadRequestException(error?.message);
+    }
+    return {
+      imgUrl: `https://storage.googleapis.com/${this.bucket.name}/${fileBucket.name}`,
+    };
   }
 }

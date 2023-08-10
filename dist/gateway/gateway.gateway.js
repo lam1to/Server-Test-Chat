@@ -25,6 +25,7 @@ const create_block_user_dto_1 = require("../block-user/dto/create-block-user.dto
 const LeftChat_dto_1 = require("../left-chat/dto/LeftChat.dto");
 const messageCreateDto_dto_1 = require("../message/dto/messageCreateDto.dto");
 const common_1 = require("@nestjs/common");
+const messageCreateWithImg_dto_1 = require("../message/dto/messageCreateWithImg.dto");
 let GatewayGateway = exports.GatewayGateway = class GatewayGateway {
     constructor(gatewayService) {
         this.gatewayService = gatewayService;
@@ -32,9 +33,10 @@ let GatewayGateway = exports.GatewayGateway = class GatewayGateway {
     async create(messageCreateDto) {
         return await this.gatewayService.create(messageCreateDto, this.server);
     }
-    async createWithImg(message, contentImg) {
+    async createWithImg(messageWithImgCreateDto) {
         console.log('зашло в gateWay');
-        await this.gatewayService.createWithImg(message, contentImg, this.server);
+        console.log('получили такие данные = ', messageWithImgCreateDto);
+        await this.gatewayService.createWithImg(messageWithImgCreateDto, this.server);
     }
     createChat(dto) {
         console.log('на создание чата в сокете пришло = ', dto);
@@ -89,6 +91,13 @@ __decorate([
     __metadata("design:paramtypes", [messageCreateDto_dto_1.MessageCreateDto]),
     __metadata("design:returntype", Promise)
 ], GatewayGateway.prototype, "create", null);
+__decorate([
+    (0, websockets_1.SubscribeMessage)('createMessageWithImg'),
+    __param(0, (0, common_1.Body)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [messageCreateWithImg_dto_1.messageWithImgCreateDto]),
+    __metadata("design:returntype", Promise)
+], GatewayGateway.prototype, "createWithImg", null);
 __decorate([
     (0, websockets_1.SubscribeMessage)('createChat'),
     __param(0, (0, websockets_1.MessageBody)()),

@@ -29,13 +29,15 @@ let StorageService = exports.StorageService = class StorageService {
             .replace(/^\/+/g, '')
             .replace(/[\r\n]/g, '_');
     }
-    async uploadFile(uploadedFiles) {
+    async uploadFiles(uploadedFiles) {
         const masFileName = uploadedFiles.map((oneFile) => this.setFilename(oneFile));
         const masFileBucket = masFileName.map((oneFileName) => this.bucket.file(oneFileName));
         try {
-            await masFileBucket.map((oneFileBucket, i) => oneFileBucket.save(uploadedFiles[i].buffer, {
-                contentType: uploadedFiles[i].mimetype,
-            }));
+            for (let i = 0; i < masFileBucket.length; i++) {
+                await masFileBucket[i].save(uploadedFiles[i].buffer, {
+                    contentType: uploadedFiles[i].mimetype,
+                });
+            }
         }
         catch (error) {
             throw new common_1.BadRequestException(error?.message);
@@ -56,6 +58,21 @@ let StorageService = exports.StorageService = class StorageService {
         catch (error) {
             throw new common_1.BadRequestException(error?.message);
         }
+    }
+    async uploadFile(uploadedFile) {
+        const fileName = this.setFilename(uploadedFile);
+        const fileBucket = this.bucket.file(fileName);
+        try {
+            await fileBucket.save(uploadedFile.buffer, {
+                contentType: uploadedFile.mimetype,
+            });
+        }
+        catch (error) {
+            throw new common_1.BadRequestException(error?.message);
+        }
+        return {
+            imgUrl: `https://storage.googleapis.com/${this.bucket.name}/${fileBucket.name}`,
+        };
     }
 };
 exports.StorageService = StorageService = __decorate([

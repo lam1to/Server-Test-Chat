@@ -8,6 +8,7 @@ import { BlockUserService } from 'src/block-user/block-user.service';
 import { LeftChatService } from 'src/left-chat/left-chat.service';
 import { MessageModule } from 'src/message/message.module';
 import { ChatModule } from 'src/chat/chat.module';
+import { ContentImgService } from 'src/content-img/content-img.service';
 
 @Module({
   providers: [
@@ -18,6 +19,7 @@ import { ChatModule } from 'src/chat/chat.module';
     PrismaService,
     BlockUserService,
     LeftChatService,
+    ContentImgService,
   ],
   exports: [GatewayGateway],
 })

@@ -6,8 +6,11 @@ export declare class StorageService {
     private storage;
     constructor(configService: ConfigService);
     private setFilename;
-    uploadFile(uploadedFiles: Express.Multer.File[]): Promise<{
+    uploadFiles(uploadedFiles: Express.Multer.File[]): Promise<{
         imgUrl: string;
     }[]>;
     removeFile(fileName: string): Promise<void>;
+    uploadFile(uploadedFile: Express.Multer.File): Promise<{
+        imgUrl: string;
+    }>;
 }

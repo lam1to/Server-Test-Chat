@@ -8,15 +8,29 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
+var __param = (this && this.__param) || function (paramIndex, decorator) {
+    return function (target, key) { decorator(target, key, paramIndex); }
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.ContentImgController = void 0;
 const common_1 = require("@nestjs/common");
 const content_img_service_1 = require("./content-img.service");
+const CreateContentImg_dto_1 = require("./Dto/CreateContentImg.dto");
 let ContentImgController = exports.ContentImgController = class ContentImgController {
     constructor(contentImgService) {
         this.contentImgService = contentImgService;
     }
+    async create(dto) {
+        return this.contentImgService.createOne(dto);
+    }
 };
+__decorate([
+    (0, common_1.Post)('createContentImg'),
+    __param(0, (0, common_1.Body)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [CreateContentImg_dto_1.createContentImgDto]),
+    __metadata("design:returntype", Promise)
+], ContentImgController.prototype, "create", null);
 exports.ContentImgController = ContentImgController = __decorate([
     (0, common_1.Controller)('content-img'),
     __metadata("design:paramtypes", [content_img_service_1.ContentImgService])

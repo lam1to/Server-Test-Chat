@@ -1,16 +1,11 @@
-/// <reference types="multer" />
 import { MessageService } from './message.service';
 import { MessageCreateDto } from './dto/messageCreateDto.dto';
 import { MessageUpdateDto } from './dto/messageUpdateDto.dto';
-import { GatewayGateway } from 'src/gateway/gateway.gateway';
-import { StorageService } from 'src/storage/storage.service';
 import { ContentImgService } from 'src/content-img/content-img.service';
 export declare class MessageController {
     private readonly messageService;
-    private gateway;
-    private storage;
     private contentImg;
-    constructor(messageService: MessageService, gateway: GatewayGateway, storage: StorageService, contentImg: ContentImgService);
+    constructor(messageService: MessageService, contentImg: ContentImgService);
     createMessage(dto: MessageCreateDto): Promise<{
         id: number;
         content: string;
@@ -32,5 +27,4 @@ export declare class MessageController {
         chatId: number;
         userId: number;
     } & {}>;
-    uploadFile(files: Express.Multer.File[], dto: MessageCreateDto): Promise<void>;
 }

@@ -18,6 +18,8 @@ import { LeftChatDto } from 'src/left-chat/dto/LeftChat.dto';
 import { LeftChatService } from 'src/left-chat/left-chat.service';
 import { MessageCreateDto } from 'src/message/dto/messageCreateDto.dto';
 import { MessageWithImgDto } from 'src/message/dto/messageWithImg.dto';
+import { messageWithImgCreateDto } from 'src/message/dto/messageCreateWithImg.dto';
+import { ContentImgService } from 'src/content-img/content-img.service';
 
 interface PropsLeftChat {
   message: Message;
@@ -32,6 +34,7 @@ export class GatewayService {
     private leftChat: LeftChatService,
     private prisma: PrismaService,
     private messageS: MessageService,
+    private contentImg: ContentImgService,
   ) {}
 
   async create(messageCreateDto: MessageCreateDto, server: Server) {
@@ -41,7 +44,19 @@ export class GatewayService {
     server.emit(`message${messageCreateDto.chatId}`, message);
     return messageCreateDto.content;
   }
-  createWithImg(message: Message, contentImg: ContentImg[], server: Server) {
+  async createWithImg(dto: messageWithImgCreateDto, server: Server) {
+    console.log('что прищло на создание = ', dto);
+    console.log('imgUrl mas = ', dto.masUrl);
+    const message: Message = await this.messageS.createMessage({
+      content: dto.content,
+      userId: dto.userId,
+      chatId: dto.chatId,
+    });
+    console.log('message create = ', message);
+    const contentImg: ContentImg[] = await this.contentImg.createMany(
+      dto.masUrl,
+      message.id,
+    );
     const messageWithImg: MessageWithImgDto = {
       ...message,
       contentImg: contentImg,
@@ -156,6 +171,8 @@ export class GatewayService {
       user: messageUser.user,
     });
   }
+
+  async loadingImg(server: Server) {}
 
   findAll() {
     return `This action returns all gateway`;

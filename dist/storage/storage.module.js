@@ -9,10 +9,12 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.StorageModule = void 0;
 const common_1 = require("@nestjs/common");
 const storage_service_1 = require("./storage.service");
+const storage_controller_1 = require("./storage.controller");
 let StorageModule = exports.StorageModule = class StorageModule {
 };
 exports.StorageModule = StorageModule = __decorate([
     (0, common_1.Module)({
+        controllers: [storage_controller_1.StorageController],
         providers: [storage_service_1.StorageService],
         exports: [storage_service_1.StorageService],
     })

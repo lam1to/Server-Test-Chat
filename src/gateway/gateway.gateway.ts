@@ -25,6 +25,7 @@ import {
 } from '@nestjs/common';
 import { memoryStorage } from 'multer';
 import { ContentImg, Message } from '@prisma/client';
+import { messageWithImgCreateDto } from 'src/message/dto/messageCreateWithImg.dto';
 
 @WebSocketGateway({ namespace: 'chatSocket', cors: { origin: '*' } })
 export class GatewayGateway {
@@ -36,9 +37,16 @@ export class GatewayGateway {
     return await this.gatewayService.create(messageCreateDto, this.server);
   }
 
-  async createWithImg(message: Message, contentImg: ContentImg[]) {
+  @SubscribeMessage('createMessageWithImg')
+  async createWithImg(
+    @Body() messageWithImgCreateDto: messageWithImgCreateDto,
+  ) {
     console.log('зашло в gateWay');
-    await this.gatewayService.createWithImg(message, contentImg, this.server);
+    console.log('получили такие данные = ', messageWithImgCreateDto);
+    await this.gatewayService.createWithImg(
+      messageWithImgCreateDto,
+      this.server,
+    );
   }
 
   @SubscribeMessage('createChat')

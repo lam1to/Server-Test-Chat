@@ -32,17 +32,6 @@ let MessageService = exports.MessageService = class MessageService {
             throw new common_1.BadRequestException(error.message);
         }
     }
-    async createMessageWithImg(dto, files, gateway, storage, contentImg) {
-        console.log('file = ', files);
-        console.log('message = ', dto);
-        const imgUrl = await storage.uploadFile(files);
-        console.log('imgUrl mas = ', imgUrl);
-        const message = await this.createMessage(dto);
-        console.log('message create = ', message);
-        const createContentImg = await contentImg.create(imgUrl, message.id);
-        console.log('contentImg = ', createContentImg);
-        gateway.createWithImg(message, createContentImg);
-    }
     async updateMessage(dto) {
         const upMessage = await this.prisma.message.update({
             where: {
