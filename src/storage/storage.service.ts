@@ -1,6 +1,4 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
-import { CreateStorageDto } from './dto/create-storage.dto';
-import { UpdateStorageDto } from './dto/update-storage.dto';
 import { Bucket, Storage } from '@google-cloud/storage';
 import { ConfigService } from '@nestjs/config';
 import { IGoogleCloudConfig } from 'src/config/configuration';
@@ -52,14 +50,35 @@ export class StorageService {
     });
   }
 
-  async removeFile(fileName: string): Promise<void> {
-    const sanitizedFileName = fileName.replace(
+  async removeFile(imgUrl: string): Promise<void> {
+    const sanitizedFileName = imgUrl.replace(
       `https://storage.googleapis.com/${this.bucket.name}/`,
       '',
     );
     const file = this.bucket.file(sanitizedFileName);
     try {
       await file.delete();
+      return;
+    } catch (error) {
+      throw new BadRequestException(error?.message);
+    }
+  }
+
+  async removeFiles(imgUrl: string[]): Promise<void> {
+    const sanitizedFileName: string[] = imgUrl.map((oneImgUrl) => {
+      return oneImgUrl.replace(
+        `https://storage.googleapis.com/${this.bucket.name}/`,
+        '',
+      );
+    });
+
+    const files = sanitizedFileName.map((oneImgUrl) => {
+      return this.bucket.file(oneImgUrl);
+    });
+    try {
+      for (let i = 0; i < files.length; i++) {
+        await files[i].delete();
+      }
       return;
     } catch (error) {
       throw new BadRequestException(error?.message);

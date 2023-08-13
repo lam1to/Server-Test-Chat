@@ -17,12 +17,16 @@ const common_1 = require("@nestjs/common");
 const storage_service_1 = require("./storage.service");
 const platform_express_1 = require("@nestjs/platform-express");
 const multer_1 = require("multer");
+const removeFile_dto_1 = require("./dto/removeFile.dto");
 let StorageController = exports.StorageController = class StorageController {
     constructor(storageService) {
         this.storageService = storageService;
     }
     async uploadStorageFile(file) {
         return this.storageService.uploadFile(file);
+    }
+    async remove(dto) {
+        return this.storageService.removeFile(dto.image_url);
     }
 };
 __decorate([
@@ -41,6 +45,13 @@ __decorate([
     __metadata("design:paramtypes", [Object]),
     __metadata("design:returntype", Promise)
 ], StorageController.prototype, "uploadStorageFile", null);
+__decorate([
+    (0, common_1.Post)('removeOneFile'),
+    __param(0, (0, common_1.Body)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [removeFile_dto_1.removeFileDto]),
+    __metadata("design:returntype", Promise)
+], StorageController.prototype, "remove", null);
 exports.StorageController = StorageController = __decorate([
     (0, common_1.Controller)('storage'),
     __metadata("design:paramtypes", [storage_service_1.StorageService])

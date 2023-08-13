@@ -9,7 +9,8 @@ export declare class StorageService {
     uploadFiles(uploadedFiles: Express.Multer.File[]): Promise<{
         imgUrl: string;
     }[]>;
-    removeFile(fileName: string): Promise<void>;
+    removeFile(imgUrl: string): Promise<void>;
+    removeFiles(imgUrl: string[]): Promise<void>;
     uploadFile(uploadedFile: Express.Multer.File): Promise<{
         imgUrl: string;
     }>;

@@ -1,7 +1,9 @@
 import { PrismaService } from 'src/prisma.service';
 import { MessageCreateDto } from './dto/messageCreateDto.dto';
+import { Message } from '@prisma/client';
 import { MessageUpdateDto } from './dto/messageUpdateDto.dto';
 import { LeftChatDto } from 'src/left-chat/dto/LeftChat.dto';
+import { MessageWithImgDto } from './dto/messageWithImg.dto';
 export declare class MessageService {
     private prisma;
     constructor(prisma: PrismaService);
@@ -19,13 +21,8 @@ export declare class MessageService {
         chatId: number;
         userId: number;
     } & {}>;
-    getAllForChat(id: string, idUser: string): Promise<({
-        id: number;
-        content: string;
-        createdAt: Date;
-        chatId: number;
-        userId: number;
-    } & {})[]>;
+    getMessageWithImg(message: Message[]): Promise<MessageWithImgDto[]>;
+    getAllForChat(id: string, idUser: string): Promise<MessageWithImgDto[]>;
     remove(id: string): Promise<{
         id: number;
         content: string;

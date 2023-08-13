@@ -20,6 +20,12 @@ import { MessageCreateDto } from 'src/message/dto/messageCreateDto.dto';
 import { MessageWithImgDto } from 'src/message/dto/messageWithImg.dto';
 import { messageWithImgCreateDto } from 'src/message/dto/messageCreateWithImg.dto';
 import { ContentImgService } from 'src/content-img/content-img.service';
+import {
+  deleteAddContentImgsDto,
+  deleteContentImgDto,
+} from 'src/content-img/Dto/DeleteContentImg.dto';
+import { StorageService } from 'src/storage/storage.service';
+import { messageUpdateWithImgDto } from 'src/message/dto/messageUpdateWithImg.dto';
 
 interface PropsLeftChat {
   message: Message;
@@ -35,6 +41,7 @@ export class GatewayService {
     private prisma: PrismaService,
     private messageS: MessageService,
     private contentImg: ContentImgService,
+    private storage: StorageService,
   ) {}
 
   async create(messageCreateDto: MessageCreateDto, server: Server) {
@@ -45,14 +52,11 @@ export class GatewayService {
     return messageCreateDto.content;
   }
   async createWithImg(dto: messageWithImgCreateDto, server: Server) {
-    console.log('что прищло на создание = ', dto);
-    console.log('imgUrl mas = ', dto.masUrl);
     const message: Message = await this.messageS.createMessage({
       content: dto.content,
       userId: dto.userId,
       chatId: dto.chatId,
     });
-    console.log('message create = ', message);
     const contentImg: ContentImg[] = await this.contentImg.createMany(
       dto.masUrl,
       message.id,
@@ -62,6 +66,27 @@ export class GatewayService {
       contentImg: contentImg,
     };
     server.emit(`message${message.chatId}`, messageWithImg);
+  }
+
+  async editMessageWithImg(dto: messageUpdateWithImgDto, server: Server) {
+    const updateMessage = await this.messageS.updateMessage(dto);
+
+    const dataDelete: ContentImg[] = await this.contentImg.deleteContentImgs(
+      dto,
+    );
+    await this.storage.removeFiles(
+      dataDelete.map((oneDelete) => oneDelete.image_url),
+    );
+
+    await this.contentImg.createContentImgs(dto);
+    const allContentImgForMessage = await this.contentImg.findAllForMessage(
+      dto.messageId,
+    );
+    const updateMessageWithImg: MessageWithImgDto = {
+      ...updateMessage,
+      contentImg: allContentImgForMessage,
+    };
+    server.emit(`messageUpdate${dto.chatId}`, updateMessageWithImg);
   }
 
   async createChat(dto: CreateChatDto, server: Server) {
@@ -87,19 +112,22 @@ export class GatewayService {
     });
   }
   async deleteMessage(dto: MessageDeleteDto, server: Server) {
+    const deleteContentImg: ContentImg[] =
+      await this.contentImg.deleteForMessage(dto.messageId);
     const deleteMessage = await this.messageS.remove(dto.messageId);
+    if (deleteContentImg.length > 0)
+      await this.storage.removeFiles(
+        deleteContentImg.map((oneDeleteContent) => oneDeleteContent.image_url),
+      );
     server.emit(`messageDelete${dto.chatId}`, deleteMessage);
   }
   async updateMessage(dto: MessageUpdateDto, server: Server) {
-    console.log('dto in service = ', dto);
     const updateMessage = await this.messageS.updateMessage(dto);
-    console.log('updateMessage = ', updateMessage);
     server.emit(`messageUpdate${dto.chatId}`, updateMessage);
   }
 
   async createBlockUser(dto: CreateBlockUserDto, server: Server) {
     const blockUser: BlockUser = await this.blockUser.create(dto);
-    console.log('socket create blockUser = ', blockUser);
     server.emit(
       `newBlockedUser${blockUser.user_Who_BlocketId}`,
       blockUser.user_Who_Was_BlocketId,
@@ -116,7 +144,6 @@ export class GatewayService {
       +dto.idUserWhoWasBlocked,
     );
     if (blockUser) {
-      console.log('socket delete blockUser = ', blockUser);
       server.emit(
         `deleteBlockedUser${blockUser.user_Who_BlocketId}`,
         blockUser.user_Who_Was_BlocketId,

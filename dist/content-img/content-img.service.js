@@ -18,7 +18,6 @@ let ContentImgService = exports.ContentImgService = class ContentImgService {
     }
     async createOne(create) { }
     async createMany(filesUrl, messageId) {
-        console.log('зашли в создание contentImg');
         await this.prisma.contentImg.createMany({
             data: [
                 ...filesUrl.map((oneFileUrl) => {
@@ -26,14 +25,102 @@ let ContentImgService = exports.ContentImgService = class ContentImgService {
                 }),
             ],
         });
-        console.log('прошли создание ');
         const contentImg = await this.prisma.contentImg.findMany({
             where: {
                 messageId: messageId,
             },
         });
-        console.log('прошли поиск ');
         return contentImg;
+    }
+    async deleteContentImgDto(dto) {
+        const deleteContentImg = await this.prisma.contentImg.delete({
+            where: {
+                id: (await this.prisma.contentImg.findFirst({
+                    where: {
+                        messageId: +dto.messageId,
+                        image_url: dto.image_url,
+                    },
+                })).id,
+            },
+        });
+        return deleteContentImg;
+    }
+    async findAllForMessage(messageId) {
+        const allContentImgForMessage = await this.prisma.contentImg.findMany({
+            where: {
+                messageId: +messageId,
+            },
+        });
+        return allContentImgForMessage;
+    }
+    async findDeleteContentImg(dto) {
+        if (dto.messageId) {
+            const allContentImgForMessage = await this.findAllForMessage(dto.messageId);
+            const dataWhichDelete = allContentImgForMessage.filter((oneAllData) => {
+                const isConsists = Object.keys(dto.image_url.filter((onedataNewUrl) => onedataNewUrl === oneAllData.image_url)).length !== 0;
+                if (!isConsists)
+                    return oneAllData;
+            });
+            return dataWhichDelete;
+        }
+    }
+    async findAddContentImg(dto) {
+        if (dto.messageId) {
+            const allContentImgForMessage = await this.findAllForMessage(dto.messageId);
+            const dataWhichAdd = dto.image_url.filter((oneNewDataUrl) => {
+                const isConsists = Object.keys(allContentImgForMessage.filter((oneAllData) => oneAllData.image_url === oneNewDataUrl)).length !== 0;
+                if (!isConsists)
+                    return oneNewDataUrl;
+            });
+            return dataWhichAdd;
+        }
+    }
+    async createContentImgs(dto) {
+        const dataWhichAdd = await this.findAddContentImg(dto);
+        if (dataWhichAdd) {
+            await this.prisma.contentImg.createMany({
+                data: [
+                    ...dataWhichAdd.map((oneUrl) => {
+                        return { messageId: +dto.messageId, image_url: oneUrl };
+                    }),
+                ],
+            });
+            const createContentImg = await this.prisma.contentImg.findMany({
+                where: {
+                    image_url: { in: dataWhichAdd.map((oneUrl) => oneUrl) },
+                },
+            });
+            return createContentImg;
+        }
+    }
+    async deleteContentImgs(dto) {
+        const dataWhichDelete = await this.findDeleteContentImg(dto);
+        if (dataWhichDelete.length > 0) {
+            await this.prisma.contentImg.deleteMany({
+                where: {
+                    id: {
+                        in: dataWhichDelete.map((oneContenImg) => oneContenImg.id),
+                    },
+                },
+            });
+            return dataWhichDelete;
+        }
+    }
+    async deleteForMessage(messageId) {
+        const allContentImg = await this.findAllForMessage(messageId);
+        if (allContentImg.length > 0) {
+            try {
+                await this.prisma.contentImg.deleteMany({
+                    where: {
+                        id: { in: allContentImg.map((oneContenImg) => oneContenImg.id) },
+                    },
+                });
+            }
+            catch (error) {
+                throw new common_1.BadRequestException(error?.message);
+            }
+            return allContentImg;
+        }
     }
 };
 exports.ContentImgService = ContentImgService = __decorate([

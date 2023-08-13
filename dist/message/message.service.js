@@ -17,7 +17,6 @@ let MessageService = exports.MessageService = class MessageService {
         this.prisma = prisma;
     }
     async createMessage(dto) {
-        console.log('зашли в обычное создание');
         try {
             const message = await this.prisma.message.create({
                 data: {
@@ -43,6 +42,22 @@ let MessageService = exports.MessageService = class MessageService {
         });
         return upMessage;
     }
+    async getMessageWithImg(message) {
+        const contentImgForMessages = await this.prisma.contentImg.findMany({
+            where: {
+                messageId: { in: [...message.map((oneMessage) => oneMessage.id)] },
+            },
+        });
+        const messageWithImg = message.map((oneMessage) => {
+            return {
+                ...oneMessage,
+                contentImg: [
+                    ...contentImgForMessages.filter((oneContentImg) => oneContentImg.messageId === oneMessage.id),
+                ],
+            };
+        });
+        return messageWithImg;
+    }
     async getAllForChat(id, idUser) {
         const leftChat = await this.prisma.leftChat.findFirst({
             where: {
@@ -60,21 +75,11 @@ let MessageService = exports.MessageService = class MessageService {
                 return one.createdAt.getTime() <= leftChat.createdAt.getTime() + 60000;
             });
             filterMessages.sort((one, two) => one.id - two.id);
-            return filterMessages;
+            const messageWithImg = await this.getMessageWithImg(filterMessages);
+            return messageWithImg;
         }
         messages.sort((one, two) => one.id - two.id);
-        const contentImg = await this.prisma.contentImg.findMany({
-            where: {
-                messageId: { in: messages.map((oneMessage) => oneMessage.id) },
-            },
-        });
-        console.log('contentImg = ', contentImg);
-        const messagesWithImg = messages.map((oneMessage) => {
-            return {
-                ...oneMessage,
-                contentImg: contentImg.filter((oneContentImg) => oneContentImg.messageId === oneMessage.id),
-            };
-        });
+        const messagesWithImg = await this.getMessageWithImg(messages);
         return messagesWithImg;
     }
     async remove(id) {

@@ -13,13 +13,7 @@ export declare class MessageController {
         chatId: number;
         userId: number;
     } & {}>;
-    getAllForChat(id: string, req: Request): Promise<({
-        id: number;
-        content: string;
-        createdAt: Date;
-        chatId: number;
-        userId: number;
-    } & {})[]>;
+    getAllForChat(id: string, req: Request): Promise<import("./dto/messageWithImg.dto").MessageWithImgDto[]>;
     updateMessage(dto: MessageUpdateDto): Promise<{
         id: number;
         content: string;

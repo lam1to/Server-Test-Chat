@@ -4,23 +4,13 @@ import { MessageCreateDto } from './dto/messageCreateDto.dto';
 import { ContentImg, LeftChat, Message, User } from '@prisma/client';
 import { MessageUpdateDto } from './dto/messageUpdateDto.dto';
 import { LeftChatDto } from 'src/left-chat/dto/LeftChat.dto';
-import { CreateStorageUrlImg } from 'src/storage/dto/createStorageUrlImg.dto';
-import { StorageService } from 'src/storage/storage.service';
-import { ContentImgService } from 'src/content-img/content-img.service';
-import { GatewayGateway } from 'src/gateway/gateway.gateway';
-import { error } from 'console';
 import { MessageWithImgDto } from './dto/messageWithImg.dto';
 
-interface updateData {
-  idMessage: string;
-  newContent: string;
-}
 @Injectable()
 export class MessageService {
   constructor(private prisma: PrismaService) {}
 
   async createMessage(dto: MessageCreateDto) {
-    console.log('зашли в обычное создание');
     try {
       const message: Message = await this.prisma.message.create({
         data: {
@@ -47,6 +37,26 @@ export class MessageService {
     return upMessage;
   }
 
+  async getMessageWithImg(message: Message[]) {
+    const contentImgForMessages: ContentImg[] =
+      await this.prisma.contentImg.findMany({
+        where: {
+          messageId: { in: [...message.map((oneMessage) => oneMessage.id)] },
+        },
+      });
+    const messageWithImg: MessageWithImgDto[] = message.map((oneMessage) => {
+      return {
+        ...oneMessage,
+        contentImg: [
+          ...contentImgForMessages.filter(
+            (oneContentImg) => oneContentImg.messageId === oneMessage.id,
+          ),
+        ],
+      };
+    });
+    return messageWithImg;
+  }
+
   async getAllForChat(id: string, idUser: string) {
     const leftChat: LeftChat = await this.prisma.leftChat.findFirst({
       where: {
@@ -64,23 +74,16 @@ export class MessageService {
         return one.createdAt.getTime() <= leftChat.createdAt.getTime() + 60000;
       });
       filterMessages.sort((one, two) => one.id - two.id);
-      return filterMessages;
+      const messageWithImg: MessageWithImgDto[] = await this.getMessageWithImg(
+        filterMessages,
+      );
+      return messageWithImg;
     }
     messages.sort((one, two) => one.id - two.id);
-    const contentImg: ContentImg[] = await this.prisma.contentImg.findMany({
-      where: {
-        messageId: { in: messages.map((oneMessage) => oneMessage.id) },
-      },
-    });
-    console.log('contentImg = ', contentImg);
-    const messagesWithImg: MessageWithImgDto[] = messages.map((oneMessage) => {
-      return {
-        ...oneMessage,
-        contentImg: contentImg.filter(
-          (oneContentImg) => oneContentImg.messageId === oneMessage.id,
-        ),
-      };
-    });
+
+    const messagesWithImg: MessageWithImgDto[] = await this.getMessageWithImg(
+      messages,
+    );
     return messagesWithImg;
   }
   async remove(id: string) {

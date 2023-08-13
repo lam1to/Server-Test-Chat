@@ -17,14 +17,16 @@ const chat_service_1 = require("../chat/chat.service");
 const block_user_service_1 = require("../block-user/block-user.service");
 const left_chat_service_1 = require("../left-chat/left-chat.service");
 const content_img_service_1 = require("../content-img/content-img.service");
+const storage_service_1 = require("../storage/storage.service");
 let GatewayService = exports.GatewayService = class GatewayService {
-    constructor(chat, blockUser, leftChat, prisma, messageS, contentImg) {
+    constructor(chat, blockUser, leftChat, prisma, messageS, contentImg, storage) {
         this.chat = chat;
         this.blockUser = blockUser;
         this.leftChat = leftChat;
         this.prisma = prisma;
         this.messageS = messageS;
         this.contentImg = contentImg;
+        this.storage = storage;
     }
     async create(messageCreateDto, server) {
         const message = await this.messageS.createMessage(messageCreateDto);
@@ -32,20 +34,29 @@ let GatewayService = exports.GatewayService = class GatewayService {
         return messageCreateDto.content;
     }
     async createWithImg(dto, server) {
-        console.log('что прищло на создание = ', dto);
-        console.log('imgUrl mas = ', dto.masUrl);
         const message = await this.messageS.createMessage({
             content: dto.content,
             userId: dto.userId,
             chatId: dto.chatId,
         });
-        console.log('message create = ', message);
         const contentImg = await this.contentImg.createMany(dto.masUrl, message.id);
         const messageWithImg = {
             ...message,
             contentImg: contentImg,
         };
         server.emit(`message${message.chatId}`, messageWithImg);
+    }
+    async editMessageWithImg(dto, server) {
+        const updateMessage = await this.messageS.updateMessage(dto);
+        const dataDelete = await this.contentImg.deleteContentImgs(dto);
+        await this.storage.removeFiles(dataDelete.map((oneDelete) => oneDelete.image_url));
+        await this.contentImg.createContentImgs(dto);
+        const allContentImgForMessage = await this.contentImg.findAllForMessage(dto.messageId);
+        const updateMessageWithImg = {
+            ...updateMessage,
+            contentImg: allContentImgForMessage,
+        };
+        server.emit(`messageUpdate${dto.chatId}`, updateMessageWithImg);
     }
     async createChat(dto, server) {
         const chat = await this.chat.create(dto);
@@ -62,25 +73,24 @@ let GatewayService = exports.GatewayService = class GatewayService {
         });
     }
     async deleteMessage(dto, server) {
+        const deleteContentImg = await this.contentImg.deleteForMessage(dto.messageId);
         const deleteMessage = await this.messageS.remove(dto.messageId);
+        if (deleteContentImg.length > 0)
+            await this.storage.removeFiles(deleteContentImg.map((oneDeleteContent) => oneDeleteContent.image_url));
         server.emit(`messageDelete${dto.chatId}`, deleteMessage);
     }
     async updateMessage(dto, server) {
-        console.log('dto in service = ', dto);
         const updateMessage = await this.messageS.updateMessage(dto);
-        console.log('updateMessage = ', updateMessage);
         server.emit(`messageUpdate${dto.chatId}`, updateMessage);
     }
     async createBlockUser(dto, server) {
         const blockUser = await this.blockUser.create(dto);
-        console.log('socket create blockUser = ', blockUser);
         server.emit(`newBlockedUser${blockUser.user_Who_BlocketId}`, blockUser.user_Who_Was_BlocketId);
         server.emit(`newBlocker${blockUser.user_Who_Was_BlocketId}`, blockUser.user_Who_BlocketId);
     }
     async removeBlockUser(dto, server) {
         const blockUser = await this.blockUser.remove(+dto.idUserWhoBlocked, +dto.idUserWhoWasBlocked);
         if (blockUser) {
-            console.log('socket delete blockUser = ', blockUser);
             server.emit(`deleteBlockedUser${blockUser.user_Who_BlocketId}`, blockUser.user_Who_Was_BlocketId);
             server.emit(`deleteBlocker${blockUser.user_Who_Was_BlocketId}`, blockUser.user_Who_BlocketId);
         }
@@ -144,6 +154,7 @@ exports.GatewayService = GatewayService = __decorate([
         left_chat_service_1.LeftChatService,
         prisma_service_1.PrismaService,
         message_service_1.MessageService,
-        content_img_service_1.ContentImgService])
+        content_img_service_1.ContentImgService,
+        storage_service_1.StorageService])
 ], GatewayService);
 //# sourceMappingURL=gateway.service.js.map

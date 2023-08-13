@@ -14,6 +14,8 @@ import { LeftChatService } from 'src/left-chat/left-chat.service';
 import { MessageCreateDto } from 'src/message/dto/messageCreateDto.dto';
 import { messageWithImgCreateDto } from 'src/message/dto/messageCreateWithImg.dto';
 import { ContentImgService } from 'src/content-img/content-img.service';
+import { StorageService } from 'src/storage/storage.service';
+import { messageUpdateWithImgDto } from 'src/message/dto/messageUpdateWithImg.dto';
 export declare class GatewayService {
     private chat;
     private blockUser;
@@ -21,9 +23,11 @@ export declare class GatewayService {
     private prisma;
     private messageS;
     private contentImg;
-    constructor(chat: ChatService, blockUser: BlockUserService, leftChat: LeftChatService, prisma: PrismaService, messageS: MessageService, contentImg: ContentImgService);
+    private storage;
+    constructor(chat: ChatService, blockUser: BlockUserService, leftChat: LeftChatService, prisma: PrismaService, messageS: MessageService, contentImg: ContentImgService, storage: StorageService);
     create(messageCreateDto: MessageCreateDto, server: Server): Promise<string>;
     createWithImg(dto: messageWithImgCreateDto, server: Server): Promise<void>;
+    editMessageWithImg(dto: messageUpdateWithImgDto, server: Server): Promise<void>;
     createChat(dto: CreateChatDto, server: Server): Promise<void>;
     deleteChat(id: string, server: Server): Promise<void>;
     deleteMessage(dto: MessageDeleteDto, server: Server): Promise<void>;

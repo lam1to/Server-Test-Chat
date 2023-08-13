@@ -9,12 +9,14 @@ import { CreateBlockUserDto } from 'src/block-user/dto/create-block-user.dto';
 import { LeftChatDto } from 'src/left-chat/dto/LeftChat.dto';
 import { MessageCreateDto } from 'src/message/dto/messageCreateDto.dto';
 import { messageWithImgCreateDto } from 'src/message/dto/messageCreateWithImg.dto';
+import { messageUpdateWithImgDto } from 'src/message/dto/messageUpdateWithImg.dto';
 export declare class GatewayGateway {
     private readonly gatewayService;
     server: Server;
     constructor(gatewayService: GatewayService);
     create(messageCreateDto: MessageCreateDto): Promise<string>;
     createWithImg(messageWithImgCreateDto: messageWithImgCreateDto): Promise<void>;
+    editMessageWithImg(dto: messageUpdateWithImgDto): Promise<void>;
     createChat(dto: CreateChatDto): Promise<void>;
     deleteChat(id: string): Promise<void>;
     deleteMessage(dto: MessageDeleteDto): Promise<void>;

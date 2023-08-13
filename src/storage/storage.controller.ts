@@ -1,6 +1,8 @@
 import {
   BadRequestException,
+  Body,
   Controller,
+  Delete,
   Post,
   UploadedFile,
   UseInterceptors,
@@ -8,6 +10,7 @@ import {
 import { StorageService } from './storage.service';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { memoryStorage } from 'multer';
+import { removeFileDto } from './dto/removeFile.dto';
 
 @Controller('storage')
 export class StorageController {
@@ -32,5 +35,9 @@ export class StorageController {
   )
   async uploadStorageFile(@UploadedFile() file: Express.Multer.File) {
     return this.storageService.uploadFile(file);
+  }
+  @Post('removeOneFile')
+  async remove(@Body() dto: removeFileDto) {
+    return this.storageService.removeFile(dto.image_url);
   }
 }

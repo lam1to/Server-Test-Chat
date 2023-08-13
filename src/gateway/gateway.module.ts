@@ -9,6 +9,7 @@ import { LeftChatService } from 'src/left-chat/left-chat.service';
 import { MessageModule } from 'src/message/message.module';
 import { ChatModule } from 'src/chat/chat.module';
 import { ContentImgService } from 'src/content-img/content-img.service';
+import { StorageService } from 'src/storage/storage.service';
 
 @Module({
   providers: [
@@ -20,6 +21,7 @@ import { ContentImgService } from 'src/content-img/content-img.service';
     BlockUserService,
     LeftChatService,
     ContentImgService,
+    StorageService,
   ],
   exports: [GatewayGateway],
 })

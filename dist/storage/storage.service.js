@@ -48,11 +48,28 @@ let StorageService = exports.StorageService = class StorageService {
             };
         });
     }
-    async removeFile(fileName) {
-        const sanitizedFileName = fileName.replace(`https://storage.googleapis.com/${this.bucket.name}/`, '');
+    async removeFile(imgUrl) {
+        const sanitizedFileName = imgUrl.replace(`https://storage.googleapis.com/${this.bucket.name}/`, '');
         const file = this.bucket.file(sanitizedFileName);
         try {
             await file.delete();
+            return;
+        }
+        catch (error) {
+            throw new common_1.BadRequestException(error?.message);
+        }
+    }
+    async removeFiles(imgUrl) {
+        const sanitizedFileName = imgUrl.map((oneImgUrl) => {
+            return oneImgUrl.replace(`https://storage.googleapis.com/${this.bucket.name}/`, '');
+        });
+        const files = sanitizedFileName.map((oneImgUrl) => {
+            return this.bucket.file(oneImgUrl);
+        });
+        try {
+            for (let i = 0; i < files.length; i++) {
+                await files[i].delete();
+            }
             return;
         }
         catch (error) {
