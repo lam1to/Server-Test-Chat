@@ -18,6 +18,8 @@ const auth_service_1 = require("./auth.service");
 const auth_dto_1 = require("./dto/auth.dto");
 const reg_dto_1 = require("./dto/reg.dto");
 const auth_guard_1 = require("./auth.guard");
+const swagger_1 = require("@nestjs/swagger");
+const returnData_dto_1 = require("./dto/returnData.dto");
 let AuthController = exports.AuthController = class AuthController {
     constructor(authService) {
         this.authService = authService;
@@ -35,6 +37,12 @@ let AuthController = exports.AuthController = class AuthController {
     }
 };
 __decorate([
+    (0, swagger_1.ApiOperation)({ summary: 'Registration' }),
+    (0, swagger_1.ApiOkResponse)({
+        description: 'user, tokens',
+        type: returnData_dto_1.returnDataDto,
+    }),
+    (0, swagger_1.ApiBody)({ type: reg_dto_1.RegDto }),
     (0, common_1.UsePipes)(new common_1.ValidationPipe()),
     (0, common_1.HttpCode)(200),
     (0, common_1.Post)('registration'),
@@ -44,6 +52,12 @@ __decorate([
     __metadata("design:returntype", Promise)
 ], AuthController.prototype, "registration", null);
 __decorate([
+    (0, swagger_1.ApiOperation)({ summary: 'Login' }),
+    (0, swagger_1.ApiOkResponse)({
+        description: 'user, tokens',
+        type: returnData_dto_1.returnDataDto,
+    }),
+    (0, swagger_1.ApiBody)({ type: auth_dto_1.AuthDto }),
     (0, common_1.UsePipes)(new common_1.ValidationPipe()),
     (0, common_1.HttpCode)(200),
     (0, common_1.Post)('login'),
@@ -53,6 +67,12 @@ __decorate([
     __metadata("design:returntype", Promise)
 ], AuthController.prototype, "login", null);
 __decorate([
+    (0, swagger_1.ApiOperation)({ summary: 'getNewTokens' }),
+    (0, swagger_1.ApiOkResponse)({
+        description: 'user, tokens',
+        type: returnData_dto_1.returnDataDto,
+    }),
+    (0, swagger_1.ApiBody)({ type: common_1.Req }),
     (0, common_1.UsePipes)(new common_1.ValidationPipe()),
     (0, common_1.HttpCode)(200),
     (0, common_1.Post)('login/token'),
@@ -63,6 +83,7 @@ __decorate([
     __metadata("design:returntype", Promise)
 ], AuthController.prototype, "getNewTokens", null);
 exports.AuthController = AuthController = __decorate([
+    (0, swagger_1.ApiTags)('Auth'),
     (0, common_1.Controller)('auth'),
     __metadata("design:paramtypes", [auth_service_1.AuthService])
 ], AuthController);

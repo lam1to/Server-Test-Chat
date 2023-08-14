@@ -9,29 +9,18 @@ var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.RegDto = void 0;
+exports.returnDataDto = void 0;
 const swagger_1 = require("@nestjs/swagger");
-const class_validator_1 = require("class-validator");
-class RegDto {
+const reg_dto_1 = require("./reg.dto");
+class returnDataDto extends reg_dto_1.RegDto {
 }
-exports.RegDto = RegDto;
+exports.returnDataDto = returnDataDto;
 __decorate([
-    (0, swagger_1.ApiProperty)({ title: 'name', type: String, default: 'Daniil' }),
+    (0, swagger_1.ApiProperty)({ title: 'refresh token ', type: String, default: 'nan' }),
     __metadata("design:type", String)
-], RegDto.prototype, "name", void 0);
+], returnDataDto.prototype, "refreshToken", void 0);
 __decorate([
-    (0, swagger_1.ApiProperty)({ title: 'last name', type: String, default: 'Panteleev' }),
+    (0, swagger_1.ApiProperty)({ title: 'access token ', type: String, default: 'nan' }),
     __metadata("design:type", String)
-], RegDto.prototype, "lastName", void 0);
-__decorate([
-    (0, class_validator_1.IsEmail)(),
-    (0, swagger_1.ApiProperty)({ title: 'email', type: String, default: 'xtxtx96@mail.ru' }),
-    __metadata("design:type", String)
-], RegDto.prototype, "email", void 0);
-__decorate([
-    (0, swagger_1.ApiProperty)({ title: 'password', type: String, default: '******' }),
-    (0, class_validator_1.MinLength)(6, { message: 'Password must be at least 6 charachers long' }),
-    (0, class_validator_1.IsString)(),
-    __metadata("design:type", String)
-], RegDto.prototype, "password", void 0);
-//# sourceMappingURL=reg.dto.js.map
+], returnDataDto.prototype, "accessToken", void 0);
+//# sourceMappingURL=returnData.dto.js.map

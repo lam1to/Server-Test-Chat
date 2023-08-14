@@ -70,12 +70,4 @@ export class BlockUserService {
     });
     return BlockerUsersId;
   }
-
-  findOne(id: number) {
-    return `This action returns a #${id} blockUser`;
-  }
-
-  update(id: number, updateBlockUserDto: UpdateBlockUserDto) {
-    return `This action updates a #${id} blockUser`;
-  }
 }

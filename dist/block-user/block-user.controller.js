@@ -17,6 +17,8 @@ const common_1 = require("@nestjs/common");
 const block_user_service_1 = require("./block-user.service");
 const create_block_user_dto_1 = require("./dto/create-block-user.dto");
 const auth_guard_1 = require("../auth/auth.guard");
+const swagger_1 = require("@nestjs/swagger");
+const blockUser_dto_1 = require("./dto/blockUser.dto");
 let BlockUserController = exports.BlockUserController = class BlockUserController {
     constructor(blockUserService) {
         this.blockUserService = blockUserService;
@@ -34,11 +36,14 @@ let BlockUserController = exports.BlockUserController = class BlockUserControlle
     findAllBlocker(req) {
         return this.blockUserService.findAllBlocker(+req['user'].id);
     }
-    findOne(id) {
-        return this.blockUserService.findOne(+id);
-    }
 };
 __decorate([
+    (0, swagger_1.ApiOperation)({ summary: 'create block user' }),
+    (0, swagger_1.ApiOkResponse)({
+        description: 'id who blocked, id who was blocked',
+        type: blockUser_dto_1.blockUserDto,
+    }),
+    (0, swagger_1.ApiBody)({ type: create_block_user_dto_1.CreateBlockUserDto }),
     (0, common_1.Post)('createBlockUser'),
     (0, common_1.UseGuards)(auth_guard_1.AuthGuard),
     __param(0, (0, common_1.Body)()),
@@ -47,6 +52,11 @@ __decorate([
     __metadata("design:returntype", void 0)
 ], BlockUserController.prototype, "create", null);
 __decorate([
+    (0, swagger_1.ApiOperation)({ summary: 'remove block user' }),
+    (0, swagger_1.ApiOkResponse)({
+        description: 'id who blocked, id who was blocked',
+        type: blockUser_dto_1.blockUserDto,
+    }),
     (0, common_1.Delete)(':id'),
     (0, common_1.UseGuards)(auth_guard_1.AuthGuard),
     __param(0, (0, common_1.Req)()),
@@ -56,6 +66,12 @@ __decorate([
     __metadata("design:returntype", void 0)
 ], BlockUserController.prototype, "remove", null);
 __decorate([
+    (0, swagger_1.ApiOperation)({ summary: 'Find all blocked for user' }),
+    (0, swagger_1.ApiOkResponse)({
+        description: 'id who blocked',
+        type: [Number],
+    }),
+    (0, swagger_1.ApiBody)({ type: common_1.Req }),
     (0, common_1.Get)('findAllBlockedForUser'),
     (0, common_1.UseGuards)(auth_guard_1.AuthGuard),
     __param(0, (0, common_1.Req)()),
@@ -64,6 +80,12 @@ __decorate([
     __metadata("design:returntype", void 0)
 ], BlockUserController.prototype, "findAllBlocked", null);
 __decorate([
+    (0, swagger_1.ApiOperation)({ summary: 'Find all blocker for user' }),
+    (0, swagger_1.ApiOkResponse)({
+        description: 'id who blocker',
+        type: [Number],
+    }),
+    (0, swagger_1.ApiBody)({ type: common_1.Req }),
     (0, common_1.Get)('findAllBlockerForUser'),
     (0, common_1.UseGuards)(auth_guard_1.AuthGuard),
     __param(0, (0, common_1.Req)()),
@@ -71,14 +93,8 @@ __decorate([
     __metadata("design:paramtypes", [Request]),
     __metadata("design:returntype", void 0)
 ], BlockUserController.prototype, "findAllBlocker", null);
-__decorate([
-    (0, common_1.Get)(':id'),
-    __param(0, (0, common_1.Param)('id')),
-    __metadata("design:type", Function),
-    __metadata("design:paramtypes", [String]),
-    __metadata("design:returntype", void 0)
-], BlockUserController.prototype, "findOne", null);
 exports.BlockUserController = BlockUserController = __decorate([
+    (0, swagger_1.ApiTags)('Block user'),
     (0, common_1.Controller)('blockUser'),
     __metadata("design:paramtypes", [block_user_service_1.BlockUserService])
 ], BlockUserController);

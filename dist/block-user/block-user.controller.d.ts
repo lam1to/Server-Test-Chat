@@ -15,5 +15,4 @@ export declare class BlockUserController {
     } & {}>;
     findAllBlocked(req: Request): Promise<number[]>;
     findAllBlocker(req: Request): Promise<number[]>;
-    findOne(id: string): string;
 }

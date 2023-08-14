@@ -73,12 +73,6 @@ let BlockUserService = exports.BlockUserService = class BlockUserService {
         });
         return BlockerUsersId;
     }
-    findOne(id) {
-        return `This action returns a #${id} blockUser`;
-    }
-    update(id, updateBlockUserDto) {
-        return `This action updates a #${id} blockUser`;
-    }
 };
 exports.BlockUserService = BlockUserService = __decorate([
     (0, common_1.Injectable)(),

@@ -1,5 +1,4 @@
 import { CreateBlockUserDto } from './dto/create-block-user.dto';
-import { UpdateBlockUserDto } from './dto/update-block-user.dto';
 import { PrismaService } from 'src/prisma.service';
 export declare class BlockUserService {
     private prisma;
@@ -16,6 +15,4 @@ export declare class BlockUserService {
     } & {}>;
     findAllBlocked(idUser: number): Promise<number[]>;
     findAllBlocker(idUser: number): Promise<number[]>;
-    findOne(id: number): string;
-    update(id: number, updateBlockUserDto: UpdateBlockUserDto): string;
 }
