@@ -11,7 +11,7 @@ import { CreateBlockUserDto } from 'src/block-user/dto/create-block-user.dto';
 import { BlockUserService } from 'src/block-user/block-user.service';
 import { LeftChatDto } from 'src/left-chat/dto/LeftChat.dto';
 import { LeftChatService } from 'src/left-chat/left-chat.service';
-import { MessageCreateDto } from 'src/message/dto/messageCreateDto.dto';
+import { MessageDto } from 'src/message/dto/messageDto.dto';
 import { messageWithImgCreateDto } from 'src/message/dto/messageCreateWithImg.dto';
 import { ContentImgService } from 'src/content-img/content-img.service';
 import { StorageService } from 'src/storage/storage.service';
@@ -25,7 +25,7 @@ export declare class GatewayService {
     private contentImg;
     private storage;
     constructor(chat: ChatService, blockUser: BlockUserService, leftChat: LeftChatService, prisma: PrismaService, messageS: MessageService, contentImg: ContentImgService, storage: StorageService);
-    create(messageCreateDto: MessageCreateDto, server: Server): Promise<string>;
+    create(messageCreateDto: MessageDto, server: Server): Promise<string>;
     createWithImg(dto: messageWithImgCreateDto, server: Server): Promise<void>;
     editMessageWithImg(dto: messageUpdateWithImgDto, server: Server): Promise<void>;
     createChat(dto: CreateChatDto, server: Server): Promise<void>;

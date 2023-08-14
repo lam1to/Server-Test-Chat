@@ -16,7 +16,7 @@ import { BlockUser, ContentImg, LeftChat, Message, User } from '@prisma/client';
 import { BlockUserService } from 'src/block-user/block-user.service';
 import { LeftChatDto } from 'src/left-chat/dto/LeftChat.dto';
 import { LeftChatService } from 'src/left-chat/left-chat.service';
-import { MessageCreateDto } from 'src/message/dto/messageCreateDto.dto';
+import { MessageDto } from 'src/message/dto/messageDto.dto';
 import { MessageWithImgDto } from 'src/message/dto/messageWithImg.dto';
 import { messageWithImgCreateDto } from 'src/message/dto/messageCreateWithImg.dto';
 import { ContentImgService } from 'src/content-img/content-img.service';
@@ -44,7 +44,7 @@ export class GatewayService {
     private storage: StorageService,
   ) {}
 
-  async create(messageCreateDto: MessageCreateDto, server: Server) {
+  async create(messageCreateDto: MessageDto, server: Server) {
     const message: MessageWithImgDto = await this.messageS.createMessage(
       messageCreateDto,
     );
@@ -74,9 +74,10 @@ export class GatewayService {
     const dataDelete: ContentImg[] = await this.contentImg.deleteContentImgs(
       dto,
     );
-    await this.storage.removeFiles(
-      dataDelete.map((oneDelete) => oneDelete.image_url),
-    );
+    if (dataDelete)
+      await this.storage.removeFiles(
+        dataDelete.map((oneDelete) => oneDelete.image_url),
+      );
 
     await this.contentImg.createContentImgs(dto);
     const allContentImgForMessage = await this.contentImg.findAllForMessage(

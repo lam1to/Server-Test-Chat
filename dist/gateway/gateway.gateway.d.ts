@@ -7,14 +7,14 @@ import { MessageUpdateDto } from 'src/message/dto/messageUpdateDto.dto';
 import { MessageDeleteDto } from 'src/message/dto/messageDelete.dto';
 import { CreateBlockUserDto } from 'src/block-user/dto/create-block-user.dto';
 import { LeftChatDto } from 'src/left-chat/dto/LeftChat.dto';
-import { MessageCreateDto } from 'src/message/dto/messageCreateDto.dto';
+import { MessageDto } from 'src/message/dto/messageDto.dto';
 import { messageWithImgCreateDto } from 'src/message/dto/messageCreateWithImg.dto';
 import { messageUpdateWithImgDto } from 'src/message/dto/messageUpdateWithImg.dto';
 export declare class GatewayGateway {
     private readonly gatewayService;
     server: Server;
     constructor(gatewayService: GatewayService);
-    create(messageCreateDto: MessageCreateDto): Promise<string>;
+    create(messageCreateDto: MessageDto): Promise<string>;
     createWithImg(messageWithImgCreateDto: messageWithImgCreateDto): Promise<void>;
     editMessageWithImg(dto: messageUpdateWithImgDto): Promise<void>;
     createChat(dto: CreateChatDto): Promise<void>;

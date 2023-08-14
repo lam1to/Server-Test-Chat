@@ -9,7 +9,7 @@ import { messageUpdateWithImgDto } from 'src/message/dto/messageUpdateWithImg.dt
 export class ContentImgService {
   constructor(private prisma: PrismaService) {}
 
-  async createOne(create) {}
+  async createOne() {}
   async createMany(
     filesUrl: CreateStorageUrlImg[],
     messageId: number,

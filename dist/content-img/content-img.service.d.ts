@@ -6,7 +6,7 @@ import { messageUpdateWithImgDto } from 'src/message/dto/messageUpdateWithImg.dt
 export declare class ContentImgService {
     private prisma;
     constructor(prisma: PrismaService);
-    createOne(create: any): Promise<void>;
+    createOne(): Promise<void>;
     createMany(filesUrl: CreateStorageUrlImg[], messageId: number): Promise<ContentImg[]>;
     deleteContentImgDto(dto: deleteContentImgDto): Promise<{
         id: number;

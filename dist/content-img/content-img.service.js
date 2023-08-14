@@ -16,7 +16,7 @@ let ContentImgService = exports.ContentImgService = class ContentImgService {
     constructor(prisma) {
         this.prisma = prisma;
     }
-    async createOne(create) { }
+    async createOne() { }
     async createMany(filesUrl, messageId) {
         await this.prisma.contentImg.createMany({
             data: [

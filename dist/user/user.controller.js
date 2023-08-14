@@ -16,6 +16,8 @@ exports.UserController = void 0;
 const common_1 = require("@nestjs/common");
 const user_service_1 = require("./user.service");
 const auth_guard_1 = require("../auth/auth.guard");
+const swagger_1 = require("@nestjs/swagger");
+const userReturn_dto_1 = require("./Dto/userReturn.dto");
 let UserController = exports.UserController = class UserController {
     constructor(userService) {
         this.userService = userService;
@@ -25,6 +27,12 @@ let UserController = exports.UserController = class UserController {
     }
 };
 __decorate([
+    (0, swagger_1.ApiOperation)({ summary: 'Get All Users' }),
+    (0, swagger_1.ApiOkResponse)({
+        description: 'users',
+        type: [userReturn_dto_1.userReturnDto],
+    }),
+    (0, swagger_1.ApiBody)({ type: common_1.Req }),
     (0, common_1.Get)('allUsers'),
     (0, common_1.UseGuards)(auth_guard_1.AuthGuard),
     __param(0, (0, common_1.Req)()),
@@ -33,6 +41,7 @@ __decorate([
     __metadata("design:returntype", Promise)
 ], UserController.prototype, "getUsers", null);
 exports.UserController = UserController = __decorate([
+    (0, swagger_1.ApiTags)('User'),
     (0, common_1.Controller)('user'),
     __metadata("design:paramtypes", [user_service_1.UserService])
 ], UserController);

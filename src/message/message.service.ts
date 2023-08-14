@@ -1,16 +1,16 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { PrismaService } from 'src/prisma.service';
-import { MessageCreateDto } from './dto/messageCreateDto.dto';
 import { ContentImg, LeftChat, Message, User } from '@prisma/client';
 import { MessageUpdateDto } from './dto/messageUpdateDto.dto';
 import { LeftChatDto } from 'src/left-chat/dto/LeftChat.dto';
 import { MessageWithImgDto } from './dto/messageWithImg.dto';
+import { MessageDto } from './dto/messageDto.dto';
 
 @Injectable()
 export class MessageService {
   constructor(private prisma: PrismaService) {}
 
-  async createMessage(dto: MessageCreateDto) {
+  async createMessage(dto: MessageDto) {
     try {
       const message: Message = await this.prisma.message.create({
         data: {

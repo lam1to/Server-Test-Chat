@@ -17,6 +17,8 @@ const common_1 = require("@nestjs/common");
 const chat_service_1 = require("./chat.service");
 const createChat_dto_1 = require("./dto/createChat.dto");
 const auth_guard_1 = require("../auth/auth.guard");
+const swagger_1 = require("@nestjs/swagger");
+const chat_dto_1 = require("./dto/chat.dto");
 let ChatController = exports.ChatController = class ChatController {
     constructor(chatService) {
         this.chatService = chatService;
@@ -32,6 +34,12 @@ let ChatController = exports.ChatController = class ChatController {
     }
 };
 __decorate([
+    (0, swagger_1.ApiOperation)({ summary: 'Create chat' }),
+    (0, swagger_1.ApiOkResponse)({
+        description: 'chat',
+        type: chat_dto_1.chatWithUserDto,
+    }),
+    (0, swagger_1.ApiBody)({ type: createChat_dto_1.CreateChatDto }),
     (0, common_1.Post)('createChat'),
     (0, common_1.UseGuards)(auth_guard_1.AuthGuard),
     __param(0, (0, common_1.Body)()),
@@ -40,6 +48,12 @@ __decorate([
     __metadata("design:returntype", void 0)
 ], ChatController.prototype, "create", null);
 __decorate([
+    (0, swagger_1.ApiOperation)({ summary: 'Find all chat for user' }),
+    (0, swagger_1.ApiOkResponse)({
+        description: 'chats',
+        type: [chat_dto_1.chatWithUserDto],
+    }),
+    (0, swagger_1.ApiBody)({ type: common_1.Req }),
     (0, common_1.Get)('allChat'),
     (0, common_1.UseGuards)(auth_guard_1.AuthGuard),
     __param(0, (0, common_1.Req)()),
@@ -48,6 +62,12 @@ __decorate([
     __metadata("design:returntype", void 0)
 ], ChatController.prototype, "findAll", null);
 __decorate([
+    (0, swagger_1.ApiOperation)({ summary: 'Delete chat' }),
+    (0, swagger_1.ApiOkResponse)({
+        description: 'chat and id user who was in chat',
+        type: [chat_dto_1.deleteChat],
+    }),
+    (0, swagger_1.ApiBody)({ type: common_1.Req }),
     (0, common_1.Delete)(':id'),
     (0, common_1.UseGuards)(auth_guard_1.AuthGuard),
     __param(0, (0, common_1.Param)('id')),
@@ -56,6 +76,7 @@ __decorate([
     __metadata("design:returntype", void 0)
 ], ChatController.prototype, "remove", null);
 exports.ChatController = ChatController = __decorate([
+    (0, swagger_1.ApiTags)('Chat'),
     (0, common_1.Controller)('chat'),
     __metadata("design:paramtypes", [chat_service_1.ChatService])
 ], ChatController);

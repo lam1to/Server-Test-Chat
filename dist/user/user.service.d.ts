@@ -1,5 +1,5 @@
 import { PrismaService } from 'src/prisma.service';
-import { ParamDto } from './param.dto';
+import { ParamDto } from './Dto/param.dto';
 export declare class UserService {
     private prisma;
     constructor(prisma: PrismaService);
@@ -10,11 +10,11 @@ export declare class UserService {
     }>;
     getAllUsers(id: string): Promise<{
         users: ({
-            email: string;
-            password: string;
             id: number;
             createdAt: Date;
             updatedAt: Date;
+            email: string;
+            password: string;
             name: string;
             lastName: string;
             avatarPath: string;

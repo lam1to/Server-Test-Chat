@@ -49,7 +49,8 @@ let GatewayService = exports.GatewayService = class GatewayService {
     async editMessageWithImg(dto, server) {
         const updateMessage = await this.messageS.updateMessage(dto);
         const dataDelete = await this.contentImg.deleteContentImgs(dto);
-        await this.storage.removeFiles(dataDelete.map((oneDelete) => oneDelete.image_url));
+        if (dataDelete)
+            await this.storage.removeFiles(dataDelete.map((oneDelete) => oneDelete.image_url));
         await this.contentImg.createContentImgs(dto);
         const allContentImgForMessage = await this.contentImg.findAllForMessage(dto.messageId);
         const updateMessageWithImg = {

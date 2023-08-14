@@ -16,15 +16,21 @@ exports.ContentImgController = void 0;
 const common_1 = require("@nestjs/common");
 const content_img_service_1 = require("./content-img.service");
 const CreateContentImg_dto_1 = require("./Dto/CreateContentImg.dto");
+const swagger_1 = require("@nestjs/swagger");
 let ContentImgController = exports.ContentImgController = class ContentImgController {
     constructor(contentImgService) {
         this.contentImgService = contentImgService;
     }
     async create(dto) {
-        return this.contentImgService.createOne(dto);
+        return this.contentImgService.createOne();
     }
 };
 __decorate([
+    (0, swagger_1.ApiOperation)({ summary: 'Create message' }),
+    (0, swagger_1.ApiOkResponse)({
+        description: 'Ok',
+    }),
+    (0, swagger_1.ApiBody)({ type: CreateContentImg_dto_1.createContentImgDto }),
     (0, common_1.Post)('createContentImg'),
     __param(0, (0, common_1.Body)()),
     __metadata("design:type", Function),
@@ -32,6 +38,7 @@ __decorate([
     __metadata("design:returntype", Promise)
 ], ContentImgController.prototype, "create", null);
 exports.ContentImgController = ContentImgController = __decorate([
+    (0, swagger_1.ApiTags)('Content-img'),
     (0, common_1.Controller)('content-img'),
     __metadata("design:paramtypes", [content_img_service_1.ContentImgService])
 ], ContentImgController);

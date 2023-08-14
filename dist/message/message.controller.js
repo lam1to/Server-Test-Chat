@@ -15,10 +15,11 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.MessageController = void 0;
 const common_1 = require("@nestjs/common");
 const message_service_1 = require("./message.service");
-const messageCreateDto_dto_1 = require("./dto/messageCreateDto.dto");
-const messageUpdateDto_dto_1 = require("./dto/messageUpdateDto.dto");
+const messageDto_dto_1 = require("./dto/messageDto.dto");
 const auth_guard_1 = require("../auth/auth.guard");
 const content_img_service_1 = require("../content-img/content-img.service");
+const swagger_1 = require("@nestjs/swagger");
+const messageUpdateDto_dto_1 = require("./dto/messageUpdateDto.dto");
 let MessageController = exports.MessageController = class MessageController {
     constructor(messageService, contentImg) {
         this.messageService = messageService;
@@ -36,13 +37,24 @@ let MessageController = exports.MessageController = class MessageController {
     }
 };
 __decorate([
+    (0, swagger_1.ApiOperation)({ summary: 'Create message' }),
+    (0, swagger_1.ApiOkResponse)({
+        description: 'message',
+        type: messageDto_dto_1.returnMessageDto,
+    }),
+    (0, swagger_1.ApiBody)({ type: messageDto_dto_1.MessageDto }),
     (0, common_1.Post)('create'),
     __param(0, (0, common_1.Body)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [messageCreateDto_dto_1.MessageCreateDto]),
+    __metadata("design:paramtypes", [messageDto_dto_1.MessageDto]),
     __metadata("design:returntype", Promise)
 ], MessageController.prototype, "createMessage", null);
 __decorate([
+    (0, swagger_1.ApiOperation)({ summary: 'Get All messages for chat' }),
+    (0, swagger_1.ApiOkResponse)({
+        description: 'messages',
+        type: [messageDto_dto_1.returnMessageDto],
+    }),
     (0, common_1.Get)('getAllForChat/:id'),
     (0, common_1.UseGuards)(auth_guard_1.AuthGuard),
     __param(0, (0, common_1.Param)('id')),
@@ -52,6 +64,12 @@ __decorate([
     __metadata("design:returntype", Promise)
 ], MessageController.prototype, "getAllForChat", null);
 __decorate([
+    (0, swagger_1.ApiOperation)({ summary: 'Update message' }),
+    (0, swagger_1.ApiOkResponse)({
+        description: 'update message',
+        type: messageDto_dto_1.returnMessageDto,
+    }),
+    (0, swagger_1.ApiBody)({ type: messageUpdateDto_dto_1.MessageUpdateDto }),
     (0, common_1.Patch)('update'),
     __param(0, (0, common_1.Body)()),
     __metadata("design:type", Function),
@@ -59,6 +77,7 @@ __decorate([
     __metadata("design:returntype", Promise)
 ], MessageController.prototype, "updateMessage", null);
 exports.MessageController = MessageController = __decorate([
+    (0, swagger_1.ApiTags)('Message'),
     (0, common_1.Controller)('message'),
     __metadata("design:paramtypes", [message_service_1.MessageService,
         content_img_service_1.ContentImgService])

@@ -14,7 +14,7 @@ import { MessageUpdateDto } from 'src/message/dto/messageUpdateDto.dto';
 import { MessageDeleteDto } from 'src/message/dto/messageDelete.dto';
 import { CreateBlockUserDto } from 'src/block-user/dto/create-block-user.dto';
 import { LeftChatDto } from 'src/left-chat/dto/LeftChat.dto';
-import { MessageCreateDto } from 'src/message/dto/messageCreateDto.dto';
+import { MessageDto } from 'src/message/dto/messageDto.dto';
 import { FileInterceptor, FilesInterceptor } from '@nestjs/platform-express';
 import {
   BadRequestException,
@@ -31,14 +31,16 @@ import {
   deleteContentImgDto,
 } from 'src/content-img/Dto/DeleteContentImg.dto';
 import { messageUpdateWithImgDto } from 'src/message/dto/messageUpdateWithImg.dto';
+import { ApiTags } from '@nestjs/swagger';
 
+@ApiTags('ChatSocket')
 @WebSocketGateway({ namespace: 'chatSocket', cors: { origin: '*' } })
 export class GatewayGateway {
   @WebSocketServer() server: Server;
   constructor(private readonly gatewayService: GatewayService) {}
 
   @SubscribeMessage('createGateway')
-  async create(@Body() messageCreateDto: MessageCreateDto) {
+  async create(@Body() messageCreateDto: MessageDto) {
     return await this.gatewayService.create(messageCreateDto, this.server);
   }
 

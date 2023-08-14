@@ -23,10 +23,11 @@ const messageUpdateDto_dto_1 = require("../message/dto/messageUpdateDto.dto");
 const messageDelete_dto_1 = require("../message/dto/messageDelete.dto");
 const create_block_user_dto_1 = require("../block-user/dto/create-block-user.dto");
 const LeftChat_dto_1 = require("../left-chat/dto/LeftChat.dto");
-const messageCreateDto_dto_1 = require("../message/dto/messageCreateDto.dto");
+const messageDto_dto_1 = require("../message/dto/messageDto.dto");
 const common_1 = require("@nestjs/common");
 const messageCreateWithImg_dto_1 = require("../message/dto/messageCreateWithImg.dto");
 const messageUpdateWithImg_dto_1 = require("../message/dto/messageUpdateWithImg.dto");
+const swagger_1 = require("@nestjs/swagger");
 let GatewayGateway = exports.GatewayGateway = class GatewayGateway {
     constructor(gatewayService) {
         this.gatewayService = gatewayService;
@@ -94,7 +95,7 @@ __decorate([
     (0, websockets_1.SubscribeMessage)('createGateway'),
     __param(0, (0, common_1.Body)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [messageCreateDto_dto_1.MessageCreateDto]),
+    __metadata("design:paramtypes", [messageDto_dto_1.MessageDto]),
     __metadata("design:returntype", Promise)
 ], GatewayGateway.prototype, "create", null);
 __decorate([
@@ -202,6 +203,7 @@ __decorate([
     __metadata("design:returntype", void 0)
 ], GatewayGateway.prototype, "remove", null);
 exports.GatewayGateway = GatewayGateway = __decorate([
+    (0, swagger_1.ApiTags)('ChatSocket'),
     (0, websockets_1.WebSocketGateway)({ namespace: 'chatSocket', cors: { origin: '*' } }),
     __metadata("design:paramtypes", [gateway_service_1.GatewayService])
 ], GatewayGateway);

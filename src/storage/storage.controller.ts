@@ -11,11 +11,21 @@ import { StorageService } from './storage.service';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { memoryStorage } from 'multer';
 import { removeFileDto } from './dto/removeFile.dto';
+import { ApiBody, ApiOkResponse, ApiOperation, ApiTags } from '@nestjs/swagger';
+import { CreateStorageUrlImg } from './dto/createStorageUrlImg.dto';
+import { uploadStorageFileDto } from './dto/uploadStorageFile.dto';
 
+@ApiTags('storage')
 @Controller('storage')
 export class StorageController {
   constructor(private readonly storageService: StorageService) {}
 
+  @ApiOperation({ summary: 'Upload new img in google storage' })
+  @ApiOkResponse({
+    description: 'url',
+    type: CreateStorageUrlImg,
+  })
+  @ApiBody({ type: uploadStorageFileDto })
   @Post('uploadStorageFile')
   @UseInterceptors(
     FileInterceptor('file', {
@@ -36,6 +46,11 @@ export class StorageController {
   async uploadStorageFile(@UploadedFile() file: Express.Multer.File) {
     return this.storageService.uploadFile(file);
   }
+  @ApiOperation({ summary: 'remove one file in google storage' })
+  @ApiOkResponse({
+    description: 'OK',
+  })
+  @ApiBody({ type: removeFileDto })
   @Post('removeOneFile')
   async remove(@Body() dto: removeFileDto) {
     return this.storageService.removeFile(dto.image_url);

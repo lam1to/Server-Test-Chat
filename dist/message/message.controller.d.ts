@@ -1,24 +1,24 @@
 import { MessageService } from './message.service';
-import { MessageCreateDto } from './dto/messageCreateDto.dto';
-import { MessageUpdateDto } from './dto/messageUpdateDto.dto';
+import { MessageDto } from './dto/messageDto.dto';
 import { ContentImgService } from 'src/content-img/content-img.service';
+import { MessageUpdateDto } from './dto/messageUpdateDto.dto';
 export declare class MessageController {
     private readonly messageService;
     private contentImg;
     constructor(messageService: MessageService, contentImg: ContentImgService);
-    createMessage(dto: MessageCreateDto): Promise<{
-        id: number;
+    createMessage(dto: MessageDto): Promise<{
         content: string;
-        createdAt: Date;
-        chatId: number;
+        id: number;
         userId: number;
+        chatId: number;
+        createdAt: Date;
     } & {}>;
     getAllForChat(id: string, req: Request): Promise<import("./dto/messageWithImg.dto").MessageWithImgDto[]>;
     updateMessage(dto: MessageUpdateDto): Promise<{
-        id: number;
         content: string;
-        createdAt: Date;
-        chatId: number;
+        id: number;
         userId: number;
+        chatId: number;
+        createdAt: Date;
     } & {}>;
 }

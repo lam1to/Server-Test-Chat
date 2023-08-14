@@ -1,5 +1,5 @@
 import { CreateGatewayDto } from './create-gateway.dto';
-declare const UpdateGatewayDto_base: import("@nestjs/mapped-types").MappedType<import("@nestjs/mapped-types/dist/types/remove-fields-with-type.type").RemoveFieldsWithType<Partial<CreateGatewayDto>, Function>>;
+declare const UpdateGatewayDto_base: import("@nestjs/mapped-types").MappedType<Partial<CreateGatewayDto>>;
 export declare class UpdateGatewayDto extends UpdateGatewayDto_base {
     id: number;
 }

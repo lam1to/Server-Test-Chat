@@ -4,11 +4,11 @@ export declare class UserController {
     constructor(userService: UserService);
     getUsers(req: Request): Promise<{
         users: ({
-            email: string;
-            password: string;
             id: number;
             createdAt: Date;
             updatedAt: Date;
+            email: string;
+            password: string;
             name: string;
             lastName: string;
             avatarPath: string;
