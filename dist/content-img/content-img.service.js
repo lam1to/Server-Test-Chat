@@ -106,6 +106,26 @@ let ContentImgService = exports.ContentImgService = class ContentImgService {
             return dataWhichDelete;
         }
     }
+    async changePlace(dto) {
+        const allContentImgForMessage = await this.findAllForMessage(dto.messageId);
+        let count = 0;
+        if (dto.image_url.length === allContentImgForMessage.length)
+            allContentImgForMessage.map((oneContentImg, i) => {
+                if (oneContentImg.image_url === dto.image_url[i])
+                    count++;
+            });
+        if (count !== allContentImgForMessage.length)
+            for (let i = 0; i < allContentImgForMessage.length; i++) {
+                await this.prisma.contentImg.update({
+                    where: {
+                        id: allContentImgForMessage[i].id,
+                    },
+                    data: {
+                        image_url: dto.image_url[i],
+                    },
+                });
+            }
+    }
     async deleteForMessage(messageId) {
         const allContentImg = await this.findAllForMessage(messageId);
         if (allContentImg.length > 0) {

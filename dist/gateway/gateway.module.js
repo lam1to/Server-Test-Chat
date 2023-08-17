@@ -17,6 +17,7 @@ const block_user_service_1 = require("../block-user/block-user.service");
 const left_chat_service_1 = require("../left-chat/left-chat.service");
 const content_img_service_1 = require("../content-img/content-img.service");
 const storage_service_1 = require("../storage/storage.service");
+const user_service_1 = require("../user/user.service");
 let GatewayModule = exports.GatewayModule = class GatewayModule {
 };
 exports.GatewayModule = GatewayModule = __decorate([
@@ -31,6 +32,7 @@ exports.GatewayModule = GatewayModule = __decorate([
             left_chat_service_1.LeftChatService,
             content_img_service_1.ContentImgService,
             storage_service_1.StorageService,
+            user_service_1.UserService,
         ],
         exports: [gateway_gateway_1.GatewayGateway],
     })

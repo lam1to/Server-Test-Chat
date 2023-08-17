@@ -20,6 +20,7 @@ const reg_dto_1 = require("./dto/reg.dto");
 const auth_guard_1 = require("./auth.guard");
 const swagger_1 = require("@nestjs/swagger");
 const returnData_dto_1 = require("./dto/returnData.dto");
+const validation_exception_dto_1 = require("../validation/validation-exception.dto");
 let AuthController = exports.AuthController = class AuthController {
     constructor(authService) {
         this.authService = authService;
@@ -42,6 +43,14 @@ __decorate([
         description: 'user, tokens',
         type: returnData_dto_1.returnDataDto,
     }),
+    (0, swagger_1.ApiBadRequestResponse)({
+        description: 'Validation failed',
+        type: validation_exception_dto_1.ValidationExceptionDto,
+    }),
+    (0, swagger_1.ApiUnauthorizedResponse)({
+        description: 'User already exists',
+        type: common_1.UnauthorizedException,
+    }),
     (0, swagger_1.ApiBody)({ type: reg_dto_1.RegDto }),
     (0, common_1.UsePipes)(new common_1.ValidationPipe()),
     (0, common_1.HttpCode)(200),
@@ -56,6 +65,10 @@ __decorate([
     (0, swagger_1.ApiOkResponse)({
         description: 'user, tokens',
         type: returnData_dto_1.returnDataDto,
+    }),
+    (0, swagger_1.ApiUnauthorizedResponse)({
+        description: 'Invalid credentials',
+        type: common_1.UnauthorizedException,
     }),
     (0, swagger_1.ApiBody)({ type: auth_dto_1.AuthDto }),
     (0, common_1.UsePipes)(new common_1.ValidationPipe()),

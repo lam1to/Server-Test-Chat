@@ -11,7 +11,8 @@ export declare class AuthController {
             id: number;
             email: string;
             name: string;
-            lastname: string;
+            lastName: string;
+            avatar_path: string;
         };
     }>;
     login(dto: AuthDto): Promise<{
@@ -21,7 +22,8 @@ export declare class AuthController {
             id: number;
             email: string;
             name: string;
-            lastname: string;
+            lastName: string;
+            avatar_path: string;
         };
     }>;
     getNewTokens(req: Request): Promise<{
@@ -31,7 +33,8 @@ export declare class AuthController {
             id: number;
             email: string;
             name: string;
-            lastname: string;
+            lastName: string;
+            avatar_path: string;
         };
     }>;
 }

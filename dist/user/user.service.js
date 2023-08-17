@@ -36,6 +36,30 @@ let UserService = exports.UserService = class UserService {
         });
         return { users: users };
     }
+    async updateUserAvatar(dto) {
+        const user = await this.prisma.user.findFirst({
+            where: {
+                id: +dto.id,
+            },
+        });
+        if (user) {
+            console.log('avatar path = ', dto.avatar_path);
+            await this.prisma.user.update({
+                where: {
+                    id: +dto.id,
+                },
+                data: {
+                    avatarPath: dto.avatar_path,
+                },
+            });
+            const userReturn = await this.prisma.user.findFirst({
+                where: {
+                    id: +dto.id,
+                },
+            });
+            return userReturn;
+        }
+    }
 };
 exports.UserService = UserService = __decorate([
     (0, common_1.Injectable)(),

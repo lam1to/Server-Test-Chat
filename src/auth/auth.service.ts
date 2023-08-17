@@ -29,7 +29,8 @@ export class AuthService {
       },
     });
 
-    if (oldUser) throw new BadRequestException('User already exists');
+    if (oldUser)
+      throw new BadRequestException({ message: ['User already exists'] });
     const user = await this.prisma.user.create({
       data: {
         email: dto.email,
@@ -45,7 +46,11 @@ export class AuthService {
 
   async getNewTokens(refreshToken: string) {
     const res = await this.jwt.verifyAsync(refreshToken);
-    if (!res) throw new UnauthorizedException('Invalid refresh token');
+    if (!res)
+      throw new UnauthorizedException({
+        message: ['Invalid refresh token'],
+        statusCode: 401,
+      });
     const user = await this.prisma.user.findUnique({
       where: {
         id: res.id,
@@ -69,18 +74,29 @@ export class AuthService {
       id: user.id,
       email: user.email,
       name: user.name,
-      lastname: user.lastName,
+      lastName: user.lastName,
+      avatar_path: user.avatarPath,
     };
   }
   private async validataUser(dto: AuthDto) {
+    console.log('зашли в validate');
     const user = await this.prisma.user.findUnique({
       where: {
         email: dto.email,
       },
     });
-    if (!user) throw new NotFoundException('User already exists');
+    if (!user)
+      throw new UnauthorizedException({
+        message: ['No users with this email found'],
+        statusCode: 401,
+      });
     const isValid = await verify(user.password, dto.password);
-    if (!isValid) throw new UnauthorizedException('Invalid password');
+    if (!isValid) {
+      throw new UnauthorizedException({
+        message: ['Invalid password'],
+        statusCode: 401,
+      });
+    }
     return user;
   }
 }

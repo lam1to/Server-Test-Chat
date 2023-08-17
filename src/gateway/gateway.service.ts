@@ -26,6 +26,8 @@ import {
 } from 'src/content-img/Dto/DeleteContentImg.dto';
 import { StorageService } from 'src/storage/storage.service';
 import { messageUpdateWithImgDto } from 'src/message/dto/messageUpdateWithImg.dto';
+import { updateUserAvatarDto } from 'src/user/Dto/updateUserAvatar.dto';
+import { UserService } from 'src/user/user.service';
 
 interface PropsLeftChat {
   message: Message;
@@ -42,6 +44,7 @@ export class GatewayService {
     private messageS: MessageService,
     private contentImg: ContentImgService,
     private storage: StorageService,
+    private user: UserService,
   ) {}
 
   async create(messageCreateDto: MessageDto, server: Server) {
@@ -80,6 +83,7 @@ export class GatewayService {
       );
 
     await this.contentImg.createContentImgs(dto);
+    await this.contentImg.changePlace(dto);
     const allContentImgForMessage = await this.contentImg.findAllForMessage(
       dto.messageId,
     );
@@ -90,6 +94,10 @@ export class GatewayService {
     server.emit(`messageUpdate${dto.chatId}`, updateMessageWithImg);
   }
 
+  // async updateUserAvatar(dto: updateUserAvatarDto, server: Server) {
+  //   const user: User = await this.user.updateUserAvatar(dto);
+  //   server.emit(`updateUser${dto.id}`, user);
+  // }
   async createChat(dto: CreateChatDto, server: Server) {
     const chat = await this.chat.create(dto);
 

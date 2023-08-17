@@ -32,6 +32,7 @@ import {
 } from 'src/content-img/Dto/DeleteContentImg.dto';
 import { messageUpdateWithImgDto } from 'src/message/dto/messageUpdateWithImg.dto';
 import { ApiTags } from '@nestjs/swagger';
+import { updateUserAvatarDto } from 'src/user/Dto/updateUserAvatar.dto';
 
 @ApiTags('ChatSocket')
 @WebSocketGateway({ namespace: 'chatSocket', cors: { origin: '*' } })
@@ -62,6 +63,13 @@ export class GatewayGateway {
     console.log('получили такие данные = ', messageWithImgCreateDto);
     await this.gatewayService.editMessageWithImg(dto, this.server);
   }
+
+  // @SubscribeMessage('updateUserAvatar')
+  // async updateUserAvatar(@Body() dto: updateUserAvatarDto) {
+  //   console.log('зашло в gateWay');
+  //   console.log('получили такие данные = ', messageWithImgCreateDto);
+  //   await this.gatewayService.updateUserAvatar(dto, this.server);
+  // }
 
   @SubscribeMessage('createChat')
   createChat(@MessageBody() dto: CreateChatDto) {

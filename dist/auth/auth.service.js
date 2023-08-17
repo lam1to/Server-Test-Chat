@@ -32,7 +32,7 @@ let AuthService = exports.AuthService = class AuthService {
             },
         });
         if (oldUser)
-            throw new common_1.BadRequestException('User already exists');
+            throw new common_1.BadRequestException({ message: ['User already exists'] });
         const user = await this.prisma.user.create({
             data: {
                 email: dto.email,
@@ -48,7 +48,10 @@ let AuthService = exports.AuthService = class AuthService {
     async getNewTokens(refreshToken) {
         const res = await this.jwt.verifyAsync(refreshToken);
         if (!res)
-            throw new common_1.UnauthorizedException('Invalid refresh token');
+            throw new common_1.UnauthorizedException({
+                message: ['Invalid refresh token'],
+                statusCode: 401,
+            });
         const user = await this.prisma.user.findUnique({
             where: {
                 id: res.id,
@@ -72,20 +75,29 @@ let AuthService = exports.AuthService = class AuthService {
             id: user.id,
             email: user.email,
             name: user.name,
-            lastname: user.lastName,
+            lastName: user.lastName,
+            avatar_path: user.avatarPath,
         };
     }
     async validataUser(dto) {
+        console.log('зашли в validate');
         const user = await this.prisma.user.findUnique({
             where: {
                 email: dto.email,
             },
         });
         if (!user)
-            throw new common_1.NotFoundException('User already exists');
+            throw new common_1.UnauthorizedException({
+                message: ['No users with this email found'],
+                statusCode: 401,
+            });
         const isValid = await (0, argon2_1.verify)(user.password, dto.password);
-        if (!isValid)
-            throw new common_1.UnauthorizedException('Invalid password');
+        if (!isValid) {
+            throw new common_1.UnauthorizedException({
+                message: ['Invalid password'],
+                statusCode: 401,
+            });
+        }
         return user;
     }
 };

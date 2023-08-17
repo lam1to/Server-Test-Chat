@@ -1,4 +1,5 @@
 import { UserService } from './user.service';
+import { updateUserAvatarDto } from './Dto/updateUserAvatar.dto';
 export declare class UserController {
     private readonly userService;
     constructor(userService: UserService);
@@ -14,4 +15,14 @@ export declare class UserController {
             avatarPath: string;
         } & {})[];
     }>;
+    updateUserAvatar(dto: updateUserAvatarDto): Promise<{
+        id: number;
+        createdAt: Date;
+        updatedAt: Date;
+        email: string;
+        password: string;
+        name: string;
+        lastName: string;
+        avatarPath: string;
+    } & {}>;
 }

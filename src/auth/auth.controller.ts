@@ -5,6 +5,7 @@ import {
   HttpCode,
   Post,
   Req,
+  UnauthorizedException,
   UseGuards,
   UsePipes,
   ValidationPipe,
@@ -14,8 +15,17 @@ import { AuthDto } from './dto/auth.dto';
 import { RegDto } from './dto/reg.dto';
 import { RefreshDto } from './dto/refresh.dto';
 import { AuthGuard } from './auth.guard';
-import { ApiBody, ApiOkResponse, ApiOperation, ApiTags } from '@nestjs/swagger';
+import {
+  ApiBadRequestResponse,
+  ApiBody,
+  ApiOkResponse,
+  ApiOperation,
+  ApiProperty,
+  ApiTags,
+  ApiUnauthorizedResponse,
+} from '@nestjs/swagger';
 import { returnDataDto } from './dto/returnData.dto';
+import { ValidationExceptionDto } from 'src/validation/validation-exception.dto';
 
 @ApiTags('Auth')
 @Controller('auth')
@@ -26,6 +36,14 @@ export class AuthController {
   @ApiOkResponse({
     description: 'user, tokens',
     type: returnDataDto,
+  })
+  @ApiBadRequestResponse({
+    description: 'Validation failed',
+    type: ValidationExceptionDto,
+  })
+  @ApiUnauthorizedResponse({
+    description: 'User already exists',
+    type: UnauthorizedException,
   })
   @ApiBody({ type: RegDto })
   @UsePipes(new ValidationPipe())
@@ -39,6 +57,10 @@ export class AuthController {
   @ApiOkResponse({
     description: 'user, tokens',
     type: returnDataDto,
+  })
+  @ApiUnauthorizedResponse({
+    description: 'Invalid credentials',
+    type: UnauthorizedException,
   })
   @ApiBody({ type: AuthDto })
   @UsePipes(new ValidationPipe())

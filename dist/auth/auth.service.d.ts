@@ -13,7 +13,8 @@ export declare class AuthService {
             id: number;
             email: string;
             name: string;
-            lastname: string;
+            lastName: string;
+            avatar_path: string;
         };
     }>;
     registration(dto: RegDto): Promise<{
@@ -23,7 +24,8 @@ export declare class AuthService {
             id: number;
             email: string;
             name: string;
-            lastname: string;
+            lastName: string;
+            avatar_path: string;
         };
     }>;
     getNewTokens(refreshToken: string): Promise<{
@@ -33,7 +35,8 @@ export declare class AuthService {
             id: number;
             email: string;
             name: string;
-            lastname: string;
+            lastName: string;
+            avatar_path: string;
         };
     }>;
     private jwtToken;

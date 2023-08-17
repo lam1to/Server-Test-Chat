@@ -26,6 +26,7 @@ export declare class ContentImgService {
         messageId: number;
         image_url: string;
     } & {})[]>;
+    changePlace(dto: messageUpdateWithImgDto): Promise<void>;
     deleteForMessage(messageId: string): Promise<({
         id: number;
         messageId: number;

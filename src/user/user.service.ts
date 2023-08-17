@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { PrismaService } from 'src/prisma.service';
 import { ParamDto } from './Dto/param.dto';
 import { User } from '@prisma/client';
+import { updateUserAvatarDto } from './Dto/updateUserAvatar.dto';
 
 @Injectable()
 export class UserService {
@@ -27,5 +28,30 @@ export class UserService {
       },
     });
     return { users: users };
+  }
+
+  async updateUserAvatar(dto: updateUserAvatarDto) {
+    const user: User = await this.prisma.user.findFirst({
+      where: {
+        id: +dto.id,
+      },
+    });
+    if (user) {
+      console.log('avatar path = ', dto.avatar_path);
+      await this.prisma.user.update({
+        where: {
+          id: +dto.id,
+        },
+        data: {
+          avatarPath: dto.avatar_path,
+        },
+      });
+      const userReturn: User = await this.prisma.user.findFirst({
+        where: {
+          id: +dto.id,
+        },
+      });
+      return userReturn;
+    }
   }
 }

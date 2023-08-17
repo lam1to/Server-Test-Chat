@@ -77,19 +77,22 @@ let StorageService = exports.StorageService = class StorageService {
         }
     }
     async uploadFile(uploadedFile) {
-        const fileName = this.setFilename(uploadedFile);
-        const fileBucket = this.bucket.file(fileName);
-        try {
-            await fileBucket.save(uploadedFile.buffer, {
-                contentType: uploadedFile.mimetype,
-            });
+        console.log('uploadedFile = ', uploadedFile);
+        if (uploadedFile) {
+            const fileName = this.setFilename(uploadedFile);
+            const fileBucket = this.bucket.file(fileName);
+            try {
+                await fileBucket.save(uploadedFile.buffer, {
+                    contentType: uploadedFile.mimetype,
+                });
+            }
+            catch (error) {
+                throw new common_1.BadRequestException(error?.message);
+            }
+            return {
+                imgUrl: `https://storage.googleapis.com/${this.bucket.name}/${fileBucket.name}`,
+            };
         }
-        catch (error) {
-            throw new common_1.BadRequestException(error?.message);
-        }
-        return {
-            imgUrl: `https://storage.googleapis.com/${this.bucket.name}/${fileBucket.name}`,
-        };
     }
 };
 exports.StorageService = StorageService = __decorate([

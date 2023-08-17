@@ -86,19 +86,22 @@ export class StorageService {
   }
 
   async uploadFile(uploadedFile: Express.Multer.File) {
-    const fileName: string = this.setFilename(uploadedFile);
+    console.log('uploadedFile = ', uploadedFile);
+    if (uploadedFile) {
+      const fileName: string = this.setFilename(uploadedFile);
 
-    const fileBucket = this.bucket.file(fileName);
+      const fileBucket = this.bucket.file(fileName);
 
-    try {
-      await fileBucket.save(uploadedFile.buffer, {
-        contentType: uploadedFile.mimetype,
-      });
-    } catch (error) {
-      throw new BadRequestException(error?.message);
+      try {
+        await fileBucket.save(uploadedFile.buffer, {
+          contentType: uploadedFile.mimetype,
+        });
+      } catch (error) {
+        throw new BadRequestException(error?.message);
+      }
+      return {
+        imgUrl: `https://storage.googleapis.com/${this.bucket.name}/${fileBucket.name}`,
+      };
     }
-    return {
-      imgUrl: `https://storage.googleapis.com/${this.bucket.name}/${fileBucket.name}`,
-    };
   }
 }

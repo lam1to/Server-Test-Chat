@@ -18,8 +18,9 @@ const block_user_service_1 = require("../block-user/block-user.service");
 const left_chat_service_1 = require("../left-chat/left-chat.service");
 const content_img_service_1 = require("../content-img/content-img.service");
 const storage_service_1 = require("../storage/storage.service");
+const user_service_1 = require("../user/user.service");
 let GatewayService = exports.GatewayService = class GatewayService {
-    constructor(chat, blockUser, leftChat, prisma, messageS, contentImg, storage) {
+    constructor(chat, blockUser, leftChat, prisma, messageS, contentImg, storage, user) {
         this.chat = chat;
         this.blockUser = blockUser;
         this.leftChat = leftChat;
@@ -27,6 +28,7 @@ let GatewayService = exports.GatewayService = class GatewayService {
         this.messageS = messageS;
         this.contentImg = contentImg;
         this.storage = storage;
+        this.user = user;
     }
     async create(messageCreateDto, server) {
         const message = await this.messageS.createMessage(messageCreateDto);
@@ -52,6 +54,7 @@ let GatewayService = exports.GatewayService = class GatewayService {
         if (dataDelete)
             await this.storage.removeFiles(dataDelete.map((oneDelete) => oneDelete.image_url));
         await this.contentImg.createContentImgs(dto);
+        await this.contentImg.changePlace(dto);
         const allContentImgForMessage = await this.contentImg.findAllForMessage(dto.messageId);
         const updateMessageWithImg = {
             ...updateMessage,
@@ -156,6 +159,7 @@ exports.GatewayService = GatewayService = __decorate([
         prisma_service_1.PrismaService,
         message_service_1.MessageService,
         content_img_service_1.ContentImgService,
-        storage_service_1.StorageService])
+        storage_service_1.StorageService,
+        user_service_1.UserService])
 ], GatewayService);
 //# sourceMappingURL=gateway.service.js.map

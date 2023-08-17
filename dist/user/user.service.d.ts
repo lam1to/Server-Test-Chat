@@ -1,5 +1,6 @@
 import { PrismaService } from 'src/prisma.service';
 import { ParamDto } from './Dto/param.dto';
+import { updateUserAvatarDto } from './Dto/updateUserAvatar.dto';
 export declare class UserService {
     private prisma;
     constructor(prisma: PrismaService);
@@ -20,4 +21,14 @@ export declare class UserService {
             avatarPath: string;
         } & {})[];
     }>;
+    updateUserAvatar(dto: updateUserAvatarDto): Promise<{
+        id: number;
+        createdAt: Date;
+        updatedAt: Date;
+        email: string;
+        password: string;
+        name: string;
+        lastName: string;
+        avatarPath: string;
+    } & {}>;
 }
