@@ -12,20 +12,27 @@ export declare class ChatService {
     constructor(prisma: PrismaService);
     createChatWithUser(chat: Chat, idUser: string): Promise<IForAllChat>;
     create(createChatDto: CreateChatDto): Promise<{
+        id: number;
+        createdAt: Date;
         name: string;
         type: string;
         userWhoCreateId: number;
-        id: number;
-        createdAt: Date;
     } & {}>;
     findAll(idUsers: string): Promise<IForAllChat[]>;
+    getAllChatForUser(id: string): Promise<({
+        id: number;
+        createdAt: Date;
+        name: string;
+        type: string;
+        userWhoCreateId: number;
+    } & {})[]>;
     remove(id: number): Promise<{
         deleteChat: {
+            id: number;
+            createdAt: Date;
             name: string;
             type: string;
             userWhoCreateId: number;
-            id: number;
-            createdAt: Date;
         } & {};
         userInChat: number[];
     }>;

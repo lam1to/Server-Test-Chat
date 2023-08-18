@@ -35,6 +35,9 @@ let MessageController = exports.MessageController = class MessageController {
     async updateMessage(dto) {
         return this.messageService.updateMessage(dto);
     }
+    async getLastMessage(req) {
+        return this.messageService.getLastMessage(req['user'].id);
+    }
 };
 __decorate([
     (0, swagger_1.ApiOperation)({ summary: 'Create message' }),
@@ -76,6 +79,20 @@ __decorate([
     __metadata("design:paramtypes", [messageUpdateDto_dto_1.MessageUpdateDto]),
     __metadata("design:returntype", Promise)
 ], MessageController.prototype, "updateMessage", null);
+__decorate([
+    (0, swagger_1.ApiOperation)({ summary: 'Get last messages' }),
+    (0, swagger_1.ApiOkResponse)({
+        description: 'last messages for user',
+        type: messageDto_dto_1.MessageDto,
+    }),
+    (0, swagger_1.ApiBody)({ type: common_1.Req }),
+    (0, common_1.Get)('lastMessage'),
+    (0, common_1.UseGuards)(auth_guard_1.AuthGuard),
+    __param(0, (0, common_1.Req)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Request]),
+    __metadata("design:returntype", Promise)
+], MessageController.prototype, "getLastMessage", null);
 exports.MessageController = MessageController = __decorate([
     (0, swagger_1.ApiTags)('Message'),
     (0, common_1.Controller)('message'),

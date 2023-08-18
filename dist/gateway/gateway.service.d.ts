@@ -28,11 +28,11 @@ export declare class GatewayService {
     private user;
     constructor(chat: ChatService, blockUser: BlockUserService, leftChat: LeftChatService, prisma: PrismaService, messageS: MessageService, contentImg: ContentImgService, storage: StorageService, user: UserService);
     create(messageCreateDto: MessageDto, server: Server): Promise<string>;
+    deleteMessage(dto: MessageDeleteDto, server: Server): Promise<void>;
     createWithImg(dto: messageWithImgCreateDto, server: Server): Promise<void>;
     editMessageWithImg(dto: messageUpdateWithImgDto, server: Server): Promise<void>;
     createChat(dto: CreateChatDto, server: Server): Promise<void>;
     deleteChat(id: string, server: Server): Promise<void>;
-    deleteMessage(dto: MessageDeleteDto, server: Server): Promise<void>;
     updateMessage(dto: MessageUpdateDto, server: Server): Promise<void>;
     createBlockUser(dto: CreateBlockUserDto, server: Server): Promise<void>;
     removeBlockUser(dto: CreateBlockUserDto, server: Server): Promise<void>;

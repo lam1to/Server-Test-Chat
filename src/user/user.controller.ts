@@ -13,6 +13,7 @@ import { AuthGuard } from 'src/auth/auth.guard';
 import { ApiBody, ApiOkResponse, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { userReturnDto } from './Dto/userReturn.dto';
 import { updateUserAvatarDto } from './Dto/updateUserAvatar.dto';
+import { updateUserFiDto } from './Dto/updateFi.dto';
 
 @ApiTags('User')
 @Controller('user')
@@ -35,10 +36,21 @@ export class UserController {
   @ApiOkResponse({
     description: 'Ok',
   })
-  @ApiBody({ type: Req })
+  @ApiBody({ type: updateUserAvatarDto })
   @Post('updateAvatar')
   @UseGuards(AuthGuard)
   async updateUserAvatar(@Body() dto: updateUserAvatarDto) {
     return this.userService.updateUserAvatar(dto);
+  }
+
+  @ApiOperation({ summary: 'Update name/lastName' })
+  @ApiOkResponse({
+    description: 'Ok',
+  })
+  @ApiBody({ type: updateUserFiDto })
+  @Post('updateFi')
+  @UseGuards(AuthGuard)
+  async updateUserFi(@Req() req: Request, @Body() dto: updateUserFiDto) {
+    return this.userService.updateUserFi(dto, req['user'].id);
   }
 }

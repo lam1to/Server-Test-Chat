@@ -16,12 +16,21 @@ const jwt_1 = require("@nestjs/jwt");
 const jwt_config_1 = require("../config/jwt.config");
 const jwt_strategy_1 = require("../auth/jwt.strategy");
 const content_img_service_1 = require("../content-img/content-img.service");
+const chat_service_1 = require("../chat/chat.service");
+const user_service_1 = require("../user/user.service");
 let MessageModule = exports.MessageModule = class MessageModule {
 };
 exports.MessageModule = MessageModule = __decorate([
     (0, common_1.Module)({
         controllers: [message_controller_1.MessageController],
-        providers: [message_service_1.MessageService, jwt_strategy_1.JwtStrategy, prisma_service_1.PrismaService, content_img_service_1.ContentImgService],
+        providers: [
+            message_service_1.MessageService,
+            jwt_strategy_1.JwtStrategy,
+            prisma_service_1.PrismaService,
+            content_img_service_1.ContentImgService,
+            chat_service_1.ChatService,
+            user_service_1.UserService,
+        ],
         imports: [
             config_1.ConfigModule.forRoot(),
             jwt_1.JwtModule.registerAsync({

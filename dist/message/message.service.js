@@ -12,9 +12,13 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.MessageService = void 0;
 const common_1 = require("@nestjs/common");
 const prisma_service_1 = require("../prisma.service");
+const chat_service_1 = require("../chat/chat.service");
+const user_service_1 = require("../user/user.service");
 let MessageService = exports.MessageService = class MessageService {
-    constructor(prisma) {
+    constructor(prisma, chat, user) {
         this.prisma = prisma;
+        this.chat = chat;
+        this.user = user;
     }
     async createMessage(dto) {
         try {
@@ -83,6 +87,7 @@ let MessageService = exports.MessageService = class MessageService {
         return messagesWithImg;
     }
     async remove(id) {
+        console.log('id что получили = ', id);
         const message = await this.prisma.message.delete({
             where: {
                 id: +id,
@@ -110,9 +115,73 @@ let MessageService = exports.MessageService = class MessageService {
         }
         return { message: message, user: user };
     }
+    async newLastMessageUpdate(updateMessage, userId) {
+        const allMessage = await this.getAllForChat(`${updateMessage.chatId}`, userId);
+        if (allMessage[allMessage.length - 1].id === updateMessage.id) {
+            const lastMessage = allMessage[allMessage.length - 1];
+            const lastMessageWithName = {
+                ...lastMessage,
+                name: (await this.user.getUserId({
+                    id: `${lastMessage.userId}`,
+                })).name,
+            };
+            return lastMessageWithName;
+        }
+    }
+    async newLastMessageDelete(dto) {
+        const allMessage = await this.getAllForChat(dto.chatId, dto.userId);
+        const lastMessage = allMessage[allMessage.length - 1];
+        const lastMessageWithName = {
+            ...lastMessage,
+            name: (await this.user.getUserId({
+                id: `${lastMessage.userId}`,
+            })).name,
+        };
+        return lastMessageWithName;
+    }
+    async newLastMessage(message) {
+        const newLastMessage = {
+            ...message,
+            name: (await this.user.getUserId({
+                id: `${message.userId}`,
+            })).name,
+        };
+        return newLastMessage;
+    }
+    async getLastMessage(id) {
+        const allChatForUser = await this.chat.getAllChatForUser(id);
+        let lastMessage = [];
+        for (let i = 0; i < allChatForUser.length; i++) {
+            const messgeForChat = await this.getAllForChat(`${allChatForUser[i].id}`, id);
+            if (messgeForChat)
+                lastMessage = [...lastMessage, messgeForChat[messgeForChat.length - 1]];
+        }
+        if (lastMessage) {
+            let lastMessageWithName = [];
+            for (let i = 0; i < lastMessage.length; i++) {
+                if (lastMessage[i] && lastMessage[i].userId) {
+                    const user = await this.user.getUserId({
+                        id: `${lastMessage[i].userId}`,
+                    });
+                    if (user)
+                        lastMessageWithName = [
+                            ...lastMessageWithName,
+                            {
+                                ...lastMessage[i],
+                                name: user.name,
+                            },
+                        ];
+                }
+            }
+            if (lastMessageWithName)
+                return lastMessageWithName;
+        }
+    }
 };
 exports.MessageService = MessageService = __decorate([
     (0, common_1.Injectable)(),
-    __metadata("design:paramtypes", [prisma_service_1.PrismaService])
+    __metadata("design:paramtypes", [prisma_service_1.PrismaService,
+        chat_service_1.ChatService,
+        user_service_1.UserService])
 ], MessageService);
 //# sourceMappingURL=message.service.js.map

@@ -1,4 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
+import { ContentImg } from '@prisma/client';
 import { CreateStorageUrlImg } from 'src/storage/dto/createStorageUrlImg.dto';
 
 export class MessageDto {
@@ -36,3 +37,15 @@ export class returnMessageDto extends MessageDto {
   })
   masUrl?: CreateStorageUrlImg[];
 }
+
+// export class CMessageWithImg extends MessageDto {
+//   contentImg?: ContentImg[];
+// }
+// export class CMessageWithName extends CMessageWithImg {
+//   @ApiProperty({
+//     title: 'name user who send message',
+//     type: String,
+//     default: 'Даниил',
+//   })
+//   name: string;
+// }

@@ -19,4 +19,10 @@ export class MessageUpdateDto {
     default: '1',
   })
   chatId: string;
+  @ApiProperty({
+    title: 'user id who auth',
+    type: String,
+    default: '1',
+  })
+  userId: string;
 }

@@ -1,14 +1,24 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { PrismaService } from 'src/prisma.service';
-import { ContentImg, LeftChat, Message, User } from '@prisma/client';
+import { Chat, ContentImg, LeftChat, Message, User } from '@prisma/client';
 import { MessageUpdateDto } from './dto/messageUpdateDto.dto';
 import { LeftChatDto } from 'src/left-chat/dto/LeftChat.dto';
-import { MessageWithImgDto } from './dto/messageWithImg.dto';
+import {
+  MessageWithImgDto,
+  MessageWithImgNameDto,
+} from './dto/messageWithImg.dto';
 import { MessageDto } from './dto/messageDto.dto';
+import { ChatService } from 'src/chat/chat.service';
+import { UserService } from 'src/user/user.service';
+import { MessageDeleteDto } from './dto/messageDelete.dto';
 
 @Injectable()
 export class MessageService {
-  constructor(private prisma: PrismaService) {}
+  constructor(
+    private prisma: PrismaService,
+    private chat: ChatService,
+    private user: UserService,
+  ) {}
 
   async createMessage(dto: MessageDto) {
     try {
@@ -87,6 +97,7 @@ export class MessageService {
     return messagesWithImg;
   }
   async remove(id: string) {
+    console.log('id что получили = ', id);
     const message: Message = await this.prisma.message.delete({
       where: {
         id: +id,
@@ -114,5 +125,81 @@ export class MessageService {
       return { message: message };
     }
     return { message: message, user: user };
+  }
+
+  async newLastMessageUpdate(updateMessage: MessageWithImgDto, userId: string) {
+    const allMessage = await this.getAllForChat(
+      `${updateMessage.chatId}`,
+      userId,
+    );
+    if (allMessage[allMessage.length - 1].id === updateMessage.id) {
+      const lastMessage: MessageWithImgDto = allMessage[allMessage.length - 1];
+      const lastMessageWithName: MessageWithImgNameDto = {
+        ...lastMessage,
+        name: (
+          await this.user.getUserId({
+            id: `${lastMessage.userId}`,
+          })
+        ).name,
+      };
+      return lastMessageWithName;
+    }
+  }
+  async newLastMessageDelete(dto: MessageDeleteDto) {
+    const allMessage = await this.getAllForChat(dto.chatId, dto.userId);
+    const lastMessage: MessageWithImgDto = allMessage[allMessage.length - 1];
+    const lastMessageWithName: MessageWithImgNameDto = {
+      ...lastMessage,
+      name: (
+        await this.user.getUserId({
+          id: `${lastMessage.userId}`,
+        })
+      ).name,
+    };
+    return lastMessageWithName;
+  }
+
+  async newLastMessage(message: MessageWithImgDto) {
+    const newLastMessage: MessageWithImgNameDto = {
+      ...message,
+      name: (
+        await this.user.getUserId({
+          id: `${message.userId}`,
+        })
+      ).name,
+    };
+    return newLastMessage;
+  }
+  async getLastMessage(id: string) {
+    const allChatForUser: Chat[] = await this.chat.getAllChatForUser(id);
+    let lastMessage: MessageWithImgDto[] = [];
+    for (let i = 0; i < allChatForUser.length; i++) {
+      const messgeForChat: MessageWithImgDto[] = await this.getAllForChat(
+        `${allChatForUser[i].id}`,
+        id,
+      );
+      if (messgeForChat)
+        lastMessage = [...lastMessage, messgeForChat[messgeForChat.length - 1]];
+    }
+    if (lastMessage) {
+      let lastMessageWithName: MessageWithImgNameDto[] =
+        [] as MessageWithImgNameDto[];
+      for (let i = 0; i < lastMessage.length; i++) {
+        if (lastMessage[i] && lastMessage[i].userId) {
+          const user: User = await this.user.getUserId({
+            id: `${lastMessage[i].userId}`,
+          });
+          if (user)
+            lastMessageWithName = [
+              ...lastMessageWithName,
+              {
+                ...lastMessage[i],
+                name: user.name,
+              },
+            ];
+        }
+      }
+      if (lastMessageWithName) return lastMessageWithName;
+    }
   }
 }

@@ -2,6 +2,7 @@ import { MessageService } from './message.service';
 import { MessageDto } from './dto/messageDto.dto';
 import { ContentImgService } from 'src/content-img/content-img.service';
 import { MessageUpdateDto } from './dto/messageUpdateDto.dto';
+import { MessageWithImgDto } from './dto/messageWithImg.dto';
 export declare class MessageController {
     private readonly messageService;
     private contentImg;
@@ -13,7 +14,7 @@ export declare class MessageController {
         chatId: number;
         userId: number;
     } & {}>;
-    getAllForChat(id: string, req: Request): Promise<import("./dto/messageWithImg.dto").MessageWithImgDto[]>;
+    getAllForChat(id: string, req: Request): Promise<MessageWithImgDto[]>;
     updateMessage(dto: MessageUpdateDto): Promise<{
         id: number;
         content: string;
@@ -21,4 +22,5 @@ export declare class MessageController {
         chatId: number;
         userId: number;
     } & {}>;
+    getLastMessage(req: Request): Promise<import("./dto/messageWithImg.dto").MessageWithImgNameDto[]>;
 }

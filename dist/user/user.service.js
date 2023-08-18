@@ -22,11 +22,7 @@ let UserService = exports.UserService = class UserService {
                 id: +idUser.id,
             },
         });
-        return {
-            name: user.name,
-            lastName: user.lastName,
-            avatarPath: user.avatarPath,
-        };
+        return user;
     }
     async getAllUsers(id) {
         const users = await this.prisma.user.findMany({
@@ -37,11 +33,7 @@ let UserService = exports.UserService = class UserService {
         return { users: users };
     }
     async updateUserAvatar(dto) {
-        const user = await this.prisma.user.findFirst({
-            where: {
-                id: +dto.id,
-            },
-        });
+        const user = await this.getUserId({ id: dto.id });
         if (user) {
             console.log('avatar path = ', dto.avatar_path);
             await this.prisma.user.update({
@@ -52,11 +44,54 @@ let UserService = exports.UserService = class UserService {
                     avatarPath: dto.avatar_path,
                 },
             });
-            const userReturn = await this.prisma.user.findFirst({
-                where: {
-                    id: +dto.id,
-                },
-            });
+            const userReturn = await this.getUserId({ id: dto.id });
+            return userReturn;
+        }
+    }
+    async updateName(id, name) {
+        await this.prisma.user.update({
+            where: {
+                id: +id,
+            },
+            data: {
+                name: name,
+            },
+        });
+    }
+    async updateLastName(id, lastName) {
+        await this.prisma.user.update({
+            where: {
+                id: +id,
+            },
+            data: {
+                lastName: lastName,
+            },
+        });
+    }
+    async updateFi(id, dto) {
+        await this.prisma.user.update({
+            where: {
+                id: +id,
+            },
+            data: {
+                name: dto.name,
+                lastName: dto.lastName,
+            },
+        });
+    }
+    async updateUserFi(dto, id) {
+        const user = await this.getUserId({ id: id });
+        if (user) {
+            if (dto.name !== user.name) {
+                await this.updateName(id, dto.name);
+            }
+            if (dto.lastName !== user.lastName) {
+                await this.updateLastName(id, dto.lastName);
+            }
+            if (dto.lastName !== user.lastName && dto.name !== user.name) {
+                await this.updateFi(id, dto);
+            }
+            const userReturn = await this.getUserId({ id: id });
             return userReturn;
         }
     }

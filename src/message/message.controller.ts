@@ -14,6 +14,7 @@ import { AuthGuard } from 'src/auth/auth.guard';
 import { ContentImgService } from 'src/content-img/content-img.service';
 import { ApiBody, ApiOkResponse, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { MessageUpdateDto } from './dto/messageUpdateDto.dto';
+import { MessageWithImgDto } from './dto/messageWithImg.dto';
 
 @ApiTags('Message')
 @Controller('message')
@@ -55,5 +56,17 @@ export class MessageController {
   @Patch('update')
   async updateMessage(@Body() dto: MessageUpdateDto) {
     return this.messageService.updateMessage(dto);
+  }
+
+  @ApiOperation({ summary: 'Get last messages' })
+  @ApiOkResponse({
+    description: 'last messages for user',
+    type: MessageDto,
+  })
+  @ApiBody({ type: Req })
+  @Get('lastMessage')
+  @UseGuards(AuthGuard)
+  async getLastMessage(@Req() req: Request) {
+    return this.messageService.getLastMessage(req['user'].id);
   }
 }

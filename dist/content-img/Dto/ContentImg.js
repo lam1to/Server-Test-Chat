@@ -9,41 +9,33 @@ var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.MessageUpdateDto = void 0;
+exports.contentImgDto = void 0;
 const swagger_1 = require("@nestjs/swagger");
-class MessageUpdateDto {
+class contentImgDto {
 }
-exports.MessageUpdateDto = MessageUpdateDto;
+exports.contentImgDto = contentImgDto;
 __decorate([
     (0, swagger_1.ApiProperty)({
-        title: 'Message id',
+        title: 'id',
         type: String,
         default: '1',
     }),
     __metadata("design:type", String)
-], MessageUpdateDto.prototype, "messageId", void 0);
+], contentImgDto.prototype, "id", void 0);
 __decorate([
     (0, swagger_1.ApiProperty)({
-        title: 'Content',
-        type: String,
-        default: 'Hi!',
-    }),
-    __metadata("design:type", String)
-], MessageUpdateDto.prototype, "content", void 0);
-__decorate([
-    (0, swagger_1.ApiProperty)({
-        title: 'Chat id',
+        title: 'message id',
         type: String,
         default: '1',
     }),
     __metadata("design:type", String)
-], MessageUpdateDto.prototype, "chatId", void 0);
+], contentImgDto.prototype, "messageId", void 0);
 __decorate([
     (0, swagger_1.ApiProperty)({
-        title: 'user id who auth',
+        title: 'image_url',
         type: String,
-        default: '1',
+        default: 'C:/Users/Lam1to/Pictures/testChatDefaultAvatar.jpg',
     }),
     __metadata("design:type", String)
-], MessageUpdateDto.prototype, "userId", void 0);
-//# sourceMappingURL=messageUpdateDto.dto.js.map
+], contentImgDto.prototype, "image_url", void 0);
+//# sourceMappingURL=ContentImg.js.map

@@ -19,6 +19,7 @@ const auth_guard_1 = require("../auth/auth.guard");
 const swagger_1 = require("@nestjs/swagger");
 const userReturn_dto_1 = require("./Dto/userReturn.dto");
 const updateUserAvatar_dto_1 = require("./Dto/updateUserAvatar.dto");
+const updateFi_dto_1 = require("./Dto/updateFi.dto");
 let UserController = exports.UserController = class UserController {
     constructor(userService) {
         this.userService = userService;
@@ -28,6 +29,9 @@ let UserController = exports.UserController = class UserController {
     }
     async updateUserAvatar(dto) {
         return this.userService.updateUserAvatar(dto);
+    }
+    async updateUserFi(req, dto) {
+        return this.userService.updateUserFi(dto, req['user'].id);
     }
 };
 __decorate([
@@ -49,7 +53,7 @@ __decorate([
     (0, swagger_1.ApiOkResponse)({
         description: 'Ok',
     }),
-    (0, swagger_1.ApiBody)({ type: common_1.Req }),
+    (0, swagger_1.ApiBody)({ type: updateUserAvatar_dto_1.updateUserAvatarDto }),
     (0, common_1.Post)('updateAvatar'),
     (0, common_1.UseGuards)(auth_guard_1.AuthGuard),
     __param(0, (0, common_1.Body)()),
@@ -57,6 +61,20 @@ __decorate([
     __metadata("design:paramtypes", [updateUserAvatar_dto_1.updateUserAvatarDto]),
     __metadata("design:returntype", Promise)
 ], UserController.prototype, "updateUserAvatar", null);
+__decorate([
+    (0, swagger_1.ApiOperation)({ summary: 'Update name/lastName' }),
+    (0, swagger_1.ApiOkResponse)({
+        description: 'Ok',
+    }),
+    (0, swagger_1.ApiBody)({ type: updateFi_dto_1.updateUserFiDto }),
+    (0, common_1.Post)('updateFi'),
+    (0, common_1.UseGuards)(auth_guard_1.AuthGuard),
+    __param(0, (0, common_1.Req)()),
+    __param(1, (0, common_1.Body)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Request, updateFi_dto_1.updateUserFiDto]),
+    __metadata("design:returntype", Promise)
+], UserController.prototype, "updateUserFi", null);
 exports.UserController = UserController = __decorate([
     (0, swagger_1.ApiTags)('User'),
     (0, common_1.Controller)('user'),

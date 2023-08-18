@@ -107,38 +107,7 @@ let ChatService = exports.ChatService = class ChatService {
         return chat;
     }
     async findAll(idUsers) {
-        const masTest = [
-            ...(await this.prisma.userChat.findMany({
-                where: {
-                    userId: +idUsers,
-                },
-            })),
-            ...(await this.prisma.leftChat.findMany({
-                where: {
-                    userId: +idUsers,
-                },
-            })),
-        ];
-        const chats = await this.prisma.chat.findMany({
-            where: {
-                id: {
-                    in: [
-                        ...(await this.prisma.userChat.findMany({
-                            where: {
-                                userId: +idUsers,
-                            },
-                        })),
-                        ...(await this.prisma.leftChat.findMany({
-                            where: {
-                                userId: +idUsers,
-                            },
-                        })),
-                    ].map((item) => {
-                        return +item.chatId;
-                    }),
-                },
-            },
-        });
+        const chats = await this.getAllChatForUser(idUsers);
         const userChat = await this.prisma.userChat.findMany({
             where: {
                 OR: {
@@ -168,6 +137,30 @@ let ChatService = exports.ChatService = class ChatService {
                 .map((one) => one.users[0]),
         }));
         return allChat;
+    }
+    async getAllChatForUser(id) {
+        const chats = await this.prisma.chat.findMany({
+            where: {
+                id: {
+                    in: [
+                        ...(await this.prisma.userChat.findMany({
+                            where: {
+                                userId: +id,
+                            },
+                        })),
+                        ...(await this.prisma.leftChat.findMany({
+                            where: {
+                                userId: +id,
+                            },
+                        })),
+                    ].map((item) => {
+                        return +item.chatId;
+                    }),
+                },
+            },
+        });
+        if (chats)
+            return chats;
     }
     async remove(id) {
         console.log('prislo');

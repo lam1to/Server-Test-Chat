@@ -9,27 +9,27 @@ export declare class ContentImgService {
     createOne(): Promise<void>;
     createMany(filesUrl: CreateStorageUrlImg[], messageId: number): Promise<ContentImg[]>;
     deleteContentImgDto(dto: deleteContentImgDto): Promise<{
-        id: number;
         messageId: number;
+        id: number;
         image_url: string;
     } & {}>;
     findAllForMessage(messageId: string): Promise<ContentImg[]>;
     findDeleteContentImg(dto: messageUpdateWithImgDto): Promise<ContentImg[]>;
     findAddContentImg(dto: messageUpdateWithImgDto): Promise<string[]>;
     createContentImgs(dto: messageUpdateWithImgDto): Promise<({
-        id: number;
         messageId: number;
+        id: number;
         image_url: string;
     } & {})[]>;
     deleteContentImgs(dto: messageUpdateWithImgDto): Promise<({
-        id: number;
         messageId: number;
+        id: number;
         image_url: string;
     } & {})[]>;
     changePlace(dto: messageUpdateWithImgDto): Promise<void>;
     deleteForMessage(messageId: string): Promise<({
-        id: number;
         messageId: number;
+        id: number;
         image_url: string;
     } & {})[]>;
 }

@@ -15,10 +15,18 @@ import { ChatService } from 'src/chat/chat.service';
 import { BlockUserService } from 'src/block-user/block-user.service';
 import { LeftChatService } from 'src/left-chat/left-chat.service';
 import { StorageModule } from 'src/storage/storage.module';
+import { UserService } from 'src/user/user.service';
 
 @Module({
   controllers: [MessageController],
-  providers: [MessageService, JwtStrategy, PrismaService, ContentImgService],
+  providers: [
+    MessageService,
+    JwtStrategy,
+    PrismaService,
+    ContentImgService,
+    ChatService,
+    UserService,
+  ],
   imports: [
     ConfigModule.forRoot(),
     JwtModule.registerAsync({
