@@ -34,7 +34,7 @@ let GatewayService = exports.GatewayService = class GatewayService {
         const message = await this.messageS.createMessage(messageCreateDto);
         const newLastMessage = await this.messageS.newLastMessage(message);
         server.emit(`message${messageCreateDto.chatId}`, message);
-        server.emit('newLastMessage', newLastMessage);
+        server.emit(`newLastMessage${messageCreateDto.chatId}`, newLastMessage);
         return messageCreateDto.content;
     }
     async deleteMessage(dto, server) {
@@ -45,7 +45,7 @@ let GatewayService = exports.GatewayService = class GatewayService {
             await this.storage.removeFiles(deleteContentImg.map((oneDeleteContent) => oneDeleteContent.image_url));
         const newLastMessageDelete = await this.messageS.newLastMessageDelete(dto);
         server.emit(`messageDelete${dto.chatId}`, deleteMessage);
-        server.emit('newLastMessage', newLastMessageDelete);
+        server.emit(`newLastMessage${dto.chatId}`, newLastMessageDelete);
     }
     async createWithImg(dto, server) {
         const message = await this.messageS.createMessage({
@@ -60,7 +60,7 @@ let GatewayService = exports.GatewayService = class GatewayService {
         };
         const newLastMessage = await this.messageS.newLastMessage(messageWithImg);
         server.emit(`message${message.chatId}`, messageWithImg);
-        server.emit('newLastMessage', newLastMessage);
+        server.emit(`newLastMessage${message.chatId}`, newLastMessage);
     }
     async editMessageWithImg(dto, server) {
         const updateMessage = await this.messageS.updateMessage(dto);
@@ -76,7 +76,7 @@ let GatewayService = exports.GatewayService = class GatewayService {
         };
         const newLastMessageUpdate = await this.messageS.newLastMessageUpdate(updateMessageWithImg, dto.userId);
         if (Object.keys(newLastMessageUpdate).length !== 0)
-            server.emit('newLastMessage', newLastMessageUpdate);
+            server.emit(`newLastMessage${dto.chatId}`, newLastMessageUpdate);
         server.emit(`messageUpdate${dto.chatId}`, updateMessageWithImg);
     }
     async createChat(dto, server) {
@@ -130,6 +130,8 @@ let GatewayService = exports.GatewayService = class GatewayService {
         server.emit(`newLeftUserInChat${dto.idChat}`, {
             ...leftChat,
         });
+        const lastMessage = await this.messageS.newLastMessage(messageUser.message);
+        server.emit(`newLastMessage${dto.idChat}`, lastMessage);
     }
     async removeLeftChat(dto, server) {
         const leftChat = await this.leftChat.delete(dto);
@@ -146,6 +148,8 @@ let GatewayService = exports.GatewayService = class GatewayService {
             ...leftChat,
             user: messageUser.user,
         });
+        const lastMessage = await this.messageS.newLastMessage(messageUser.message);
+        server.emit(`newLastMessage${dto.idChat}`, lastMessage);
     }
     async loadingImg(server) { }
     findAll() {

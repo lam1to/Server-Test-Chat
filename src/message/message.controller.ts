@@ -47,6 +47,35 @@ export class MessageController {
     return this.messageService.getAllForChat(id, idUser);
   }
 
+  @ApiOperation({ summary: 'Get one part message for chat' })
+  @ApiOkResponse({
+    description: 'messages',
+    type: [returnMessageDto],
+  })
+  @Get('getMessage/limit=:id/chat=:id2/part=:id3')
+  @UseGuards(AuthGuard)
+  async getOnePartMessage(
+    @Param('id') limitCount: string,
+    @Param('id2') chatId: string,
+    @Param('id3') partId: string,
+    @Req() req: Request,
+  ) {
+    console.log(
+      'limit count message = ',
+      limitCount,
+      'чат с таким id = ',
+      chatId,
+      ' part такое - ',
+      partId,
+    );
+    return this.messageService.getOnePartMessage(
+      limitCount,
+      chatId,
+      partId,
+      req['user'].id,
+    );
+  }
+
   @ApiOperation({ summary: 'Update message' })
   @ApiOkResponse({
     description: 'update message',

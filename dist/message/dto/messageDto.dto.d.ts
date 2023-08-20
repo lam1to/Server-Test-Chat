@@ -1,4 +1,5 @@
 import { CreateStorageUrlImg } from 'src/storage/dto/createStorageUrlImg.dto';
+import { MessageWithImgDto } from './messageWithImg.dto';
 export declare class MessageDto {
     userId: string;
     chatId: string;
@@ -7,4 +8,8 @@ export declare class MessageDto {
 export declare class returnMessageDto extends MessageDto {
     created_at: Date;
     masUrl?: CreateStorageUrlImg[];
+}
+export interface returnMessagePart {
+    messages: MessageWithImgDto[];
+    allPart: string;
 }

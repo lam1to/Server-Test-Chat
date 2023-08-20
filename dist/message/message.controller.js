@@ -32,6 +32,10 @@ let MessageController = exports.MessageController = class MessageController {
         const idUser = req['user'].id;
         return this.messageService.getAllForChat(id, idUser);
     }
+    async getOnePartMessage(limitCount, chatId, partId, req) {
+        console.log('limit count message = ', limitCount, 'чат с таким id = ', chatId, ' part такое - ', partId);
+        return this.messageService.getOnePartMessage(limitCount, chatId, partId, req['user'].id);
+    }
     async updateMessage(dto) {
         return this.messageService.updateMessage(dto);
     }
@@ -66,6 +70,22 @@ __decorate([
     __metadata("design:paramtypes", [String, Request]),
     __metadata("design:returntype", Promise)
 ], MessageController.prototype, "getAllForChat", null);
+__decorate([
+    (0, swagger_1.ApiOperation)({ summary: 'Get one part message for chat' }),
+    (0, swagger_1.ApiOkResponse)({
+        description: 'messages',
+        type: [messageDto_dto_1.returnMessageDto],
+    }),
+    (0, common_1.Get)('getMessage/limit=:id/chat=:id2/part=:id3'),
+    (0, common_1.UseGuards)(auth_guard_1.AuthGuard),
+    __param(0, (0, common_1.Param)('id')),
+    __param(1, (0, common_1.Param)('id2')),
+    __param(2, (0, common_1.Param)('id3')),
+    __param(3, (0, common_1.Req)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String, String, String, Request]),
+    __metadata("design:returntype", Promise)
+], MessageController.prototype, "getOnePartMessage", null);
 __decorate([
     (0, swagger_1.ApiOperation)({ summary: 'Update message' }),
     (0, swagger_1.ApiOkResponse)({

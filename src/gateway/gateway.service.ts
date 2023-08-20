@@ -57,7 +57,7 @@ export class GatewayService {
     const newLastMessage: MessageWithImgNameDto =
       await this.messageS.newLastMessage(message);
     server.emit(`message${messageCreateDto.chatId}`, message);
-    server.emit('newLastMessage', newLastMessage);
+    server.emit(`newLastMessage${messageCreateDto.chatId}`, newLastMessage);
     return messageCreateDto.content;
   }
 
@@ -72,7 +72,7 @@ export class GatewayService {
       );
     const newLastMessageDelete = await this.messageS.newLastMessageDelete(dto);
     server.emit(`messageDelete${dto.chatId}`, deleteMessage);
-    server.emit('newLastMessage', newLastMessageDelete);
+    server.emit(`newLastMessage${dto.chatId}`, newLastMessageDelete);
   }
 
   async createWithImg(dto: messageWithImgCreateDto, server: Server) {
@@ -92,7 +92,7 @@ export class GatewayService {
     const newLastMessage: MessageWithImgNameDto =
       await this.messageS.newLastMessage(messageWithImg);
     server.emit(`message${message.chatId}`, messageWithImg);
-    server.emit('newLastMessage', newLastMessage);
+    server.emit(`newLastMessage${message.chatId}`, newLastMessage);
   }
 
   async editMessageWithImg(dto: messageUpdateWithImgDto, server: Server) {
@@ -121,7 +121,7 @@ export class GatewayService {
         dto.userId,
       );
     if (Object.keys(newLastMessageUpdate).length !== 0)
-      server.emit('newLastMessage', newLastMessageUpdate);
+      server.emit(`newLastMessage${dto.chatId}`, newLastMessageUpdate);
 
     server.emit(`messageUpdate${dto.chatId}`, updateMessageWithImg);
   }
@@ -194,6 +194,7 @@ export class GatewayService {
       true,
     );
     server.emit(`message${leftChat.chatId}`, messageUser.message);
+
     await this.prisma.userChat.delete({
       where: {
         id: (
@@ -210,6 +211,9 @@ export class GatewayService {
     server.emit(`newLeftUserInChat${dto.idChat}`, {
       ...leftChat,
     });
+    const lastMessage: MessageWithImgNameDto =
+      await this.messageS.newLastMessage(messageUser.message);
+    server.emit(`newLastMessage${dto.idChat}`, lastMessage);
   }
   async removeLeftChat(dto: LeftChatDto, server: Server) {
     const leftChat: LeftChat = await this.leftChat.delete(dto);
@@ -229,6 +233,9 @@ export class GatewayService {
       ...leftChat,
       user: messageUser.user,
     });
+    const lastMessage: MessageWithImgNameDto =
+      await this.messageS.newLastMessage(messageUser.message);
+    server.emit(`newLastMessage${dto.idChat}`, lastMessage);
   }
 
   // async updateUserAvatar(dto: updateUserAvatarDto, server: Server) {

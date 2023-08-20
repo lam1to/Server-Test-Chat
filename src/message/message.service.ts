@@ -7,7 +7,7 @@ import {
   MessageWithImgDto,
   MessageWithImgNameDto,
 } from './dto/messageWithImg.dto';
-import { MessageDto } from './dto/messageDto.dto';
+import { MessageDto, returnMessagePart } from './dto/messageDto.dto';
 import { ChatService } from 'src/chat/chat.service';
 import { UserService } from 'src/user/user.service';
 import { MessageDeleteDto } from './dto/messageDelete.dto';
@@ -96,6 +96,68 @@ export class MessageService {
     );
     return messagesWithImg;
   }
+
+  getPart(
+    messages: MessageWithImgDto[],
+    allPart: string,
+    idPart: string,
+    limitCount: string,
+  ) {
+    if (+limitCount >= messages.length) {
+      return messages;
+    } else {
+      if (idPart == allPart) {
+        return messages.slice(0, messages.length - +limitCount * (+idPart - 1));
+        // return messages.slice(+limitCount, messages.length);
+      } else {
+        return messages.slice(
+          messages.length - +limitCount * +idPart,
+          messages.length - +limitCount * (+idPart - 1),
+        );
+        // return messages.slice(
+        //   +((+idPart - 1) * +limitCount),
+        //   +(+idPart * +limitCount),
+        // );
+      }
+    }
+  }
+
+  async getOnePartMessage(
+    limitCount: string,
+    chatId: string,
+    partId: string,
+    idUser: string,
+  ) {
+    const allMessageForChat: MessageWithImgDto[] = await this.getAllForChat(
+      chatId,
+      idUser,
+    );
+
+    // .sort((one, two) => two.id - one.id);
+
+    const allPart: string = `${Math.ceil(
+      allMessageForChat.length / +limitCount,
+    )}`;
+    console.log('сообщения = ', allMessageForChat);
+    console.log('сколько всего сообщений = ', allMessageForChat.length);
+    console.log('allPart ', allPart);
+    const messagesPart: MessageWithImgDto[] = this.getPart(
+      allMessageForChat,
+      allPart,
+      partId,
+      limitCount,
+    );
+    console.log('messages которые получилось', messagesPart);
+
+    // const messagesPart:MessageWithImgDto =
+    const messagesPartReturn: returnMessagePart = {
+      messages: messagesPart,
+      allPart: allPart,
+    };
+
+    return messagesPartReturn;
+  }
+
   async remove(id: string) {
     console.log('id что получили = ', id);
     const message: Message = await this.prisma.message.delete({
@@ -147,16 +209,26 @@ export class MessageService {
   }
   async newLastMessageDelete(dto: MessageDeleteDto) {
     const allMessage = await this.getAllForChat(dto.chatId, dto.userId);
-    const lastMessage: MessageWithImgDto = allMessage[allMessage.length - 1];
-    const lastMessageWithName: MessageWithImgNameDto = {
-      ...lastMessage,
-      name: (
-        await this.user.getUserId({
-          id: `${lastMessage.userId}`,
-        })
-      ).name,
+    if (allMessage.length !== 0) {
+      const lastMessage: MessageWithImgDto = allMessage[allMessage.length - 1];
+      const lastMessageWithName: MessageWithImgNameDto = {
+        ...lastMessage,
+        name: (
+          await this.user.getUserId({
+            id: `${lastMessage.userId}`,
+          })
+        ).name,
+      };
+      return lastMessageWithName;
+    }
+    return {
+      chatId: dto.chatId,
+      id: '0',
+      name: '',
+      content: '',
+      userId: '0',
+      createdAt: Date.now(),
     };
-    return lastMessageWithName;
   }
 
   async newLastMessage(message: MessageWithImgDto) {

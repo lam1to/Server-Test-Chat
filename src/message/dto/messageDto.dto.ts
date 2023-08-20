@@ -1,6 +1,7 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { ContentImg } from '@prisma/client';
 import { CreateStorageUrlImg } from 'src/storage/dto/createStorageUrlImg.dto';
+import { MessageWithImgDto } from './messageWithImg.dto';
 
 export class MessageDto {
   @ApiProperty({
@@ -49,3 +50,8 @@ export class returnMessageDto extends MessageDto {
 //   })
 //   name: string;
 // }
+
+export interface returnMessagePart {
+  messages: MessageWithImgDto[];
+  allPart: string;
+}

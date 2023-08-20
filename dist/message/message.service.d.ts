@@ -3,7 +3,7 @@ import { Message } from '@prisma/client';
 import { MessageUpdateDto } from './dto/messageUpdateDto.dto';
 import { LeftChatDto } from 'src/left-chat/dto/LeftChat.dto';
 import { MessageWithImgDto, MessageWithImgNameDto } from './dto/messageWithImg.dto';
-import { MessageDto } from './dto/messageDto.dto';
+import { MessageDto, returnMessagePart } from './dto/messageDto.dto';
 import { ChatService } from 'src/chat/chat.service';
 import { UserService } from 'src/user/user.service';
 import { MessageDeleteDto } from './dto/messageDelete.dto';
@@ -28,6 +28,8 @@ export declare class MessageService {
     } & {}>;
     getMessageWithImg(message: Message[]): Promise<MessageWithImgDto[]>;
     getAllForChat(id: string, idUser: string): Promise<MessageWithImgDto[]>;
+    getPart(messages: MessageWithImgDto[], allPart: string, idPart: string, limitCount: string): MessageWithImgDto[];
+    getOnePartMessage(limitCount: string, chatId: string, partId: string, idUser: string): Promise<returnMessagePart>;
     remove(id: string): Promise<{
         id: number;
         content: string;
@@ -64,7 +66,14 @@ export declare class MessageService {
         } & {};
     }>;
     newLastMessageUpdate(updateMessage: MessageWithImgDto, userId: string): Promise<MessageWithImgNameDto>;
-    newLastMessageDelete(dto: MessageDeleteDto): Promise<MessageWithImgNameDto>;
+    newLastMessageDelete(dto: MessageDeleteDto): Promise<MessageWithImgNameDto | {
+        chatId: string;
+        id: string;
+        name: string;
+        content: string;
+        userId: string;
+        createdAt: number;
+    }>;
     newLastMessage(message: MessageWithImgDto): Promise<MessageWithImgNameDto>;
     getLastMessage(id: string): Promise<MessageWithImgNameDto[]>;
 }

@@ -86,6 +86,33 @@ let MessageService = exports.MessageService = class MessageService {
         const messagesWithImg = await this.getMessageWithImg(messages);
         return messagesWithImg;
     }
+    getPart(messages, allPart, idPart, limitCount) {
+        if (+limitCount >= messages.length) {
+            return messages;
+        }
+        else {
+            if (idPart == allPart) {
+                return messages.slice(0, messages.length - +limitCount * (+idPart - 1));
+            }
+            else {
+                return messages.slice(messages.length - +limitCount * +idPart, messages.length - +limitCount * (+idPart - 1));
+            }
+        }
+    }
+    async getOnePartMessage(limitCount, chatId, partId, idUser) {
+        const allMessageForChat = await this.getAllForChat(chatId, idUser);
+        const allPart = `${Math.ceil(allMessageForChat.length / +limitCount)}`;
+        console.log('сообщения = ', allMessageForChat);
+        console.log('сколько всего сообщений = ', allMessageForChat.length);
+        console.log('allPart ', allPart);
+        const messagesPart = this.getPart(allMessageForChat, allPart, partId, limitCount);
+        console.log('messages которые получилось', messagesPart);
+        const messagesPartReturn = {
+            messages: messagesPart,
+            allPart: allPart,
+        };
+        return messagesPartReturn;
+    }
     async remove(id) {
         console.log('id что получили = ', id);
         const message = await this.prisma.message.delete({
@@ -130,14 +157,24 @@ let MessageService = exports.MessageService = class MessageService {
     }
     async newLastMessageDelete(dto) {
         const allMessage = await this.getAllForChat(dto.chatId, dto.userId);
-        const lastMessage = allMessage[allMessage.length - 1];
-        const lastMessageWithName = {
-            ...lastMessage,
-            name: (await this.user.getUserId({
-                id: `${lastMessage.userId}`,
-            })).name,
+        if (allMessage.length !== 0) {
+            const lastMessage = allMessage[allMessage.length - 1];
+            const lastMessageWithName = {
+                ...lastMessage,
+                name: (await this.user.getUserId({
+                    id: `${lastMessage.userId}`,
+                })).name,
+            };
+            return lastMessageWithName;
+        }
+        return {
+            chatId: dto.chatId,
+            id: '0',
+            name: '',
+            content: '',
+            userId: '0',
+            createdAt: Date.now(),
         };
-        return lastMessageWithName;
     }
     async newLastMessage(message) {
         const newLastMessage = {
