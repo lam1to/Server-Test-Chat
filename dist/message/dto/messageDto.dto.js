@@ -9,7 +9,7 @@ var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.returnMessageDto = exports.MessageDto = void 0;
+exports.returnMessageDto = exports.MessageReplyCreateDto = exports.MessageDto = void 0;
 const swagger_1 = require("@nestjs/swagger");
 const createStorageUrlImg_dto_1 = require("../../storage/dto/createStorageUrlImg.dto");
 class MessageDto {
@@ -39,6 +39,9 @@ __decorate([
     }),
     __metadata("design:type", String)
 ], MessageDto.prototype, "content", void 0);
+class MessageReplyCreateDto extends MessageDto {
+}
+exports.MessageReplyCreateDto = MessageReplyCreateDto;
 class returnMessageDto extends MessageDto {
 }
 exports.returnMessageDto = returnMessageDto;

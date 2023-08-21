@@ -9,17 +9,16 @@ var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.uploadStorageFileDto = void 0;
-const swagger_1 = require("@nestjs/swagger");
-class uploadStorageFileDto {
-}
-exports.uploadStorageFileDto = uploadStorageFileDto;
-__decorate([
-    (0, swagger_1.ApiProperty)({
-        title: 'file',
-        type: File,
-        default: {},
-    }),
-    __metadata("design:type", Object)
-], uploadStorageFileDto.prototype, "file", void 0);
-//# sourceMappingURL=create-storage.dto.js.map
+exports.ForwardMessageController = void 0;
+const common_1 = require("@nestjs/common");
+const forward_message_service_1 = require("./forward-message.service");
+let ForwardMessageController = exports.ForwardMessageController = class ForwardMessageController {
+    constructor(forwardMessageService) {
+        this.forwardMessageService = forwardMessageService;
+    }
+};
+exports.ForwardMessageController = ForwardMessageController = __decorate([
+    (0, common_1.Controller)('forward-message'),
+    __metadata("design:paramtypes", [forward_message_service_1.ForwardMessageService])
+], ForwardMessageController);
+//# sourceMappingURL=forward-message.controller.js.map

@@ -5,6 +5,9 @@ export declare class MessageDto {
     chatId: string;
     content: string;
 }
+export declare class MessageReplyCreateDto extends MessageDto {
+    messageIdWasAnswered: string;
+}
 export declare class returnMessageDto extends MessageDto {
     created_at: Date;
     masUrl?: CreateStorageUrlImg[];

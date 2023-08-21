@@ -1,10 +1,19 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { PrismaService } from 'src/prisma.service';
-import { Chat, ContentImg, LeftChat, Message, User } from '@prisma/client';
+import {
+  Chat,
+  ContentImg,
+  LeftChat,
+  Message,
+  ReplyMessage,
+  User,
+} from '@prisma/client';
 import { MessageUpdateDto } from './dto/messageUpdateDto.dto';
 import { LeftChatDto } from 'src/left-chat/dto/LeftChat.dto';
 import {
+  MessageIdWithMessageReply,
   MessageWithImgDto,
+  MessageWithImgMessage,
   MessageWithImgNameDto,
 } from './dto/messageWithImg.dto';
 import { MessageDto, returnMessagePart } from './dto/messageDto.dto';
@@ -47,7 +56,30 @@ export class MessageService {
     return upMessage;
   }
 
-  async getMessageWithImg(message: Message[]) {
+  async getMessageWithImg(idMessage: string) {
+    const message: Message = await this.prisma.message.findFirst({
+      where: {
+        id: +idMessage,
+      },
+    });
+    const contentImgForMessages: ContentImg[] =
+      await this.prisma.contentImg.findMany({
+        where: {
+          messageId: message.id,
+        },
+      });
+    const messageWithImg: MessageWithImgDto = {
+      ...message,
+      contentImg: [
+        ...contentImgForMessages.filter(
+          (oneContentImg) => oneContentImg.messageId === message.id,
+        ),
+      ],
+    };
+    return messageWithImg;
+  }
+
+  async getMessagesWithImg(message: Message[]) {
     const contentImgForMessages: ContentImg[] =
       await this.prisma.contentImg.findMany({
         where: {
@@ -67,6 +99,49 @@ export class MessageService {
     return messageWithImg;
   }
 
+  async getMessageWithReply(allMessageForChat: MessageWithImgDto[]) {
+    const replyMessage: ReplyMessage[] =
+      await this.prisma.replyMessage.findMany({
+        where: {
+          messageId: {
+            in: [...allMessageForChat.map((oneMessage) => oneMessage.id)],
+          },
+        },
+      });
+    const MessageIdWithMessage: MessageIdWithMessageReply[] = allMessageForChat
+      .map((oneMessage) => {
+        const test: ReplyMessage = replyMessage.filter(
+          (oneReply) => oneReply.messageId === oneMessage.id,
+        )[0];
+        if (test && Object.keys(test).length !== 0) {
+          const idMessageSearch = test.messageIdReply;
+          return {
+            messageId: oneMessage.id,
+            messageReply: allMessageForChat.filter(
+              (oneMessage2) => oneMessage2.id == idMessageSearch,
+            )[0],
+          };
+        }
+      })
+      .filter((oneItem) => oneItem !== undefined);
+    const messageWithReplyImg: MessageWithImgMessage[] = allMessageForChat.map(
+      (oneMessage) => {
+        const messageReply = MessageIdWithMessage.filter(
+          (oneItem) => oneItem.messageId === oneMessage.id,
+        )[0];
+        if (messageReply && messageReply.messageReply) {
+          return {
+            ...oneMessage,
+            messageWasAnswered: messageReply.messageReply,
+          };
+        } else {
+          return oneMessage;
+        }
+      },
+    );
+    return messageWithReplyImg;
+  }
+
   async getAllForChat(id: string, idUser: string) {
     const leftChat: LeftChat = await this.prisma.leftChat.findFirst({
       where: {
@@ -84,21 +159,26 @@ export class MessageService {
         return one.createdAt.getTime() <= leftChat.createdAt.getTime() + 60000;
       });
       filterMessages.sort((one, two) => one.id - two.id);
-      const messageWithImg: MessageWithImgDto[] = await this.getMessageWithImg(
+      const messageWithImg: MessageWithImgDto[] = await this.getMessagesWithImg(
         filterMessages,
       );
-      return messageWithImg;
+      const returnMessage: MessageWithImgMessage[] =
+        await this.getMessageWithReply(filterMessages);
+      return returnMessage;
     }
     messages.sort((one, two) => one.id - two.id);
 
-    const messagesWithImg: MessageWithImgDto[] = await this.getMessageWithImg(
+    const messagesWithImg: MessageWithImgDto[] = await this.getMessagesWithImg(
       messages,
     );
-    return messagesWithImg;
+    const returnMessage: MessageWithImgMessage[] =
+      await this.getMessageWithReply(messagesWithImg);
+
+    return returnMessage;
   }
 
   getPart(
-    messages: MessageWithImgDto[],
+    messages: MessageWithImgMessage[],
     allPart: string,
     idPart: string,
     limitCount: string,
@@ -128,26 +208,20 @@ export class MessageService {
     partId: string,
     idUser: string,
   ) {
-    const allMessageForChat: MessageWithImgDto[] = await this.getAllForChat(
+    const allMessageForChat: MessageWithImgMessage[] = await this.getAllForChat(
       chatId,
       idUser,
     );
 
-    // .sort((one, two) => two.id - one.id);
-
     const allPart: string = `${Math.ceil(
       allMessageForChat.length / +limitCount,
     )}`;
-    console.log('сообщения = ', allMessageForChat);
-    console.log('сколько всего сообщений = ', allMessageForChat.length);
-    console.log('allPart ', allPart);
     const messagesPart: MessageWithImgDto[] = this.getPart(
       allMessageForChat,
       allPart,
       partId,
       limitCount,
     );
-    console.log('messages которые получилось', messagesPart);
 
     // const messagesPart:MessageWithImgDto =
     const messagesPartReturn: returnMessagePart = {

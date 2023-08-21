@@ -16,6 +16,8 @@ import { BlockUserService } from 'src/block-user/block-user.service';
 import { LeftChatService } from 'src/left-chat/left-chat.service';
 import { StorageModule } from 'src/storage/storage.module';
 import { UserService } from 'src/user/user.service';
+import { ReplyMessage } from 'src/reply-message/entities/reply-message.entity';
+import { ReplyMessageService } from 'src/reply-message/reply-message.service';
 
 @Module({
   controllers: [MessageController],

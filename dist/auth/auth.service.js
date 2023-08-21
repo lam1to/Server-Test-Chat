@@ -12,7 +12,6 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.AuthService = void 0;
 const common_1 = require("@nestjs/common");
 const prisma_service_1 = require("../prisma.service");
-const faker_1 = require("@faker-js/faker");
 const argon2_1 = require("argon2");
 const jwt_1 = require("@nestjs/jwt");
 let AuthService = exports.AuthService = class AuthService {
@@ -38,7 +37,6 @@ let AuthService = exports.AuthService = class AuthService {
                 email: dto.email,
                 name: dto.name,
                 lastName: dto.lastName,
-                avatarPath: faker_1.faker.image.avatar(),
                 password: await (0, argon2_1.hash)(dto.password),
             },
         });

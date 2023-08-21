@@ -5,3 +5,6 @@ export declare class messageWithImgCreateDto {
     content: string;
     masUrl: CreateStorageUrlImg[];
 }
+export declare class messageReplyWithImgCreateDto extends messageWithImgCreateDto {
+    messageIdWasAnswered: string;
+}

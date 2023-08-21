@@ -22,6 +22,8 @@ const left_chat_module_1 = require("./left-chat/left-chat.module");
 const storage_module_1 = require("./storage/storage.module");
 const content_img_module_1 = require("./content-img/content-img.module");
 const configuration_1 = require("./config/configuration");
+const reply_message_module_1 = require("./reply-message/reply-message.module");
+const forward_message_module_1 = require("./forward-message/forward-message.module");
 let AppModule = exports.AppModule = class AppModule {
 };
 exports.AppModule = AppModule = __decorate([
@@ -32,6 +34,7 @@ exports.AppModule = AppModule = __decorate([
                 load: [configuration_1.default],
             }),
             gateway_module_1.GatewayModule,
+            reply_message_module_1.ReplyMessageModule,
             auth_module_1.AuthModule,
             user_module_1.UserModule,
             chat_module_1.ChatModule,
@@ -40,6 +43,7 @@ exports.AppModule = AppModule = __decorate([
             left_chat_module_1.LeftChatModule,
             storage_module_1.StorageModule,
             content_img_module_1.ContentImgModule,
+            forward_message_module_1.ForwardMessageModule,
         ],
         controllers: [app_controller_1.AppController],
         providers: [app_service_1.AppService, prisma_service_1.PrismaService],

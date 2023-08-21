@@ -14,7 +14,10 @@ import { MessageUpdateDto } from 'src/message/dto/messageUpdateDto.dto';
 import { MessageDeleteDto } from 'src/message/dto/messageDelete.dto';
 import { CreateBlockUserDto } from 'src/block-user/dto/create-block-user.dto';
 import { LeftChatDto } from 'src/left-chat/dto/LeftChat.dto';
-import { MessageDto } from 'src/message/dto/messageDto.dto';
+import {
+  MessageDto,
+  MessageReplyCreateDto,
+} from 'src/message/dto/messageDto.dto';
 import { FileInterceptor, FilesInterceptor } from '@nestjs/platform-express';
 import {
   BadRequestException,
@@ -25,7 +28,10 @@ import {
 } from '@nestjs/common';
 import { memoryStorage } from 'multer';
 import { ContentImg, Message } from '@prisma/client';
-import { messageWithImgCreateDto } from 'src/message/dto/messageCreateWithImg.dto';
+import {
+  messageReplyWithImgCreateDto,
+  messageWithImgCreateDto,
+} from 'src/message/dto/messageCreateWithImg.dto';
 import {
   deleteAddContentImgsDto,
   deleteContentImgDto,
@@ -57,6 +63,22 @@ export class GatewayGateway {
     );
   }
 
+  @SubscribeMessage('createReplyMessage')
+  async createReply(@Body() messageCreateDto: MessageReplyCreateDto) {
+    return await this.gatewayService.createReply(messageCreateDto, this.server);
+  }
+
+  @SubscribeMessage('createReplyMessageWithImg')
+  async createReplyWithImg(
+    @Body() messageReplyWithImgCreateDto: messageReplyWithImgCreateDto,
+  ) {
+    console.log('зашло в gateWay');
+    console.log('получили такие данные = ', messageReplyWithImgCreateDto);
+    await this.gatewayService.createReplyWithImg(
+      messageReplyWithImgCreateDto,
+      this.server,
+    );
+  }
   @SubscribeMessage('updateMessageWithImg')
   async editMessageWithImg(@Body() dto: messageUpdateWithImgDto) {
     console.log('зашло в gateWay');

@@ -11,6 +11,7 @@ import { ChatModule } from 'src/chat/chat.module';
 import { ContentImgService } from 'src/content-img/content-img.service';
 import { StorageService } from 'src/storage/storage.service';
 import { UserService } from 'src/user/user.service';
+import { ReplyMessageService } from 'src/reply-message/reply-message.service';
 
 @Module({
   providers: [
@@ -24,6 +25,7 @@ import { UserService } from 'src/user/user.service';
     ContentImgService,
     StorageService,
     UserService,
+    ReplyMessageService,
   ],
   exports: [GatewayGateway],
 })

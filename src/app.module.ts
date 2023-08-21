@@ -14,6 +14,8 @@ import { StorageModule } from './storage/storage.module';
 import { ContentImgModule } from './content-img/content-img.module';
 import configuration from './config/configuration';
 import { GatewayService } from './gateway/gateway.service';
+import { ReplyMessageModule } from './reply-message/reply-message.module';
+import { ForwardMessageModule } from './forward-message/forward-message.module';
 
 @Module({
   imports: [
@@ -22,6 +24,7 @@ import { GatewayService } from './gateway/gateway.service';
       load: [configuration],
     }),
     GatewayModule,
+    ReplyMessageModule,
     AuthModule,
     UserModule,
     ChatModule,
@@ -30,6 +33,7 @@ import { GatewayService } from './gateway/gateway.service';
     LeftChatModule,
     StorageModule,
     ContentImgModule,
+    ForwardMessageModule,
   ],
   controllers: [AppController],
   providers: [AppService, PrismaService],

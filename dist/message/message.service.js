@@ -46,7 +46,26 @@ let MessageService = exports.MessageService = class MessageService {
         });
         return upMessage;
     }
-    async getMessageWithImg(message) {
+    async getMessageWithImg(idMessage) {
+        const message = await this.prisma.message.findFirst({
+            where: {
+                id: +idMessage,
+            },
+        });
+        const contentImgForMessages = await this.prisma.contentImg.findMany({
+            where: {
+                messageId: message.id,
+            },
+        });
+        const messageWithImg = {
+            ...message,
+            contentImg: [
+                ...contentImgForMessages.filter((oneContentImg) => oneContentImg.messageId === message.id),
+            ],
+        };
+        return messageWithImg;
+    }
+    async getMessagesWithImg(message) {
         const contentImgForMessages = await this.prisma.contentImg.findMany({
             where: {
                 messageId: { in: [...message.map((oneMessage) => oneMessage.id)] },
@@ -61,6 +80,40 @@ let MessageService = exports.MessageService = class MessageService {
             };
         });
         return messageWithImg;
+    }
+    async getMessageWithReply(allMessageForChat) {
+        const replyMessage = await this.prisma.replyMessage.findMany({
+            where: {
+                messageId: {
+                    in: [...allMessageForChat.map((oneMessage) => oneMessage.id)],
+                },
+            },
+        });
+        const MessageIdWithMessage = allMessageForChat
+            .map((oneMessage) => {
+            const test = replyMessage.filter((oneReply) => oneReply.messageId === oneMessage.id)[0];
+            if (test && Object.keys(test).length !== 0) {
+                const idMessageSearch = test.messageIdReply;
+                return {
+                    messageId: oneMessage.id,
+                    messageReply: allMessageForChat.filter((oneMessage2) => oneMessage2.id == idMessageSearch)[0],
+                };
+            }
+        })
+            .filter((oneItem) => oneItem !== undefined);
+        const messageWithReplyImg = allMessageForChat.map((oneMessage) => {
+            const messageReply = MessageIdWithMessage.filter((oneItem) => oneItem.messageId === oneMessage.id)[0];
+            if (messageReply && messageReply.messageReply) {
+                return {
+                    ...oneMessage,
+                    messageWasAnswered: messageReply.messageReply,
+                };
+            }
+            else {
+                return oneMessage;
+            }
+        });
+        return messageWithReplyImg;
     }
     async getAllForChat(id, idUser) {
         const leftChat = await this.prisma.leftChat.findFirst({
@@ -79,12 +132,14 @@ let MessageService = exports.MessageService = class MessageService {
                 return one.createdAt.getTime() <= leftChat.createdAt.getTime() + 60000;
             });
             filterMessages.sort((one, two) => one.id - two.id);
-            const messageWithImg = await this.getMessageWithImg(filterMessages);
-            return messageWithImg;
+            const messageWithImg = await this.getMessagesWithImg(filterMessages);
+            const returnMessage = await this.getMessageWithReply(filterMessages);
+            return returnMessage;
         }
         messages.sort((one, two) => one.id - two.id);
-        const messagesWithImg = await this.getMessageWithImg(messages);
-        return messagesWithImg;
+        const messagesWithImg = await this.getMessagesWithImg(messages);
+        const returnMessage = await this.getMessageWithReply(messagesWithImg);
+        return returnMessage;
     }
     getPart(messages, allPart, idPart, limitCount) {
         if (+limitCount >= messages.length) {
@@ -102,11 +157,7 @@ let MessageService = exports.MessageService = class MessageService {
     async getOnePartMessage(limitCount, chatId, partId, idUser) {
         const allMessageForChat = await this.getAllForChat(chatId, idUser);
         const allPart = `${Math.ceil(allMessageForChat.length / +limitCount)}`;
-        console.log('сообщения = ', allMessageForChat);
-        console.log('сколько всего сообщений = ', allMessageForChat.length);
-        console.log('allPart ', allPart);
         const messagesPart = this.getPart(allMessageForChat, allPart, partId, limitCount);
-        console.log('messages которые получилось', messagesPart);
         const messagesPartReturn = {
             messages: messagesPart,
             allPart: allPart,

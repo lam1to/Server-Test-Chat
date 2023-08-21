@@ -24,6 +24,10 @@ export class MessageDto {
   content: string;
 }
 
+export class MessageReplyCreateDto extends MessageDto {
+  messageIdWasAnswered: string;
+}
+
 export class returnMessageDto extends MessageDto {
   @ApiProperty({
     title: 'Created_at',

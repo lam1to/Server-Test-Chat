@@ -6,3 +6,11 @@ export class messageWithImgCreateDto {
   content: string;
   masUrl: CreateStorageUrlImg[];
 }
+export class messageReplyWithImgCreateDto extends messageWithImgCreateDto {
+  messageIdWasAnswered: string;
+}
+
+// export class MessageIdWithMessageReply {
+//   messageId: string;
+//   messageReply:
+// }

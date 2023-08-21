@@ -10,11 +10,11 @@ export declare class JwtStrategy extends JwtStrategy_base {
     validate({ id }: Pick<User, 'id'>): Promise<{
         email: string;
         password: string;
+        name: string;
+        lastName: string;
         id: number;
         createdAt: Date;
         updatedAt: Date;
-        name: string;
-        lastName: string;
         avatarPath: string;
     } & {}>;
 }

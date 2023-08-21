@@ -5,3 +5,10 @@ export interface MessageWithImgDto extends Message {
 export interface MessageWithImgNameDto extends MessageWithImgDto {
     name: string;
 }
+export interface MessageWithImgMessage extends MessageWithImgDto {
+    messageWasAnswered?: MessageWithImgDto;
+}
+export interface MessageIdWithMessageReply {
+    messageId: number;
+    messageReply: MessageWithImgDto;
+}

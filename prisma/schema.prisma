@@ -16,7 +16,7 @@ model User {
   password   String
   name       String
   lastName   String
-  avatarPath String      @default("C:/Users/Lam1to/Pictures/testChatDefaultAvatar.jpg") @map("avatar_path")
+  avatarPath String      @default("https://storage.googleapis.com/img-test-chat/user.png") @map("avatar_path")
   userChats  UserChat[]
   messages   Message[]
   blockUser1 BlockUser[] @relation("User1")
@@ -26,10 +26,10 @@ model User {
 }
 
 model Chat {
-  id   Int    @id @default(autoincrement())
-  type String @default("DM")
-  name String @default("EmptyName")
-
+  id              Int        @id @default(autoincrement())
+  type            String     @default("DM")
+  name            String     @default("EmptyName")
+  avatarUrl       String     @default("https://storage.googleapis.com/img-test-chat/user.png")
   createdAt       DateTime   @default(now()) @map("created_at")
   userChats       UserChat[]
   messages        Message[]
@@ -48,14 +48,18 @@ model UserChat {
 }
 
 model Message {
-  id         Int          @id @default(autoincrement())
-  content    String
-  createdAt  DateTime     @default(now()) @map("created_at")
-  Chat       Chat?        @relation(fields: [chatId], references: [id])
-  chatId     Int?
-  User       User?        @relation(fields: [userId], references: [id])
-  userId     Int?
-  contentImg ContentImg[]
+  id              Int              @id @default(autoincrement())
+  content         String
+  createdAt       DateTime         @default(now()) @map("created_at")
+  Chat            Chat?            @relation(fields: [chatId], references: [id])
+  chatId          Int?
+  User            User?            @relation(fields: [userId], references: [id])
+  userId          Int?
+  contentImg      ContentImg[]
+  replyMessage1   ReplyMessage[]   @relation("Message1")
+  replyMessage2   ReplyMessage[]   @relation("Message2")
+  forwardMessage1 ForwardMessage[] @relation("ForwardMessage1")
+  forwardMessage2 ForwardMessage[] @relation("ForwardMessage2")
 }
 
 model BlockUser {
@@ -82,4 +86,20 @@ model ContentImg {
   Message   Message? @relation(fields: [messageId], references: [id])
   messageId Int?
   image_url String   @default("empty")
+}
+
+model ReplyMessage {
+  id             Int      @id @default(autoincrement())
+  Message1       Message? @relation("Message1", fields: [messageId], references: [id])
+  messageId      Int?
+  Message2       Message? @relation("Message2", fields: [messageIdReply], references: [id])
+  messageIdReply Int?
+}
+
+model ForwardMessage {
+  id               Int      @id @default(autoincrement())
+  ForwardMessage1  Message? @relation("ForwardMessage1", fields: [messageId], references: [id])
+  messageId        Int?
+  ForwardMessage2  Message? @relation("ForwardMessage2", fields: [messageIdForward], references: [id])
+  messageIdForward Int?
 }
