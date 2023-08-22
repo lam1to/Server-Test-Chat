@@ -12,6 +12,7 @@ import { ContentImgService } from 'src/content-img/content-img.service';
 import { StorageService } from 'src/storage/storage.service';
 import { UserService } from 'src/user/user.service';
 import { ReplyMessageService } from 'src/reply-message/reply-message.service';
+import { ForwardMessageService } from 'src/forward-message/forward-message.service';
 
 @Module({
   providers: [
@@ -26,6 +27,7 @@ import { ReplyMessageService } from 'src/reply-message/reply-message.service';
     StorageService,
     UserService,
     ReplyMessageService,
+    ForwardMessageService,
   ],
   exports: [GatewayGateway],
 })

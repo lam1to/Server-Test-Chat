@@ -3,6 +3,7 @@ import { PrismaService } from 'src/prisma.service';
 import {
   Chat,
   ContentImg,
+  ForwardMessage,
   LeftChat,
   Message,
   ReplyMessage,
@@ -12,11 +13,18 @@ import { MessageUpdateDto } from './dto/messageUpdateDto.dto';
 import { LeftChatDto } from 'src/left-chat/dto/LeftChat.dto';
 import {
   MessageIdWithMessageReply,
+  MessageWithAllEI,
   MessageWithImgDto,
   MessageWithImgMessage,
+  MessageWithImgMessageName,
   MessageWithImgNameDto,
 } from './dto/messageWithImg.dto';
-import { MessageDto, returnMessagePart } from './dto/messageDto.dto';
+import {
+  MessageDto,
+  MessageWithALLNameEC,
+  MessageWithImgReply,
+  returnMessagePart,
+} from './dto/messageDto.dto';
 import { ChatService } from 'src/chat/chat.service';
 import { UserService } from 'src/user/user.service';
 import { MessageDeleteDto } from './dto/messageDelete.dto';
@@ -44,6 +52,23 @@ export class MessageService {
     }
   }
 
+  async getMessageWithName(message: MessageWithImgReply[]) {
+    const users: User[] = await this.prisma.user.findMany({
+      where: {
+        id: { in: [...message.map((oneMessage) => +oneMessage.userId)] },
+      },
+    });
+    const messageWithAllName: MessageWithALLNameEC[] = message.map(
+      (oneMessage) => {
+        return {
+          ...oneMessage,
+          name: users.filter((oneUser) => oneUser.id === +oneMessage.userId)[0]
+            .name,
+        };
+      },
+    );
+    return messageWithAllName;
+  }
   async updateMessage(dto: MessageUpdateDto) {
     const upMessage: Message = await this.prisma.message.update({
       where: {
@@ -76,7 +101,31 @@ export class MessageService {
         ),
       ],
     };
+
     return messageWithImg;
+  }
+
+  ///походу тут что-то
+  async getMessageWithImgReply(idMessage: string) {
+    const messageWithImg: MessageWithImgDto = await this.getMessageWithImg(
+      idMessage,
+    );
+    const replyMessage: ReplyMessage = await this.prisma.replyMessage.findFirst(
+      {
+        where: {
+          messageId: messageWithImg.id,
+        },
+      },
+    );
+    if (replyMessage && Object.keys(replyMessage).length !== 0) {
+      const messageWithReplyImg: MessageWithImgMessage = {
+        ...messageWithImg,
+        messageWasAnswered: await this.getMessageWithImg(
+          `${replyMessage.messageIdReply}`,
+        ),
+      };
+      return messageWithReplyImg;
+    } else return messageWithImg;
   }
 
   async getMessagesWithImg(message: Message[]) {
@@ -97,6 +146,41 @@ export class MessageService {
       };
     });
     return messageWithImg;
+  }
+
+  async getMessageForward(message: MessageWithImgMessage[]) {
+    const forwardData: ForwardMessage[] =
+      await this.prisma.forwardMessage.findMany({
+        where: {
+          messageId: { in: [...message.map((oneMessage) => oneMessage.id)] },
+        },
+      });
+    let messagesReturn: MessageWithAllEI[] = [];
+    for (let i = 0; i < message.length; i++) {
+      const forward: ForwardMessage[] = forwardData.filter(
+        (oneForward) => oneForward.messageId === message[i].id,
+      );
+      let masForward: MessageWithImgMessageName[] = [];
+      if (forward && Object.keys(forward).length !== 0) {
+        for (let j = 0; j < forward.length; j++) {
+          const forwardMessage: MessageWithImgMessage =
+            await this.getMessageWithImgReply(`${forward[j].messageIdForward}`);
+          masForward[j] = {
+            ...forwardMessage,
+            name: (
+              await this.prisma.user.findFirst({
+                where: {
+                  id: forwardMessage.userId,
+                },
+              })
+            ).name,
+          };
+        }
+      }
+      messagesReturn[i] = { ...message[i], forwardMessages: masForward };
+      masForward = [];
+    }
+    return messagesReturn;
   }
 
   async getMessageWithReply(allMessageForChat: MessageWithImgDto[]) {
@@ -162,8 +246,11 @@ export class MessageService {
       const messageWithImg: MessageWithImgDto[] = await this.getMessagesWithImg(
         filterMessages,
       );
-      const returnMessage: MessageWithImgMessage[] =
+      const messagesWithImgMessage: MessageWithImgMessage[] =
         await this.getMessageWithReply(filterMessages);
+      const returnMessage: MessageWithAllEI[] = await this.getMessageForward(
+        messagesWithImgMessage,
+      );
       return returnMessage;
     }
     messages.sort((one, two) => one.id - two.id);
@@ -171,8 +258,12 @@ export class MessageService {
     const messagesWithImg: MessageWithImgDto[] = await this.getMessagesWithImg(
       messages,
     );
-    const returnMessage: MessageWithImgMessage[] =
+    const messagesWithImgMessage: MessageWithImgMessage[] =
       await this.getMessageWithReply(messagesWithImg);
+
+    const returnMessage: MessageWithAllEI[] = await this.getMessageForward(
+      messagesWithImgMessage,
+    );
 
     return returnMessage;
   }
@@ -216,7 +307,7 @@ export class MessageService {
     const allPart: string = `${Math.ceil(
       allMessageForChat.length / +limitCount,
     )}`;
-    const messagesPart: MessageWithImgDto[] = this.getPart(
+    const messagesPart: MessageWithImgMessage[] = this.getPart(
       allMessageForChat,
       allPart,
       partId,
@@ -233,7 +324,6 @@ export class MessageService {
   }
 
   async remove(id: string) {
-    console.log('id что получили = ', id);
     const message: Message = await this.prisma.message.delete({
       where: {
         id: +id,

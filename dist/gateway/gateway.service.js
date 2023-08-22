@@ -20,8 +20,9 @@ const content_img_service_1 = require("../content-img/content-img.service");
 const storage_service_1 = require("../storage/storage.service");
 const user_service_1 = require("../user/user.service");
 const reply_message_service_1 = require("../reply-message/reply-message.service");
+const forward_message_service_1 = require("../forward-message/forward-message.service");
 let GatewayService = exports.GatewayService = class GatewayService {
-    constructor(chat, blockUser, leftChat, prisma, messageS, contentImg, storage, user, replyMessage) {
+    constructor(chat, blockUser, leftChat, prisma, messageS, contentImg, storage, user, replyMessage, forwardMessage) {
         this.chat = chat;
         this.blockUser = blockUser;
         this.leftChat = leftChat;
@@ -31,6 +32,7 @@ let GatewayService = exports.GatewayService = class GatewayService {
         this.storage = storage;
         this.user = user;
         this.replyMessage = replyMessage;
+        this.forwardMessage = forwardMessage;
     }
     async create(messageCreateDto, server) {
         const message = await this.messageS.createMessage(messageCreateDto);
@@ -70,9 +72,48 @@ let GatewayService = exports.GatewayService = class GatewayService {
         server.emit(`message${dto.chatId}`, messageWithReply);
         server.emit(`newLastMessage${message.chatId}`, newLastMessage);
     }
+    async createForwardMessage(dto, server) {
+        const message = await this.messageS.createMessage(dto);
+        await this.forwardMessage.create({
+            forwardMessagesId: [
+                ...dto.forwardMessages.map((oneForwardMessage) => oneForwardMessage.id),
+            ],
+            messageId: `${message.id}`,
+        });
+        const forwardMessage = await this.messageS.getMessageWithName(dto.forwardMessages);
+        const messageWithAll = {
+            ...message,
+            forwardMessages: [...forwardMessage],
+        };
+        const newLastMessage = await this.messageS.newLastMessage(message);
+        server.emit(`newLastMessage${dto.chatId}`, newLastMessage);
+        server.emit(`message${dto.chatId}`, messageWithAll);
+    }
+    async createForwardMessageWithImg(dto, server) {
+        const message = await this.messageS.createMessage(dto);
+        await this.forwardMessage.create({
+            forwardMessagesId: [
+                ...dto.forwardMessages.map((oneForwardMessage) => oneForwardMessage.id),
+            ],
+            messageId: `${message.id}`,
+        });
+        const contentImg = await this.contentImg.createMany(dto.masUrl, message.id);
+        const messageWithImg = {
+            ...message,
+            contentImg: contentImg,
+        };
+        const forwardMessage = await this.messageS.getMessageWithName(dto.forwardMessages);
+        const messageWithAll = {
+            ...messageWithImg,
+            forwardMessages: forwardMessage,
+        };
+        const newLastMessage = await this.messageS.newLastMessage(messageWithAll);
+        server.emit(`message${message.chatId}`, messageWithAll);
+        server.emit(`newLastMessage${message.chatId}`, newLastMessage);
+    }
     async deleteMessage(dto, server) {
-        console.log('получили такое dto на удаление cсообщения = ', dto);
         const idMessageWasAnswered = await this.replyMessage.remove(dto.messageId);
+        const idMessageForward = await this.forwardMessage.remove(dto.messageId);
         const deleteContentImg = await this.contentImg.deleteForMessage(dto.messageId);
         const deleteMessage = await this.messageS.remove(dto.messageId);
         if (deleteContentImg && deleteContentImg.length > 0)
@@ -82,6 +123,8 @@ let GatewayService = exports.GatewayService = class GatewayService {
         server.emit(`newLastMessage${dto.chatId}`, newLastMessageDelete);
         if (idMessageWasAnswered)
             server.emit(`deleteMessageWasAnswered${dto.chatId}`, idMessageWasAnswered);
+        if (idMessageForward)
+            server.emit(`deleteForward${dto.chatId}`, idMessageForward);
     }
     async createWithImg(dto, server) {
         const message = await this.messageS.createMessage({
@@ -101,6 +144,7 @@ let GatewayService = exports.GatewayService = class GatewayService {
     async updateMessage(dto, server) {
         const isReplyWasAnswered = await this.replyMessage.isWasAnswered(dto.messageId);
         const updateMessage = await this.messageS.updateMessage(dto);
+        const isForwardOrMessage = await this.forwardMessage.isForwardOrMessage(dto.messageId);
         if (isReplyWasAnswered === 'isReply') {
             const messageWasAnswred = await this.replyMessage.findMessageWasAnswered(updateMessage.id);
             const updateMessageReturn = {
@@ -110,7 +154,17 @@ let GatewayService = exports.GatewayService = class GatewayService {
             server.emit(`messageUpdate${dto.chatId}`, updateMessageReturn);
         }
         else {
-            server.emit(`messageUpdate${dto.chatId}`, updateMessage);
+            if (isForwardOrMessage === 'message') {
+                const masForwardMessage = await this.forwardMessage.getForwardMessagesForMessage(dto.messageId);
+                const updateMessageForward = {
+                    ...updateMessage,
+                    forwardMessages: masForwardMessage,
+                };
+                server.emit(`messageUpdate${dto.chatId}`, updateMessageForward);
+            }
+            else {
+                server.emit(`messageUpdate${dto.chatId}`, updateMessage);
+            }
         }
         const newLastMessageUpdate = await this.messageS.newLastMessageUpdate(updateMessage, dto.userId);
         if (isReplyWasAnswered === 'wasAnswered') {
@@ -121,6 +175,7 @@ let GatewayService = exports.GatewayService = class GatewayService {
     }
     async editMessageWithImg(dto, server) {
         const isReplyWasAnswered = await this.replyMessage.isWasAnswered(dto.messageId);
+        const isForwardOrMessage = await this.forwardMessage.isForwardOrMessage(dto.messageId);
         const updateMessage = await this.messageS.updateMessage(dto);
         const dataDelete = await this.contentImg.deleteContentImgs(dto);
         if (dataDelete)
@@ -141,13 +196,23 @@ let GatewayService = exports.GatewayService = class GatewayService {
         if (isReplyWasAnswered === 'isReply') {
             const messageWasAnswred = await this.replyMessage.findMessageWasAnswered(updateMessage.id);
             const updateMessageReturn = {
-                ...updateMessage,
+                ...updateMessageWithImg,
                 messageWasAnswered: messageWasAnswred,
             };
             server.emit(`messageUpdate${dto.chatId}`, updateMessageReturn);
         }
         else {
-            server.emit(`messageUpdate${dto.chatId}`, updateMessageWithImg);
+            if (isForwardOrMessage === 'message') {
+                const masForwardMessage = await this.forwardMessage.getForwardMessagesForMessage(dto.messageId);
+                const updateMessageForward = {
+                    ...updateMessageWithImg,
+                    forwardMessages: masForwardMessage,
+                };
+                server.emit(`messageUpdate${dto.chatId}`, updateMessageForward);
+            }
+            else {
+                server.emit(`messageUpdate${dto.chatId}`, updateMessageWithImg);
+            }
         }
     }
     async createChat(dto, server) {
@@ -242,6 +307,7 @@ exports.GatewayService = GatewayService = __decorate([
         content_img_service_1.ContentImgService,
         storage_service_1.StorageService,
         user_service_1.UserService,
-        reply_message_service_1.ReplyMessageService])
+        reply_message_service_1.ReplyMessageService,
+        forward_message_service_1.ForwardMessageService])
 ], GatewayService);
 //# sourceMappingURL=gateway.service.js.map

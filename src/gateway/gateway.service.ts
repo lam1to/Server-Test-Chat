@@ -18,14 +18,20 @@ import { LeftChatDto } from 'src/left-chat/dto/LeftChat.dto';
 import { LeftChatService } from 'src/left-chat/left-chat.service';
 import {
   MessageDto,
+  MessageForward,
+  MessageForwardCreateDto,
   MessageReplyCreateDto,
 } from 'src/message/dto/messageDto.dto';
 import {
+  MessageWithAllEC,
+  MessageWithAllEI,
   MessageWithImgDto,
   MessageWithImgMessage,
+  MessageWithImgMessageName,
   MessageWithImgNameDto,
 } from 'src/message/dto/messageWithImg.dto';
 import {
+  messageForwardWithImgReplyDto,
   messageReplyWithImgCreateDto,
   messageWithImgCreateDto,
 } from 'src/message/dto/messageCreateWithImg.dto';
@@ -39,6 +45,7 @@ import { messageUpdateWithImgDto } from 'src/message/dto/messageUpdateWithImg.dt
 import { updateUserAvatarDto } from 'src/user/Dto/updateUserAvatar.dto';
 import { UserService } from 'src/user/user.service';
 import { ReplyMessageService } from 'src/reply-message/reply-message.service';
+import { ForwardMessageService } from 'src/forward-message/forward-message.service';
 
 interface PropsLeftChat {
   message: Message;
@@ -57,6 +64,7 @@ export class GatewayService {
     private storage: StorageService,
     private user: UserService,
     private replyMessage: ReplyMessageService,
+    private forwardMessage: ForwardMessageService,
   ) {}
 
   async create(messageCreateDto: MessageDto, server: Server) {
@@ -112,9 +120,65 @@ export class GatewayService {
     server.emit(`newLastMessage${message.chatId}`, newLastMessage);
   }
 
+  async createForwardMessage(dto: MessageForwardCreateDto, server: Server) {
+    const message: MessageWithImgDto = await this.messageS.createMessage(dto);
+    await this.forwardMessage.create({
+      forwardMessagesId: [
+        ...dto.forwardMessages.map((oneForwardMessage) => oneForwardMessage.id),
+      ],
+      messageId: `${message.id}`,
+    });
+    const forwardMessage = await this.messageS.getMessageWithName(
+      dto.forwardMessages,
+    );
+    const messageWithAll: MessageWithAllEC = {
+      ...message,
+      forwardMessages: [...forwardMessage],
+    };
+    const newLastMessage: MessageWithImgNameDto =
+      await this.messageS.newLastMessage(message);
+
+    server.emit(`newLastMessage${dto.chatId}`, newLastMessage);
+    server.emit(`message${dto.chatId}`, messageWithAll);
+  }
+  async createForwardMessageWithImg(
+    dto: messageForwardWithImgReplyDto,
+    server: Server,
+  ) {
+    const message: MessageWithImgDto = await this.messageS.createMessage(dto);
+    await this.forwardMessage.create({
+      forwardMessagesId: [
+        ...dto.forwardMessages.map((oneForwardMessage) => oneForwardMessage.id),
+      ],
+      messageId: `${message.id}`,
+    });
+    const contentImg: ContentImg[] = await this.contentImg.createMany(
+      dto.masUrl,
+      message.id,
+    );
+    const messageWithImg: MessageWithImgDto = {
+      ...message,
+      contentImg: contentImg,
+    };
+    const forwardMessage = await this.messageS.getMessageWithName(
+      dto.forwardMessages,
+    );
+    const messageWithAll: MessageWithAllEC = {
+      ...messageWithImg,
+      forwardMessages: forwardMessage,
+    };
+
+    const newLastMessage: MessageWithImgNameDto =
+      await this.messageS.newLastMessage(messageWithAll);
+    server.emit(`message${message.chatId}`, messageWithAll);
+    server.emit(`newLastMessage${message.chatId}`, newLastMessage);
+  }
+
   async deleteMessage(dto: MessageDeleteDto, server: Server) {
-    console.log('получили такое dto на удаление cсообщения = ', dto);
     const idMessageWasAnswered: string = await this.replyMessage.remove(
+      dto.messageId,
+    );
+    const idMessageForward: string = await this.forwardMessage.remove(
       dto.messageId,
     );
     const deleteContentImg: ContentImg[] =
@@ -133,6 +197,8 @@ export class GatewayService {
         `deleteMessageWasAnswered${dto.chatId}`,
         idMessageWasAnswered,
       );
+    if (idMessageForward)
+      server.emit(`deleteForward${dto.chatId}`, idMessageForward);
   }
 
   async createWithImg(dto: messageWithImgCreateDto, server: Server) {
@@ -159,6 +225,8 @@ export class GatewayService {
       dto.messageId,
     );
     const updateMessage = await this.messageS.updateMessage(dto);
+    const isForwardOrMessage: string =
+      await this.forwardMessage.isForwardOrMessage(dto.messageId);
     if (isReplyWasAnswered === 'isReply') {
       const messageWasAnswred: MessageWithImgDto =
         await this.replyMessage.findMessageWasAnswered(updateMessage.id);
@@ -168,7 +236,17 @@ export class GatewayService {
       };
       server.emit(`messageUpdate${dto.chatId}`, updateMessageReturn);
     } else {
-      server.emit(`messageUpdate${dto.chatId}`, updateMessage);
+      if (isForwardOrMessage === 'message') {
+        const masForwardMessage: MessageWithImgMessageName[] =
+          await this.forwardMessage.getForwardMessagesForMessage(dto.messageId);
+        const updateMessageForward: MessageWithAllEI = {
+          ...updateMessage,
+          forwardMessages: masForwardMessage,
+        };
+        server.emit(`messageUpdate${dto.chatId}`, updateMessageForward);
+      } else {
+        server.emit(`messageUpdate${dto.chatId}`, updateMessage);
+      }
     }
     const newLastMessageUpdate: MessageWithImgNameDto =
       await this.messageS.newLastMessageUpdate(updateMessage, dto.userId);
@@ -184,6 +262,8 @@ export class GatewayService {
     const isReplyWasAnswered: string = await this.replyMessage.isWasAnswered(
       dto.messageId,
     );
+    const isForwardOrMessage: string =
+      await this.forwardMessage.isForwardOrMessage(dto.messageId);
     const updateMessage = await this.messageS.updateMessage(dto);
 
     const dataDelete: ContentImg[] = await this.contentImg.deleteContentImgs(
@@ -218,12 +298,22 @@ export class GatewayService {
       const messageWasAnswred: MessageWithImgDto =
         await this.replyMessage.findMessageWasAnswered(updateMessage.id);
       const updateMessageReturn: MessageWithImgMessage = {
-        ...updateMessage,
+        ...updateMessageWithImg,
         messageWasAnswered: messageWasAnswred,
       };
       server.emit(`messageUpdate${dto.chatId}`, updateMessageReturn);
     } else {
-      server.emit(`messageUpdate${dto.chatId}`, updateMessageWithImg);
+      if (isForwardOrMessage === 'message') {
+        const masForwardMessage: MessageWithImgMessageName[] =
+          await this.forwardMessage.getForwardMessagesForMessage(dto.messageId);
+        const updateMessageForward: MessageWithAllEI = {
+          ...updateMessageWithImg,
+          forwardMessages: masForwardMessage,
+        };
+        server.emit(`messageUpdate${dto.chatId}`, updateMessageForward);
+      } else {
+        server.emit(`messageUpdate${dto.chatId}`, updateMessageWithImg);
+      }
     }
   }
 

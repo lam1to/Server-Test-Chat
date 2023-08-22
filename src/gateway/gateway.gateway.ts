@@ -16,6 +16,7 @@ import { CreateBlockUserDto } from 'src/block-user/dto/create-block-user.dto';
 import { LeftChatDto } from 'src/left-chat/dto/LeftChat.dto';
 import {
   MessageDto,
+  MessageForwardCreateDto,
   MessageReplyCreateDto,
 } from 'src/message/dto/messageDto.dto';
 import { FileInterceptor, FilesInterceptor } from '@nestjs/platform-express';
@@ -29,6 +30,7 @@ import {
 import { memoryStorage } from 'multer';
 import { ContentImg, Message } from '@prisma/client';
 import {
+  messageForwardWithImgReplyDto,
   messageReplyWithImgCreateDto,
   messageWithImgCreateDto,
 } from 'src/message/dto/messageCreateWithImg.dto';
@@ -79,6 +81,20 @@ export class GatewayGateway {
       this.server,
     );
   }
+  @SubscribeMessage('createForwardMessage')
+  async createForwardMessage(@Body() dto: MessageForwardCreateDto) {
+    return await this.gatewayService.createForwardMessage(dto, this.server);
+  }
+
+  @SubscribeMessage('createForwardMessageWithImg')
+  async createForwardMessageWithImg(
+    @Body() dto: messageForwardWithImgReplyDto,
+  ) {
+    console.log('зашло в gateWay');
+    console.log('получили такие данные = ', dto);
+    await this.gatewayService.createForwardMessageWithImg(dto, this.server);
+  }
+
   @SubscribeMessage('updateMessageWithImg')
   async editMessageWithImg(@Body() dto: messageUpdateWithImgDto) {
     console.log('зашло в gateWay');

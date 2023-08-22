@@ -48,6 +48,14 @@ let GatewayGateway = exports.GatewayGateway = class GatewayGateway {
         console.log('получили такие данные = ', messageReplyWithImgCreateDto);
         await this.gatewayService.createReplyWithImg(messageReplyWithImgCreateDto, this.server);
     }
+    async createForwardMessage(dto) {
+        return await this.gatewayService.createForwardMessage(dto, this.server);
+    }
+    async createForwardMessageWithImg(dto) {
+        console.log('зашло в gateWay');
+        console.log('получили такие данные = ', dto);
+        await this.gatewayService.createForwardMessageWithImg(dto, this.server);
+    }
     async editMessageWithImg(dto) {
         console.log('зашло в gateWay');
         console.log('получили такие данные = ', messageCreateWithImg_dto_1.messageWithImgCreateDto);
@@ -127,6 +135,20 @@ __decorate([
     __metadata("design:paramtypes", [messageCreateWithImg_dto_1.messageReplyWithImgCreateDto]),
     __metadata("design:returntype", Promise)
 ], GatewayGateway.prototype, "createReplyWithImg", null);
+__decorate([
+    (0, websockets_1.SubscribeMessage)('createForwardMessage'),
+    __param(0, (0, common_1.Body)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [messageDto_dto_1.MessageForwardCreateDto]),
+    __metadata("design:returntype", Promise)
+], GatewayGateway.prototype, "createForwardMessage", null);
+__decorate([
+    (0, websockets_1.SubscribeMessage)('createForwardMessageWithImg'),
+    __param(0, (0, common_1.Body)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [messageCreateWithImg_dto_1.messageForwardWithImgReplyDto]),
+    __metadata("design:returntype", Promise)
+], GatewayGateway.prototype, "createForwardMessageWithImg", null);
 __decorate([
     (0, websockets_1.SubscribeMessage)('updateMessageWithImg'),
     __param(0, (0, common_1.Body)()),

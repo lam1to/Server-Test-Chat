@@ -8,17 +8,17 @@ export declare class MessageController {
     constructor(messageService: MessageService, contentImg: ContentImgService);
     createMessage(dto: MessageDto): Promise<{
         id: number;
-        createdAt: Date;
         content: string;
+        createdAt: Date;
         chatId: number;
         userId: number;
     } & {}>;
-    getAllForChat(id: string, req: Request): Promise<import("./dto/messageWithImg.dto").MessageWithImgMessage[]>;
+    getAllForChat(id: string, req: Request): Promise<import("./dto/messageWithImg.dto").MessageWithAllEI[]>;
     getOnePartMessage(limitCount: string, chatId: string, partId: string, req: Request): Promise<import("./dto/messageDto.dto").returnMessagePart>;
     updateMessage(dto: MessageUpdateDto): Promise<{
         id: number;
-        createdAt: Date;
         content: string;
+        createdAt: Date;
         chatId: number;
         userId: number;
     } & {}>;

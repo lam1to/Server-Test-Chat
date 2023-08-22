@@ -10,12 +10,22 @@ exports.ForwardMessageModule = void 0;
 const common_1 = require("@nestjs/common");
 const forward_message_service_1 = require("./forward-message.service");
 const forward_message_controller_1 = require("./forward-message.controller");
+const prisma_service_1 = require("../prisma.service");
+const message_service_1 = require("../message/message.service");
+const chat_service_1 = require("../chat/chat.service");
+const user_service_1 = require("../user/user.service");
 let ForwardMessageModule = exports.ForwardMessageModule = class ForwardMessageModule {
 };
 exports.ForwardMessageModule = ForwardMessageModule = __decorate([
     (0, common_1.Module)({
         controllers: [forward_message_controller_1.ForwardMessageController],
-        providers: [forward_message_service_1.ForwardMessageService]
+        providers: [
+            forward_message_service_1.ForwardMessageService,
+            prisma_service_1.PrismaService,
+            message_service_1.MessageService,
+            chat_service_1.ChatService,
+            user_service_1.UserService,
+        ],
     })
 ], ForwardMessageModule);
 //# sourceMappingURL=forward-message.module.js.map

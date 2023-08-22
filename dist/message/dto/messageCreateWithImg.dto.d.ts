@@ -1,4 +1,5 @@
 import { CreateStorageUrlImg } from 'src/storage/dto/createStorageUrlImg.dto';
+import { MessageWithImgReply } from './messageDto.dto';
 export declare class messageWithImgCreateDto {
     userId: string;
     chatId: string;
@@ -7,4 +8,7 @@ export declare class messageWithImgCreateDto {
 }
 export declare class messageReplyWithImgCreateDto extends messageWithImgCreateDto {
     messageIdWasAnswered: string;
+}
+export declare class messageForwardWithImgReplyDto extends messageWithImgCreateDto {
+    forwardMessages: MessageWithImgReply[];
 }

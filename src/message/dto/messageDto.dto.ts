@@ -24,6 +24,31 @@ export class MessageDto {
   content: string;
 }
 
+export class MessageWithId extends MessageDto {
+  @ApiProperty({
+    title: 'id',
+    type: String,
+    default: '1',
+  })
+  id: string;
+}
+
+export class MessageWithImgReply extends MessageWithId {
+  contentImg?: ContentImg[];
+  messageWasAnswered?: MessageWithImgDto;
+}
+
+export class MessageWithALLNameEC extends MessageWithImgReply {
+  name: string;
+}
+
+export class MessageForwardCreateDto extends MessageWithId {
+  forwardMessages: MessageWithImgReply[];
+}
+export class MessageForward extends MessageWithImgReply {
+  forwardMessages: MessageWithImgReply[];
+}
+
 export class MessageReplyCreateDto extends MessageDto {
   messageIdWasAnswered: string;
 }

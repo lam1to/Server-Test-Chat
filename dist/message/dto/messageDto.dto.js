@@ -9,7 +9,7 @@ var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.returnMessageDto = exports.MessageReplyCreateDto = exports.MessageDto = void 0;
+exports.returnMessageDto = exports.MessageReplyCreateDto = exports.MessageForward = exports.MessageForwardCreateDto = exports.MessageWithALLNameEC = exports.MessageWithImgReply = exports.MessageWithId = exports.MessageDto = void 0;
 const swagger_1 = require("@nestjs/swagger");
 const createStorageUrlImg_dto_1 = require("../../storage/dto/createStorageUrlImg.dto");
 class MessageDto {
@@ -39,6 +39,29 @@ __decorate([
     }),
     __metadata("design:type", String)
 ], MessageDto.prototype, "content", void 0);
+class MessageWithId extends MessageDto {
+}
+exports.MessageWithId = MessageWithId;
+__decorate([
+    (0, swagger_1.ApiProperty)({
+        title: 'id',
+        type: String,
+        default: '1',
+    }),
+    __metadata("design:type", String)
+], MessageWithId.prototype, "id", void 0);
+class MessageWithImgReply extends MessageWithId {
+}
+exports.MessageWithImgReply = MessageWithImgReply;
+class MessageWithALLNameEC extends MessageWithImgReply {
+}
+exports.MessageWithALLNameEC = MessageWithALLNameEC;
+class MessageForwardCreateDto extends MessageWithId {
+}
+exports.MessageForwardCreateDto = MessageForwardCreateDto;
+class MessageForward extends MessageWithImgReply {
+}
+exports.MessageForward = MessageForward;
 class MessageReplyCreateDto extends MessageDto {
 }
 exports.MessageReplyCreateDto = MessageReplyCreateDto;

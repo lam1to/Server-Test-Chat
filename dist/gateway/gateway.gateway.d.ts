@@ -7,8 +7,8 @@ import { MessageUpdateDto } from 'src/message/dto/messageUpdateDto.dto';
 import { MessageDeleteDto } from 'src/message/dto/messageDelete.dto';
 import { CreateBlockUserDto } from 'src/block-user/dto/create-block-user.dto';
 import { LeftChatDto } from 'src/left-chat/dto/LeftChat.dto';
-import { MessageDto, MessageReplyCreateDto } from 'src/message/dto/messageDto.dto';
-import { messageReplyWithImgCreateDto, messageWithImgCreateDto } from 'src/message/dto/messageCreateWithImg.dto';
+import { MessageDto, MessageForwardCreateDto, MessageReplyCreateDto } from 'src/message/dto/messageDto.dto';
+import { messageForwardWithImgReplyDto, messageReplyWithImgCreateDto, messageWithImgCreateDto } from 'src/message/dto/messageCreateWithImg.dto';
 import { messageUpdateWithImgDto } from 'src/message/dto/messageUpdateWithImg.dto';
 export declare class GatewayGateway {
     private readonly gatewayService;
@@ -18,6 +18,8 @@ export declare class GatewayGateway {
     createWithImg(messageWithImgCreateDto: messageWithImgCreateDto): Promise<void>;
     createReply(messageCreateDto: MessageReplyCreateDto): Promise<void>;
     createReplyWithImg(messageReplyWithImgCreateDto: messageReplyWithImgCreateDto): Promise<void>;
+    createForwardMessage(dto: MessageForwardCreateDto): Promise<void>;
+    createForwardMessageWithImg(dto: messageForwardWithImgReplyDto): Promise<void>;
     editMessageWithImg(dto: messageUpdateWithImgDto): Promise<void>;
     createChat(dto: CreateChatDto): Promise<void>;
     deleteChat(id: string): Promise<void>;

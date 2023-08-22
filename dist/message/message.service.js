@@ -35,6 +35,21 @@ let MessageService = exports.MessageService = class MessageService {
             throw new common_1.BadRequestException(error.message);
         }
     }
+    async getMessageWithName(message) {
+        const users = await this.prisma.user.findMany({
+            where: {
+                id: { in: [...message.map((oneMessage) => +oneMessage.userId)] },
+            },
+        });
+        const messageWithAllName = message.map((oneMessage) => {
+            return {
+                ...oneMessage,
+                name: users.filter((oneUser) => oneUser.id === +oneMessage.userId)[0]
+                    .name,
+            };
+        });
+        return messageWithAllName;
+    }
     async updateMessage(dto) {
         const upMessage = await this.prisma.message.update({
             where: {
@@ -65,6 +80,23 @@ let MessageService = exports.MessageService = class MessageService {
         };
         return messageWithImg;
     }
+    async getMessageWithImgReply(idMessage) {
+        const messageWithImg = await this.getMessageWithImg(idMessage);
+        const replyMessage = await this.prisma.replyMessage.findFirst({
+            where: {
+                messageId: messageWithImg.id,
+            },
+        });
+        if (replyMessage && Object.keys(replyMessage).length !== 0) {
+            const messageWithReplyImg = {
+                ...messageWithImg,
+                messageWasAnswered: await this.getMessageWithImg(`${replyMessage.messageIdReply}`),
+            };
+            return messageWithReplyImg;
+        }
+        else
+            return messageWithImg;
+    }
     async getMessagesWithImg(message) {
         const contentImgForMessages = await this.prisma.contentImg.findMany({
             where: {
@@ -80,6 +112,34 @@ let MessageService = exports.MessageService = class MessageService {
             };
         });
         return messageWithImg;
+    }
+    async getMessageForward(message) {
+        const forwardData = await this.prisma.forwardMessage.findMany({
+            where: {
+                messageId: { in: [...message.map((oneMessage) => oneMessage.id)] },
+            },
+        });
+        let messagesReturn = [];
+        for (let i = 0; i < message.length; i++) {
+            const forward = forwardData.filter((oneForward) => oneForward.messageId === message[i].id);
+            let masForward = [];
+            if (forward && Object.keys(forward).length !== 0) {
+                for (let j = 0; j < forward.length; j++) {
+                    const forwardMessage = await this.getMessageWithImgReply(`${forward[j].messageIdForward}`);
+                    masForward[j] = {
+                        ...forwardMessage,
+                        name: (await this.prisma.user.findFirst({
+                            where: {
+                                id: forwardMessage.userId,
+                            },
+                        })).name,
+                    };
+                }
+            }
+            messagesReturn[i] = { ...message[i], forwardMessages: masForward };
+            masForward = [];
+        }
+        return messagesReturn;
     }
     async getMessageWithReply(allMessageForChat) {
         const replyMessage = await this.prisma.replyMessage.findMany({
@@ -133,12 +193,14 @@ let MessageService = exports.MessageService = class MessageService {
             });
             filterMessages.sort((one, two) => one.id - two.id);
             const messageWithImg = await this.getMessagesWithImg(filterMessages);
-            const returnMessage = await this.getMessageWithReply(filterMessages);
+            const messagesWithImgMessage = await this.getMessageWithReply(filterMessages);
+            const returnMessage = await this.getMessageForward(messagesWithImgMessage);
             return returnMessage;
         }
         messages.sort((one, two) => one.id - two.id);
         const messagesWithImg = await this.getMessagesWithImg(messages);
-        const returnMessage = await this.getMessageWithReply(messagesWithImg);
+        const messagesWithImgMessage = await this.getMessageWithReply(messagesWithImg);
+        const returnMessage = await this.getMessageForward(messagesWithImgMessage);
         return returnMessage;
     }
     getPart(messages, allPart, idPart, limitCount) {
@@ -165,7 +227,6 @@ let MessageService = exports.MessageService = class MessageService {
         return messagesPartReturn;
     }
     async remove(id) {
-        console.log('id что получили = ', id);
         const message = await this.prisma.message.delete({
             where: {
                 id: +id,

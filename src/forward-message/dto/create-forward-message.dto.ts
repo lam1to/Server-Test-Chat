@@ -1,1 +1,4 @@
-export class CreateForwardMessageDto {}
+export class CreateForwardMessageDto {
+  forwardMessagesId: string[];
+  messageId: string;
+}
