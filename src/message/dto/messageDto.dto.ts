@@ -84,3 +84,18 @@ export interface returnMessagePart {
   messages: MessageWithImgDto[];
   allPart: string;
 }
+
+export class CountUnreadMessage {
+  @ApiProperty({ title: 'chat id', type: String, default: '1' })
+  chatId: number;
+  @ApiProperty({
+    title: 'count unread message for this chat',
+    type: String,
+    default: '0',
+  })
+  count: number;
+}
+
+export class updateIsReadMessageDto {
+  messageId: string;
+}

@@ -7,8 +7,8 @@ export declare class UserService {
     constructor(prisma: PrismaService);
     getUserId(idUser: ParamDto): Promise<{
         email: string;
-        password: string;
         name: string;
+        password: string;
         lastName: string;
         id: number;
         createdAt: Date;
@@ -18,8 +18,8 @@ export declare class UserService {
     getAllUsers(id: string): Promise<{
         users: ({
             email: string;
-            password: string;
             name: string;
+            password: string;
             lastName: string;
             id: number;
             createdAt: Date;
@@ -29,8 +29,8 @@ export declare class UserService {
     }>;
     updateUserAvatar(dto: updateUserAvatarDto): Promise<{
         email: string;
-        password: string;
         name: string;
+        password: string;
         lastName: string;
         id: number;
         createdAt: Date;
@@ -42,8 +42,8 @@ export declare class UserService {
     updateFi(id: any, dto: updateUserFiDto): Promise<void>;
     updateUserFi(dto: updateUserFiDto, id: string): Promise<{
         email: string;
-        password: string;
         name: string;
+        password: string;
         lastName: string;
         id: number;
         createdAt: Date;

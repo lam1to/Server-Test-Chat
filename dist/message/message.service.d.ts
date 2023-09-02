@@ -7,11 +7,13 @@ import { MessageDto, MessageWithALLNameEC, MessageWithImgReply, returnMessagePar
 import { ChatService } from 'src/chat/chat.service';
 import { UserService } from 'src/user/user.service';
 import { MessageDeleteDto } from './dto/messageDelete.dto';
+import { MessageStatusService } from 'src/message_status/message_status.service';
 export declare class MessageService {
     private prisma;
     private chat;
     private user;
-    constructor(prisma: PrismaService, chat: ChatService, user: UserService);
+    private messageStatus;
+    constructor(prisma: PrismaService, chat: ChatService, user: UserService, messageStatus: MessageStatusService);
     createMessage(dto: MessageDto): Promise<{
         id: number;
         content: string;
@@ -19,6 +21,17 @@ export declare class MessageService {
         chatId: number;
         userId: number;
     } & {}>;
+    findIndex(userId: number, messageId: number, chatId: number): Promise<number>;
+    findMessageByIndex(userId: number, messageIndex: number, chatId: number): Promise<{
+        id: number;
+        content: string;
+        createdAt: Date;
+        chatId: number;
+        userId: number;
+    } & {}>;
+    findCountUnread(message: Message, userId: number): Promise<number>;
+    countUnreadMessageOneChat(chatId: number, userId: number): Promise<number>;
+    isFirstMessageChat(chatId: number): Promise<boolean>;
     getMessageWithName(message: MessageWithImgReply[]): Promise<MessageWithALLNameEC[]>;
     updateMessage(dto: MessageUpdateDto): Promise<{
         id: number;

@@ -4,22 +4,22 @@ export declare class ChatController {
     private readonly chatService;
     constructor(chatService: ChatService);
     create(createChatDto: CreateChatDto): Promise<{
-        name: string;
-        type: string;
         id: number;
         createdAt: Date;
-        userWhoCreateId: number;
+        name: string;
+        type: string;
         avatarUrl: string;
+        userWhoCreateId: number;
     } & {}>;
     findAll(req: Request): Promise<import("./chat.service").IForAllChat[]>;
     remove(id: string): Promise<{
         deleteChat: {
-            name: string;
-            type: string;
             id: number;
             createdAt: Date;
-            userWhoCreateId: number;
+            name: string;
+            type: string;
             avatarUrl: string;
+            userWhoCreateId: number;
         } & {};
         userInChat: number[];
     }>;

@@ -9,7 +9,11 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { MessageService } from './message.service';
-import { MessageDto, returnMessageDto } from './dto/messageDto.dto';
+import {
+  CountUnreadMessage,
+  MessageDto,
+  returnMessageDto,
+} from './dto/messageDto.dto';
 import { AuthGuard } from 'src/auth/auth.guard';
 import { ContentImgService } from 'src/content-img/content-img.service';
 import { ApiBody, ApiOkResponse, ApiOperation, ApiTags } from '@nestjs/swagger';
@@ -34,6 +38,18 @@ export class MessageController {
   async createMessage(@Body() dto: MessageDto) {
     return this.messageService.createMessage(dto);
   }
+
+  // @ApiOperation({ summary: 'Get all count unread message for all chat' })
+  // @ApiOkResponse({
+  //   description: 'count unread message for chat',
+  //   type: CountUnreadMessage,
+  // })
+  // @ApiBody({ type: Req })
+  // @Get('getAllCountUnreadMessage')
+  // @UseGuards(AuthGuard)
+  // async getAllUnreadMessage(@Req() req: Request) {
+  //   return this.messageService.getAllUnreadMessage(req['user'].id);
+  // }
 
   @ApiOperation({ summary: 'Get All messages for chat' })
   @ApiOkResponse({

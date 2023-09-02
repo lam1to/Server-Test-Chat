@@ -9,7 +9,7 @@ export declare class ForwardMessageService {
     constructor(prisma: PrismaService, message: MessageService);
     create(dto: CreateForwardMessageDto): Promise<string>;
     getForwardMessagesForMessage(idMessage: string): Promise<MessageWithImgMessageName[]>;
-    isForwardOrMessage(messageId: string): Promise<"message" | "forward" | "nothing">;
+    isForwardOrMessage(messageId: string): Promise<"message" | "nothing" | "forward">;
     remove(messageId: string): Promise<string>;
     findAll(): string;
     findOne(id: number): string;

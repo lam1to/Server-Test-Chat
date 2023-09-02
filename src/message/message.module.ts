@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { Module, forwardRef } from '@nestjs/common';
 import { MessageService } from './message.service';
 import { MessageController } from './message.controller';
 import { PrismaService } from 'src/prisma.service';
@@ -18,6 +18,7 @@ import { StorageModule } from 'src/storage/storage.module';
 import { UserService } from 'src/user/user.service';
 import { ReplyMessage } from 'src/reply-message/entities/reply-message.entity';
 import { ReplyMessageService } from 'src/reply-message/reply-message.service';
+import { MessageStatusService } from 'src/message_status/message_status.service';
 
 @Module({
   controllers: [MessageController],
@@ -28,7 +29,9 @@ import { ReplyMessageService } from 'src/reply-message/reply-message.service';
     ContentImgService,
     ChatService,
     UserService,
+    MessageStatusService,
   ],
+  exports: [MessageService],
   imports: [
     ConfigModule.forRoot(),
     JwtModule.registerAsync({

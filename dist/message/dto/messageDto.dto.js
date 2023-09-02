@@ -9,7 +9,7 @@ var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.returnMessageDto = exports.MessageReplyCreateDto = exports.MessageForward = exports.MessageForwardCreateDto = exports.MessageWithALLNameEC = exports.MessageWithImgReply = exports.MessageWithId = exports.MessageDto = void 0;
+exports.updateIsReadMessageDto = exports.CountUnreadMessage = exports.returnMessageDto = exports.MessageReplyCreateDto = exports.MessageForward = exports.MessageForwardCreateDto = exports.MessageWithALLNameEC = exports.MessageWithImgReply = exports.MessageWithId = exports.MessageDto = void 0;
 const swagger_1 = require("@nestjs/swagger");
 const createStorageUrlImg_dto_1 = require("../../storage/dto/createStorageUrlImg.dto");
 class MessageDto {
@@ -84,4 +84,22 @@ __decorate([
     }),
     __metadata("design:type", Array)
 ], returnMessageDto.prototype, "masUrl", void 0);
+class CountUnreadMessage {
+}
+exports.CountUnreadMessage = CountUnreadMessage;
+__decorate([
+    (0, swagger_1.ApiProperty)({ title: 'chat id', type: String, default: '1' }),
+    __metadata("design:type", Number)
+], CountUnreadMessage.prototype, "chatId", void 0);
+__decorate([
+    (0, swagger_1.ApiProperty)({
+        title: 'count unread message for this chat',
+        type: String,
+        default: '0',
+    }),
+    __metadata("design:type", Number)
+], CountUnreadMessage.prototype, "count", void 0);
+class updateIsReadMessageDto {
+}
+exports.updateIsReadMessageDto = updateIsReadMessageDto;
 //# sourceMappingURL=messageDto.dto.js.map

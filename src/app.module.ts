@@ -16,6 +16,7 @@ import configuration from './config/configuration';
 import { GatewayService } from './gateway/gateway.service';
 import { ReplyMessageModule } from './reply-message/reply-message.module';
 import { ForwardMessageModule } from './forward-message/forward-message.module';
+import { MessageStatusModule } from './message_status/message_status.module';
 
 @Module({
   imports: [
@@ -27,13 +28,14 @@ import { ForwardMessageModule } from './forward-message/forward-message.module';
     ReplyMessageModule,
     AuthModule,
     UserModule,
-    ChatModule,
     MessageModule,
+    ChatModule,
     BlockUserModule,
     LeftChatModule,
     StorageModule,
     ContentImgModule,
     ForwardMessageModule,
+    MessageStatusModule,
   ],
   controllers: [AppController],
   providers: [AppService, PrismaService],

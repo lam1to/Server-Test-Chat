@@ -33,3 +33,10 @@ export interface returnMessagePart {
     messages: MessageWithImgDto[];
     allPart: string;
 }
+export declare class CountUnreadMessage {
+    chatId: number;
+    count: number;
+}
+export declare class updateIsReadMessageDto {
+    messageId: string;
+}

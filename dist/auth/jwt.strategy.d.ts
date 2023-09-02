@@ -9,8 +9,8 @@ export declare class JwtStrategy extends JwtStrategy_base {
     constructor(configService: ConfigService, prisma: PrismaService);
     validate({ id }: Pick<User, 'id'>): Promise<{
         email: string;
-        password: string;
         name: string;
+        password: string;
         lastName: string;
         id: number;
         createdAt: Date;

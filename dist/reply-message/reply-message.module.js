@@ -14,6 +14,7 @@ const prisma_service_1 = require("../prisma.service");
 const message_service_1 = require("../message/message.service");
 const chat_service_1 = require("../chat/chat.service");
 const user_service_1 = require("../user/user.service");
+const message_status_service_1 = require("../message_status/message_status.service");
 let ReplyMessageModule = exports.ReplyMessageModule = class ReplyMessageModule {
 };
 exports.ReplyMessageModule = ReplyMessageModule = __decorate([
@@ -25,6 +26,7 @@ exports.ReplyMessageModule = ReplyMessageModule = __decorate([
             message_service_1.MessageService,
             chat_service_1.ChatService,
             user_service_1.UserService,
+            message_status_service_1.MessageStatusService,
         ],
     })
 ], ReplyMessageModule);

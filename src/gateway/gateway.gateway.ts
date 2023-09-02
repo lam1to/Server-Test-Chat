@@ -18,6 +18,7 @@ import {
   MessageDto,
   MessageForwardCreateDto,
   MessageReplyCreateDto,
+  updateIsReadMessageDto,
 } from 'src/message/dto/messageDto.dto';
 import { FileInterceptor, FilesInterceptor } from '@nestjs/platform-express';
 import {
@@ -85,6 +86,10 @@ export class GatewayGateway {
   async createForwardMessage(@Body() dto: MessageForwardCreateDto) {
     return await this.gatewayService.createForwardMessage(dto, this.server);
   }
+  // @SubscribeMessage('updateIsReadMessage')
+  // async updateIsReadMessage(@Body() dto: updateIsReadMessageDto) {
+  //   return await this.gatewayService.updateIsReadMessage(dto, this.server);
+  // }
 
   @SubscribeMessage('createForwardMessageWithImg')
   async createForwardMessageWithImg(

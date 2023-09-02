@@ -17,6 +17,7 @@ const common_1 = require("@nestjs/common");
 const auth_service_1 = require("./auth.service");
 const auth_dto_1 = require("./dto/auth.dto");
 const reg_dto_1 = require("./dto/reg.dto");
+const refresh_dto_1 = require("./dto/refresh.dto");
 const auth_guard_1 = require("./auth.guard");
 const swagger_1 = require("@nestjs/swagger");
 const returnData_dto_1 = require("./dto/returnData.dto");
@@ -85,7 +86,7 @@ __decorate([
         description: 'user, tokens',
         type: returnData_dto_1.returnDataDto,
     }),
-    (0, swagger_1.ApiBody)({ type: common_1.Req }),
+    (0, swagger_1.ApiBody)({ type: refresh_dto_1.RefreshDto }),
     (0, common_1.UsePipes)(new common_1.ValidationPipe()),
     (0, common_1.HttpCode)(200),
     (0, common_1.Post)('login/token'),

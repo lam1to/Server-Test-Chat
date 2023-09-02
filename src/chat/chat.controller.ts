@@ -13,7 +13,13 @@ import { ChatService } from './chat.service';
 import { CreateChatDto } from './dto/createChat.dto';
 import { FindChatDto } from './dto/findDto.dto';
 import { AuthGuard } from 'src/auth/auth.guard';
-import { ApiBody, ApiOkResponse, ApiOperation, ApiTags } from '@nestjs/swagger';
+import {
+  ApiBody,
+  ApiOkResponse,
+  ApiOperation,
+  ApiParam,
+  ApiTags,
+} from '@nestjs/swagger';
 import { chatWithUserDto, deleteChat } from './dto/chat.dto';
 
 @ApiTags('Chat')
@@ -50,7 +56,9 @@ export class ChatController {
     description: 'chat and id user who was in chat',
     type: [deleteChat],
   })
-  @ApiBody({ type: Req })
+  @ApiParam({
+    name: 'id',
+  })
   @Delete(':id')
   @UseGuards(AuthGuard)
   remove(@Param('id') id: string) {

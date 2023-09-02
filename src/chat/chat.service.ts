@@ -1,16 +1,25 @@
-import { Injectable } from '@nestjs/common';
+import { Inject, Injectable, forwardRef } from '@nestjs/common';
 import { CreateChatDto } from './dto/createChat.dto';
 import { PrismaService } from 'src/prisma.service';
 import { Chat, UserChat, User } from '@prisma/client';
+import { MessageService } from 'src/message/message.service';
+import { MessageStatusService } from 'src/message_status/message_status.service';
 export interface IForAllChat {
   id: number;
   type: string;
   createdAt: Date;
   users: User[] | undefined;
+  countUnreadMessage: number;
 }
 @Injectable()
 export class ChatService {
-  constructor(private prisma: PrismaService) {}
+  constructor(
+    private prisma: PrismaService,
+    @Inject(forwardRef(() => MessageService))
+    private message: MessageService,
+    @Inject(forwardRef(() => MessageStatusService))
+    private messageStaus: MessageStatusService,
+  ) {}
 
   async createChatWithUser(chat: Chat, idUser: string) {
     const userChat: UserChat[] = await this.prisma.userChat.findMany({
@@ -39,6 +48,7 @@ export class ChatService {
           return chat.id === oneUserChat.chatId;
         })
         .map((one) => one.users[0]),
+      countUnreadMessage: 0,
     };
     return chatWithUser;
   }
@@ -128,20 +138,46 @@ export class ChatService {
       },
     });
 
-    const allChat: IForAllChat[] | undefined = chats.map((oneChat) => ({
-      ...oneChat,
-      users: userChat
-        .map((oneUserChat) => ({
-          ...oneUserChat,
-          users: users.filter((oneUser) => {
-            if (oneUser.id === oneUserChat.userId) return oneUser;
-          }),
-        }))
-        ?.filter((oneUserChat) => {
-          return oneChat.id === oneUserChat.chatId;
-        })
-        .map((one) => one.users[0]),
-    }));
+    let allChat: IForAllChat[] = [] as IForAllChat[];
+    for (let i = 0; i < chats.length; i++) {
+      allChat[i] = {
+        ...chats[i],
+        users: userChat
+          .map((oneUserChat) => ({
+            ...oneUserChat,
+            users: users.filter((oneUser) => {
+              if (oneUser.id === oneUserChat.userId) return oneUser;
+            }),
+          }))
+          ?.filter((oneUserChat) => {
+            return chats[i].id === oneUserChat.chatId;
+          })
+          .map((one) => one.users[0]),
+        // countUnreadMessage: 0,
+        countUnreadMessage: await this.message.countUnreadMessageOneChat(
+          chats[i].id,
+          +idUsers,
+        ),
+      };
+    }
+    // const allChat: IForAllChat[] | undefined = chats.map((oneChat) => ({
+    //   ...oneChat,
+    //   users: userChat
+    //     .map((oneUserChat) => ({
+    //       ...oneUserChat,
+    //       users: users.filter((oneUser) => {
+    //         if (oneUser.id === oneUserChat.userId) return oneUser;
+    //       }),
+    //     }))
+    //     ?.filter((oneUserChat) => {
+    //       return oneChat.id === oneUserChat.chatId;
+    //     })
+    //     .map((one) => one.users[0]),
+    //   countUnreadMessage: this.message.countUnreadMessageOneChat(
+    //     oneChat.id,
+    //     +idUsers,
+    //   ),
+    // }));
 
     return allChat;
   }
@@ -169,6 +205,23 @@ export class ChatService {
     });
     if (chats) return chats;
   }
+
+  async findUsersForChat(chatId: number) {
+    const userChat: UserChat[] = await this.prisma.userChat.findMany({
+      where: {
+        OR: {
+          chatId: chatId,
+        },
+      },
+    });
+    const users: User[] = await this.prisma.user.findMany({
+      where: {
+        id: { in: userChat.map((one) => +one.userId) },
+      },
+    });
+    return users;
+  }
+
   async remove(id: number) {
     console.log('prislo');
     const usersWhoInChat: UserChat[] = await this.prisma.userChat.findMany({

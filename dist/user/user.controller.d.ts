@@ -7,8 +7,8 @@ export declare class UserController {
     getUsers(req: Request): Promise<{
         users: ({
             email: string;
-            password: string;
             name: string;
+            password: string;
             lastName: string;
             id: number;
             createdAt: Date;
@@ -18,8 +18,8 @@ export declare class UserController {
     }>;
     updateUserAvatar(dto: updateUserAvatarDto): Promise<{
         email: string;
-        password: string;
         name: string;
+        password: string;
         lastName: string;
         id: number;
         createdAt: Date;
@@ -28,8 +28,8 @@ export declare class UserController {
     } & {}>;
     updateUserFi(req: Request, dto: updateUserFiDto): Promise<{
         email: string;
-        password: string;
         name: string;
+        password: string;
         lastName: string;
         id: number;
         createdAt: Date;

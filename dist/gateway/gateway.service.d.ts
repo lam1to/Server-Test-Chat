@@ -19,6 +19,7 @@ import { messageUpdateWithImgDto } from 'src/message/dto/messageUpdateWithImg.dt
 import { UserService } from 'src/user/user.service';
 import { ReplyMessageService } from 'src/reply-message/reply-message.service';
 import { ForwardMessageService } from 'src/forward-message/forward-message.service';
+import { MessageStatusService } from 'src/message_status/message_status.service';
 export declare class GatewayService {
     private chat;
     private blockUser;
@@ -30,7 +31,8 @@ export declare class GatewayService {
     private user;
     private replyMessage;
     private forwardMessage;
-    constructor(chat: ChatService, blockUser: BlockUserService, leftChat: LeftChatService, prisma: PrismaService, messageS: MessageService, contentImg: ContentImgService, storage: StorageService, user: UserService, replyMessage: ReplyMessageService, forwardMessage: ForwardMessageService);
+    private messageStatus;
+    constructor(chat: ChatService, blockUser: BlockUserService, leftChat: LeftChatService, prisma: PrismaService, messageS: MessageService, contentImg: ContentImgService, storage: StorageService, user: UserService, replyMessage: ReplyMessageService, forwardMessage: ForwardMessageService, messageStatus: MessageStatusService);
     create(messageCreateDto: MessageDto, server: Server): Promise<string>;
     createReply(dto: MessageReplyCreateDto, server: Server): Promise<void>;
     createReplyWithImg(dto: messageReplyWithImgCreateDto, server: Server): Promise<void>;

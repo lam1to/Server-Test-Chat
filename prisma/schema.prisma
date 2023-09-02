@@ -9,33 +9,35 @@ datasource db {
 }
 
 model User {
-  id         Int         @id @default(autoincrement())
-  createdAt  DateTime    @default(now()) @map("created_at")
-  updatedAt  DateTime    @updatedAt @map("updated_at")
-  email      String      @unique
-  password   String
-  name       String
-  lastName   String
-  avatarPath String      @default("https://storage.googleapis.com/img-test-chat/user.png") @map("avatar_path")
-  userChats  UserChat[]
-  messages   Message[]
-  blockUser1 BlockUser[] @relation("User1")
-  blockUser2 BlockUser[] @relation("User2")
-  leftChat   LeftChat[]
-  chat       Chat[]
+  id            Int             @id @default(autoincrement())
+  createdAt     DateTime        @default(now()) @map("created_at")
+  updatedAt     DateTime        @updatedAt @map("updated_at")
+  email         String          @unique
+  password      String
+  name          String
+  lastName      String
+  avatarPath    String          @default("https://storage.googleapis.com/img-test-chat/user.png") @map("avatar_path")
+  userChats     UserChat[]
+  messages      Message[]
+  blockUser1    BlockUser[]     @relation("User1")
+  blockUser2    BlockUser[]     @relation("User2")
+  leftChat      LeftChat[]
+  chat          Chat[]
+  messageStatus MessageStatus[]
 }
 
 model Chat {
-  id              Int        @id @default(autoincrement())
-  type            String     @default("DM")
-  name            String     @default("EmptyName")
-  avatarUrl       String     @default("https://storage.googleapis.com/img-test-chat/user.png")
-  createdAt       DateTime   @default(now()) @map("created_at")
+  id              Int             @id @default(autoincrement())
+  type            String          @default("DM")
+  name            String          @default("EmptyName")
+  avatarUrl       String          @default("https://storage.googleapis.com/img-test-chat/user.png")
+  createdAt       DateTime        @default(now()) @map("created_at")
   userChats       UserChat[]
   messages        Message[]
   leftChat        LeftChat[]
-  User            User?      @relation(fields: [userWhoCreateId], references: [id])
+  User            User?           @relation(fields: [userWhoCreateId], references: [id])
   userWhoCreateId Int?
+  messageStatus   MessageStatus[]
 }
 
 model UserChat {
@@ -60,6 +62,7 @@ model Message {
   replyMessage2   ReplyMessage[]   @relation("Message2")
   forwardMessage1 ForwardMessage[] @relation("ForwardMessage1")
   forwardMessage2 ForwardMessage[] @relation("ForwardMessage2")
+  messageStatus   MessageStatus[]
 }
 
 model BlockUser {
@@ -102,4 +105,14 @@ model ForwardMessage {
   messageId        Int?
   ForwardMessage2  Message? @relation("ForwardMessage2", fields: [messageIdForward], references: [id])
   messageIdForward Int?
+}
+
+model MessageStatus {
+  id            Int      @id @default(autoincrement())
+  Message       Message? @relation(fields: [lastMessageId], references: [id])
+  lastMessageId Int?
+  User          User?    @relation(fields: [userId], references: [id])
+  userId        Int?
+  Chat          Chat?    @relation(fields: [chatId], references: [id])
+  chatId        Int?
 }

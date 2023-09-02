@@ -8,17 +8,22 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
+var __param = (this && this.__param) || function (paramIndex, decorator) {
+    return function (target, key) { decorator(target, key, paramIndex); }
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.MessageService = void 0;
 const common_1 = require("@nestjs/common");
 const prisma_service_1 = require("../prisma.service");
 const chat_service_1 = require("../chat/chat.service");
 const user_service_1 = require("../user/user.service");
+const message_status_service_1 = require("../message_status/message_status.service");
 let MessageService = exports.MessageService = class MessageService {
-    constructor(prisma, chat, user) {
+    constructor(prisma, chat, user, messageStatus) {
         this.prisma = prisma;
         this.chat = chat;
         this.user = user;
+        this.messageStatus = messageStatus;
     }
     async createMessage(dto) {
         try {
@@ -34,6 +39,59 @@ let MessageService = exports.MessageService = class MessageService {
         catch (error) {
             throw new common_1.BadRequestException(error.message);
         }
+    }
+    async findIndex(userId, messageId, chatId) {
+        const allMessage = await this.getAllForChat(`${chatId}`, `${userId}`);
+        return allMessage.findIndex((el) => el.id === messageId);
+    }
+    async findMessageByIndex(userId, messageIndex, chatId) {
+        const allMessage = await this.getAllForChat(`${chatId}`, `${userId}`);
+        if (messageIndex >= 0) {
+            return allMessage[messageIndex];
+        }
+    }
+    async findCountUnread(message, userId) {
+        const allMessage = await this.getAllForChat(`${message.chatId}`, `${userId}`);
+        const indexMessage = allMessage.findIndex((el) => el.id === message.id);
+        if (indexMessage !== allMessage.length - 1) {
+            return allMessage.length - 1 - indexMessage;
+        }
+        else
+            return 0;
+    }
+    async countUnreadMessageOneChat(chatId, userId) {
+        const messageStatusUser = await this.prisma.messageStatus.findFirst({
+            where: {
+                userId: userId,
+                chatId: chatId,
+            },
+        });
+        if (messageStatusUser && messageStatusUser.lastMessageId) {
+            const message = await this.prisma.message.findFirst({
+                where: {
+                    id: messageStatusUser.lastMessageId,
+                },
+            });
+            const count = await this.findCountUnread(message, userId);
+            return count;
+        }
+        else {
+            const allMessage = await this.getAllForChat(`${chatId}`, `${userId}`);
+            return allMessage && Object.keys(allMessage).length !== 0
+                ? allMessage.length
+                : 0;
+        }
+    }
+    async isFirstMessageChat(chatId) {
+        const message = await this.prisma.message.findMany({
+            where: {
+                chatId: chatId,
+            },
+        });
+        const isFirst = message && Object.keys(message).length !== 0 && message.length > 0
+            ? false
+            : true;
+        return isFirst;
     }
     async getMessageWithName(message) {
         const users = await this.prisma.user.findMany({
@@ -193,7 +251,7 @@ let MessageService = exports.MessageService = class MessageService {
             });
             filterMessages.sort((one, two) => one.id - two.id);
             const messageWithImg = await this.getMessagesWithImg(filterMessages);
-            const messagesWithImgMessage = await this.getMessageWithReply(filterMessages);
+            const messagesWithImgMessage = await this.getMessageWithReply(messageWithImg);
             const returnMessage = await this.getMessageForward(messagesWithImgMessage);
             return returnMessage;
         }
@@ -218,6 +276,9 @@ let MessageService = exports.MessageService = class MessageService {
     }
     async getOnePartMessage(limitCount, chatId, partId, idUser) {
         const allMessageForChat = await this.getAllForChat(chatId, idUser);
+        if (allMessageForChat.length !== 0) {
+            await this.messageStatus.createOrEdit(+idUser, allMessageForChat[allMessageForChat.length - 1].id, +chatId);
+        }
         const allPart = `${Math.ceil(allMessageForChat.length / +limitCount)}`;
         const messagesPart = this.getPart(allMessageForChat, allPart, partId, limitCount);
         const messagesPartReturn = {
@@ -329,8 +390,11 @@ let MessageService = exports.MessageService = class MessageService {
 };
 exports.MessageService = MessageService = __decorate([
     (0, common_1.Injectable)(),
+    __param(1, (0, common_1.Inject)((0, common_1.forwardRef)(() => chat_service_1.ChatService))),
+    __param(3, (0, common_1.Inject)((0, common_1.forwardRef)(() => message_status_service_1.MessageStatusService))),
     __metadata("design:paramtypes", [prisma_service_1.PrismaService,
         chat_service_1.ChatService,
-        user_service_1.UserService])
+        user_service_1.UserService,
+        message_status_service_1.MessageStatusService])
 ], MessageService);
 //# sourceMappingURL=message.service.js.map

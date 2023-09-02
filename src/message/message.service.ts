@@ -1,4 +1,9 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import {
+  BadRequestException,
+  Inject,
+  Injectable,
+  forwardRef,
+} from '@nestjs/common';
 import { PrismaService } from 'src/prisma.service';
 import {
   Chat,
@@ -6,6 +11,7 @@ import {
   ForwardMessage,
   LeftChat,
   Message,
+  MessageStatus,
   ReplyMessage,
   User,
 } from '@prisma/client';
@@ -20,6 +26,7 @@ import {
   MessageWithImgNameDto,
 } from './dto/messageWithImg.dto';
 import {
+  CountUnreadMessage,
   MessageDto,
   MessageWithALLNameEC,
   MessageWithImgReply,
@@ -28,13 +35,17 @@ import {
 import { ChatService } from 'src/chat/chat.service';
 import { UserService } from 'src/user/user.service';
 import { MessageDeleteDto } from './dto/messageDelete.dto';
+import { MessageStatusService } from 'src/message_status/message_status.service';
 
 @Injectable()
 export class MessageService {
   constructor(
     private prisma: PrismaService,
+    @Inject(forwardRef(() => ChatService))
     private chat: ChatService,
     private user: UserService,
+    @Inject(forwardRef(() => MessageStatusService))
+    private messageStatus: MessageStatusService,
   ) {}
 
   async createMessage(dto: MessageDto) {
@@ -50,6 +61,80 @@ export class MessageService {
     } catch (error) {
       throw new BadRequestException(error.message);
     }
+  }
+
+  async findIndex(userId: number, messageId: number, chatId: number) {
+    const allMessage: Message[] = await this.getAllForChat(
+      `${chatId}`,
+      `${userId}`,
+    );
+    return allMessage.findIndex((el) => el.id === messageId);
+  }
+  async findMessageByIndex(
+    userId: number,
+    messageIndex: number,
+    chatId: number,
+  ) {
+    const allMessage: Message[] = await this.getAllForChat(
+      `${chatId}`,
+      `${userId}`,
+    );
+    if (messageIndex >= 0) {
+      return allMessage[messageIndex];
+    }
+  }
+
+  async findCountUnread(message: Message, userId: number) {
+    const allMessage: Message[] = await this.getAllForChat(
+      `${message.chatId}`,
+      `${userId}`,
+    );
+    const indexMessage: number = allMessage.findIndex(
+      (el) => el.id === message.id,
+    );
+    if (indexMessage !== allMessage.length - 1) {
+      return allMessage.length - 1 - indexMessage;
+    } else return 0;
+  }
+
+  async countUnreadMessageOneChat(chatId: number, userId: number) {
+    const messageStatusUser: MessageStatus =
+      await this.prisma.messageStatus.findFirst({
+        where: {
+          userId: userId,
+          chatId: chatId,
+        },
+      });
+    if (messageStatusUser && messageStatusUser.lastMessageId) {
+      const message: Message = await this.prisma.message.findFirst({
+        where: {
+          id: messageStatusUser.lastMessageId,
+        },
+      });
+      const count: number = await this.findCountUnread(message, userId);
+      return count;
+    } else {
+      const allMessage: Message[] = await this.getAllForChat(
+        `${chatId}`,
+        `${userId}`,
+      );
+      return allMessage && Object.keys(allMessage).length !== 0
+        ? allMessage.length
+        : 0;
+    }
+  }
+
+  async isFirstMessageChat(chatId: number): Promise<boolean> {
+    const message: Message[] = await this.prisma.message.findMany({
+      where: {
+        chatId: chatId,
+      },
+    });
+    const isFirst =
+      message && Object.keys(message).length !== 0 && message.length > 0
+        ? false
+        : true;
+    return isFirst;
   }
 
   async getMessageWithName(message: MessageWithImgReply[]) {
@@ -247,7 +332,7 @@ export class MessageService {
         filterMessages,
       );
       const messagesWithImgMessage: MessageWithImgMessage[] =
-        await this.getMessageWithReply(filterMessages);
+        await this.getMessageWithReply(messageWithImg);
       const returnMessage: MessageWithAllEI[] = await this.getMessageForward(
         messagesWithImgMessage,
       );
@@ -303,6 +388,15 @@ export class MessageService {
       chatId,
       idUser,
     );
+
+    ///связь через сокет
+    if (allMessageForChat.length !== 0) {
+      await this.messageStatus.createOrEdit(
+        +idUser,
+        allMessageForChat[allMessageForChat.length - 1].id,
+        +chatId,
+      );
+    }
 
     const allPart: string = `${Math.ceil(
       allMessageForChat.length / +limitCount,

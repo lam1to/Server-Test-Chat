@@ -21,8 +21,9 @@ const storage_service_1 = require("../storage/storage.service");
 const user_service_1 = require("../user/user.service");
 const reply_message_service_1 = require("../reply-message/reply-message.service");
 const forward_message_service_1 = require("../forward-message/forward-message.service");
+const message_status_service_1 = require("../message_status/message_status.service");
 let GatewayService = exports.GatewayService = class GatewayService {
-    constructor(chat, blockUser, leftChat, prisma, messageS, contentImg, storage, user, replyMessage, forwardMessage) {
+    constructor(chat, blockUser, leftChat, prisma, messageS, contentImg, storage, user, replyMessage, forwardMessage, messageStatus) {
         this.chat = chat;
         this.blockUser = blockUser;
         this.leftChat = leftChat;
@@ -33,10 +34,20 @@ let GatewayService = exports.GatewayService = class GatewayService {
         this.user = user;
         this.replyMessage = replyMessage;
         this.forwardMessage = forwardMessage;
+        this.messageStatus = messageStatus;
     }
     async create(messageCreateDto, server) {
         const message = await this.messageS.createMessage(messageCreateDto);
+        await this.messageStatus.createOrEdit(+messageCreateDto.userId, message.id, +messageCreateDto.chatId);
         const newLastMessage = await this.messageS.newLastMessage(message);
+        const users = await this.chat.findUsersForChat(+messageCreateDto.chatId);
+        for (let i = 0; i < users.length; i++) {
+            const countUnreadMessage = await this.messageS.countUnreadMessageOneChat(+messageCreateDto.chatId, users[i].id);
+            server.emit(`newMessage${users[i].id}`, {
+                countUnreadMessage: countUnreadMessage,
+                chatId: messageCreateDto.chatId,
+            });
+        }
         server.emit(`message${messageCreateDto.chatId}`, message);
         server.emit(`newLastMessage${messageCreateDto.chatId}`, newLastMessage);
         return messageCreateDto.content;
@@ -47,17 +58,27 @@ let GatewayService = exports.GatewayService = class GatewayService {
             messageId: `${message.id}`,
             messageIdWasAnswered: dto.messageIdWasAnswered,
         });
+        await this.messageStatus.createOrEdit(+dto.userId, message.id, +dto.chatId);
         const messageWasAnswered = await this.messageS.getMessageWithImg(dto.messageIdWasAnswered);
         const messageWithReply = {
             ...message,
             messageWasAnswered: messageWasAnswered,
         };
         const newLastMessage = await this.messageS.newLastMessage(message);
+        const users = await this.chat.findUsersForChat(+dto.chatId);
+        for (let i = 0; i < users.length; i++) {
+            const countUnreadMessage = await this.messageS.countUnreadMessageOneChat(+dto.chatId, users[i].id);
+            server.emit(`newMessage${users[i].id}`, {
+                countUnreadMessage: countUnreadMessage,
+                chatId: dto.chatId,
+            });
+        }
         server.emit(`newLastMessage${dto.chatId}`, newLastMessage);
         server.emit(`message${dto.chatId}`, messageWithReply);
     }
     async createReplyWithImg(dto, server) {
         const message = await this.messageS.createMessage(dto);
+        await this.messageStatus.createOrEdit(+dto.userId, message.id, +dto.chatId);
         const contentImg = await this.contentImg.createMany(dto.masUrl, message.id);
         const messageWithImg = {
             ...message,
@@ -69,11 +90,20 @@ let GatewayService = exports.GatewayService = class GatewayService {
             messageWasAnswered: messageWasAnswered,
         };
         const newLastMessage = await this.messageS.newLastMessage(messageWithImg);
+        const users = await this.chat.findUsersForChat(+dto.chatId);
+        for (let i = 0; i < users.length; i++) {
+            const countUnreadMessage = await this.messageS.countUnreadMessageOneChat(+dto.chatId, users[i].id);
+            server.emit(`newMessage${users[i].id}`, {
+                countUnreadMessage: countUnreadMessage,
+                chatId: dto.chatId,
+            });
+        }
         server.emit(`message${dto.chatId}`, messageWithReply);
         server.emit(`newLastMessage${message.chatId}`, newLastMessage);
     }
     async createForwardMessage(dto, server) {
         const message = await this.messageS.createMessage(dto);
+        await this.messageStatus.createOrEdit(+dto.userId, message.id, +dto.chatId);
         await this.forwardMessage.create({
             forwardMessagesId: [
                 ...dto.forwardMessages.map((oneForwardMessage) => oneForwardMessage.id),
@@ -86,11 +116,20 @@ let GatewayService = exports.GatewayService = class GatewayService {
             forwardMessages: [...forwardMessage],
         };
         const newLastMessage = await this.messageS.newLastMessage(message);
+        const users = await this.chat.findUsersForChat(+dto.chatId);
+        for (let i = 0; i < users.length; i++) {
+            const countUnreadMessage = await this.messageS.countUnreadMessageOneChat(+dto.chatId, users[i].id);
+            server.emit(`newMessage${users[i].id}`, {
+                countUnreadMessage: countUnreadMessage,
+                chatId: dto.chatId,
+            });
+        }
         server.emit(`newLastMessage${dto.chatId}`, newLastMessage);
         server.emit(`message${dto.chatId}`, messageWithAll);
     }
     async createForwardMessageWithImg(dto, server) {
         const message = await this.messageS.createMessage(dto);
+        await this.messageStatus.createOrEdit(+dto.userId, message.id, +dto.chatId);
         await this.forwardMessage.create({
             forwardMessagesId: [
                 ...dto.forwardMessages.map((oneForwardMessage) => oneForwardMessage.id),
@@ -108,10 +147,19 @@ let GatewayService = exports.GatewayService = class GatewayService {
             forwardMessages: forwardMessage,
         };
         const newLastMessage = await this.messageS.newLastMessage(messageWithAll);
+        const users = await this.chat.findUsersForChat(+dto.chatId);
+        for (let i = 0; i < users.length; i++) {
+            const countUnreadMessage = await this.messageS.countUnreadMessageOneChat(+dto.chatId, users[i].id);
+            server.emit(`newMessage${users[i].id}`, {
+                countUnreadMessage: countUnreadMessage,
+                chatId: dto.chatId,
+            });
+        }
         server.emit(`message${message.chatId}`, messageWithAll);
         server.emit(`newLastMessage${message.chatId}`, newLastMessage);
     }
     async deleteMessage(dto, server) {
+        await this.messageStatus.editOrDeleteWhenDeleteOneMessage(+dto.userId, +dto.messageId, +dto.chatId);
         const idMessageWasAnswered = await this.replyMessage.remove(dto.messageId);
         const idMessageForward = await this.forwardMessage.remove(dto.messageId);
         const deleteContentImg = await this.contentImg.deleteForMessage(dto.messageId);
@@ -132,6 +180,7 @@ let GatewayService = exports.GatewayService = class GatewayService {
             userId: dto.userId,
             chatId: dto.chatId,
         });
+        await this.messageStatus.createOrEdit(+dto.userId, message.id, +dto.chatId);
         const contentImg = await this.contentImg.createMany(dto.masUrl, message.id);
         const messageWithImg = {
             ...message,
@@ -224,6 +273,7 @@ let GatewayService = exports.GatewayService = class GatewayService {
         server.emit(`chatCreate${dto.userWhoCreateId}`, await this.chat.createChatWithUser(chat, dto.userWhoCreateId));
     }
     async deleteChat(id, server) {
+        await this.messageStatus.deleteAll(+id);
         const deleteChat = await this.chat.remove(+id);
         deleteChat.userInChat.map((oneUser) => {
             server.emit(`chatDelete${oneUser}`, deleteChat.deleteChat);
@@ -308,6 +358,7 @@ exports.GatewayService = GatewayService = __decorate([
         storage_service_1.StorageService,
         user_service_1.UserService,
         reply_message_service_1.ReplyMessageService,
-        forward_message_service_1.ForwardMessageService])
+        forward_message_service_1.ForwardMessageService,
+        message_status_service_1.MessageStatusService])
 ], GatewayService);
 //# sourceMappingURL=gateway.service.js.map

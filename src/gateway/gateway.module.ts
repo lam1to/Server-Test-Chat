@@ -13,6 +13,7 @@ import { StorageService } from 'src/storage/storage.service';
 import { UserService } from 'src/user/user.service';
 import { ReplyMessageService } from 'src/reply-message/reply-message.service';
 import { ForwardMessageService } from 'src/forward-message/forward-message.service';
+import { MessageStatusService } from 'src/message_status/message_status.service';
 
 @Module({
   providers: [
@@ -28,6 +29,7 @@ import { ForwardMessageService } from 'src/forward-message/forward-message.servi
     UserService,
     ReplyMessageService,
     ForwardMessageService,
+    MessageStatusService,
   ],
   exports: [GatewayGateway],
 })

@@ -8,13 +8,20 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
+var __param = (this && this.__param) || function (paramIndex, decorator) {
+    return function (target, key) { decorator(target, key, paramIndex); }
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.ChatService = void 0;
 const common_1 = require("@nestjs/common");
 const prisma_service_1 = require("../prisma.service");
+const message_service_1 = require("../message/message.service");
+const message_status_service_1 = require("../message_status/message_status.service");
 let ChatService = exports.ChatService = class ChatService {
-    constructor(prisma) {
+    constructor(prisma, message, messageStaus) {
         this.prisma = prisma;
+        this.message = message;
+        this.messageStaus = messageStaus;
     }
     async createChatWithUser(chat, idUser) {
         const userChat = await this.prisma.userChat.findMany({
@@ -44,6 +51,7 @@ let ChatService = exports.ChatService = class ChatService {
                 return chat.id === oneUserChat.chatId;
             })
                 .map((one) => one.users[0]),
+            countUnreadMessage: 0,
         };
         return chatWithUser;
     }
@@ -121,21 +129,25 @@ let ChatService = exports.ChatService = class ChatService {
                 id: { in: userChat.map((one) => +one.userId) },
             },
         });
-        const allChat = chats.map((oneChat) => ({
-            ...oneChat,
-            users: userChat
-                .map((oneUserChat) => ({
-                ...oneUserChat,
-                users: users.filter((oneUser) => {
-                    if (oneUser.id === oneUserChat.userId)
-                        return oneUser;
-                }),
-            }))
-                ?.filter((oneUserChat) => {
-                return oneChat.id === oneUserChat.chatId;
-            })
-                .map((one) => one.users[0]),
-        }));
+        let allChat = [];
+        for (let i = 0; i < chats.length; i++) {
+            allChat[i] = {
+                ...chats[i],
+                users: userChat
+                    .map((oneUserChat) => ({
+                    ...oneUserChat,
+                    users: users.filter((oneUser) => {
+                        if (oneUser.id === oneUserChat.userId)
+                            return oneUser;
+                    }),
+                }))
+                    ?.filter((oneUserChat) => {
+                    return chats[i].id === oneUserChat.chatId;
+                })
+                    .map((one) => one.users[0]),
+                countUnreadMessage: await this.message.countUnreadMessageOneChat(chats[i].id, +idUsers),
+            };
+        }
         return allChat;
     }
     async getAllChatForUser(id) {
@@ -161,6 +173,21 @@ let ChatService = exports.ChatService = class ChatService {
         });
         if (chats)
             return chats;
+    }
+    async findUsersForChat(chatId) {
+        const userChat = await this.prisma.userChat.findMany({
+            where: {
+                OR: {
+                    chatId: chatId,
+                },
+            },
+        });
+        const users = await this.prisma.user.findMany({
+            where: {
+                id: { in: userChat.map((one) => +one.userId) },
+            },
+        });
+        return users;
     }
     async remove(id) {
         console.log('prislo');
@@ -198,6 +225,10 @@ let ChatService = exports.ChatService = class ChatService {
 };
 exports.ChatService = ChatService = __decorate([
     (0, common_1.Injectable)(),
-    __metadata("design:paramtypes", [prisma_service_1.PrismaService])
+    __param(1, (0, common_1.Inject)((0, common_1.forwardRef)(() => message_service_1.MessageService))),
+    __param(2, (0, common_1.Inject)((0, common_1.forwardRef)(() => message_status_service_1.MessageStatusService))),
+    __metadata("design:paramtypes", [prisma_service_1.PrismaService,
+        message_service_1.MessageService,
+        message_status_service_1.MessageStatusService])
 ], ChatService);
 //# sourceMappingURL=chat.service.js.map

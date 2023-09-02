@@ -18,6 +18,7 @@ const jwt_strategy_1 = require("../auth/jwt.strategy");
 const content_img_service_1 = require("../content-img/content-img.service");
 const chat_service_1 = require("../chat/chat.service");
 const user_service_1 = require("../user/user.service");
+const message_status_service_1 = require("../message_status/message_status.service");
 let MessageModule = exports.MessageModule = class MessageModule {
 };
 exports.MessageModule = MessageModule = __decorate([
@@ -30,7 +31,9 @@ exports.MessageModule = MessageModule = __decorate([
             content_img_service_1.ContentImgService,
             chat_service_1.ChatService,
             user_service_1.UserService,
+            message_status_service_1.MessageStatusService,
         ],
+        exports: [message_service_1.MessageService],
         imports: [
             config_1.ConfigModule.forRoot(),
             jwt_1.JwtModule.registerAsync({

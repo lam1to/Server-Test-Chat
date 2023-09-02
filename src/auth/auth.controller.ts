@@ -21,6 +21,7 @@ import {
   ApiOkResponse,
   ApiOperation,
   ApiProperty,
+  ApiResponse,
   ApiTags,
   ApiUnauthorizedResponse,
 } from '@nestjs/swagger';
@@ -75,7 +76,7 @@ export class AuthController {
     description: 'user, tokens',
     type: returnDataDto,
   })
-  @ApiBody({ type: Req })
+  @ApiBody({ type: RefreshDto })
   @UsePipes(new ValidationPipe())
   @HttpCode(200)
   @Post('login/token')

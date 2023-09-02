@@ -1,1 +1,1 @@
-{"version":3,"file":"updateFi.dto.js","sourceRoot":"","sources":["../../../src/user/Dto/updateFi.dto.ts"],"names":[],"mappings":";;;AAAA,MAAa,eAAe;CAG3B;AAHD,0CAGC"}
+{"version":3,"file":"updateFi.dto.js","sourceRoot":"","sources":["../../../src/user/Dto/updateFi.dto.ts"],"names":[],"mappings":";;;;;;;;;;;;AAAA,6CAA8C;AAE9C,MAAa,eAAe;CAS3B;AATD,0CASC;AAPC;IADC,IAAA,qBAAW,EAAC,EAAE,KAAK,EAAE,eAAe,EAAE,IAAI,EAAE,MAAM,EAAE,OAAO,EAAE,MAAM,EAAE,CAAC;;6CAC1D;AAMb;IALC,IAAA,qBAAW,EAAC;QACX,KAAK,EAAE,oBAAoB;QAC3B,IAAI,EAAE,MAAM;QACZ,OAAO,EAAE,WAAW;KACrB,CAAC;;iDACe"}
